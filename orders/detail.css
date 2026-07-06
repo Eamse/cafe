@@ -3,7 +3,8 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-md) var(--spacing-xl);
-  background: var(--color-surface);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   backdrop-filter: blur(var(--blur-glass));
   box-shadow: var(--shadow-glass);
 }

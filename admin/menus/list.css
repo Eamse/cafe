@@ -1,6 +1,7 @@
 .admin-header {
   padding: var(--spacing-md) var(--spacing-xl);
-  background: var(--color-surface);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   backdrop-filter: blur(var(--blur-glass));
   box-shadow: var(--shadow-glass);
 }
@@ -54,7 +55,8 @@
 .tab-btn {
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-full);
-  background: var(--color-surface);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
   border: 1px solid var(--color-border);
