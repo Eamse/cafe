@@ -2,15 +2,17 @@
    공통 유틸리티 — 포맷, DOM 헬퍼, 장바구니(Cart)
    ========================================================================== */
 
+import { getMenuById } from "./data.js";
+
 const CART_STORAGE_KEY = "cafe_cart";
 
 /* ---------- 포맷 ---------- */
 
-function formatPrice(price) {
+export function formatPrice(price) {
   return `${price.toLocaleString("ko-KR")}원`;
 }
 
-function formatDate(date) {
+export function formatDate(date) {
   const d = date instanceof Date ? date : new Date(date);
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -20,23 +22,23 @@ function formatDate(date) {
   return `${yyyy}.${mm}.${dd} ${hh}:${min}`;
 }
 
-function generateId(prefix = "id") {
+export function generateId(prefix = "id") {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 /* ---------- DOM 헬퍼 ---------- */
 
-function qs(selector, scope = document) {
+export function qs(selector, scope = document) {
   return scope.querySelector(selector);
 }
 
-function qsa(selector, scope = document) {
+export function qsa(selector, scope = document) {
   return Array.from(scope.querySelectorAll(selector));
 }
 
 /* ---------- 장바구니 ---------- */
 
-const Cart = {
+export const Cart = {
   getItems() {
     try {
       const raw = localStorage.getItem(CART_STORAGE_KEY);

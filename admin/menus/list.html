@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>메뉴 관리 - 카페 앱 관리자</title>
+  <link rel="stylesheet" href="../../css/variables.css" />
+  <link rel="stylesheet" href="list.css" />
+</head>
+<body>
+  <header class="admin-header">
+    <h1>☕ 카페 앱 관리자</h1>
+  </header>
+
+  <main class="admin-menus-page">
+    <div class="page-heading">
+      <h2>메뉴 관리</h2>
+      <a class="btn btn-primary" href="create.html">+ 메뉴 추가</a>
+    </div>
+
+    <div class="category-tabs" id="category-tabs">
+      <!-- list.js가 카테고리 탭을 렌더링 -->
+    </div>
+
+    <div class="admin-menu-list" id="admin-menu-list">
+      <!-- list.js가 메뉴 목록을 렌더링 -->
+    </div>
+  </main>
+
+  <script type="module" src="list.js"></script>
+</body>
+</html>

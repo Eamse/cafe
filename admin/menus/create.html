@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>메뉴 추가 - 카페 앱 관리자</title>
+  <link rel="stylesheet" href="../../css/variables.css" />
+  <link rel="stylesheet" href="create.css" />
+</head>
+<body>
+  <header class="admin-header">
+    <h1>☕ 카페 앱 관리자</h1>
+  </header>
+
+  <main class="admin-form-page">
+    <a class="back-link" href="list.html">← 목록으로</a>
+    <h2>메뉴 추가</h2>
+
+    <form id="menu-form" class="menu-form glass-card">
+      <label class="form-field">
+        <span>메뉴명</span>
+        <input type="text" id="name" required />
+      </label>
+
+      <label class="form-field">
+        <span>카테고리</span>
+        <select id="categoryId" required></select>
+      </label>
+
+      <label class="form-field">
+        <span>가격</span>
+        <input type="number" id="price" min="0" step="100" required />
+      </label>
+
+      <label class="form-field">
+        <span>설명</span>
+        <textarea id="description" rows="3"></textarea>
+      </label>
+
+      <label class="form-field-checkbox">
+        <input type="checkbox" id="isSoldOut" />
+        <span>품절 상태로 등록</span>
+      </label>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">저장</button>
+        <a class="btn btn-cancel" href="list.html">취소</a>
+      </div>
+    </form>
+  </main>
+
+  <script type="module" src="create.js"></script>
+</body>
+</html>
