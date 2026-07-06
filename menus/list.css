@@ -1,7 +1,7 @@
 .menu-header {
   padding: var(--spacing-md) var(--spacing-xl);
   background: var(--color-surface);
-  backdrop-filter: var(--blur-glass);
+  backdrop-filter: blur(var(--blur-glass));
   box-shadow: var(--shadow-glass);
 }
 
@@ -30,7 +30,7 @@
 .menu-card {
   display: block;
   background: var(--color-surface);
-  backdrop-filter: var(--blur-glass);
+  backdrop-filter: blur(var(--blur-glass));
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-glass);
   padding: var(--spacing-lg);
