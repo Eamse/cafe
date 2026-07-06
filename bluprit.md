@@ -3,7 +3,7 @@
 ## 📁 폴더 구조 (완전 코로케이션)
 
 ```1
-cafe-app/
+cafe-app
 │
 ├── index.html                        # 메인 (고객)
 ├── index.css                         # 메인 페이지 스타일
