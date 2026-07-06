@@ -98,6 +98,54 @@ cafe-app
 
 ---
 
+## 🔒 데이터 인터페이스 (계약)
+
+> 7·8단계 작업 전 필독. 여기 적힌 이름/형태는 이미 1~6단계 코드가 실제로 쓰고 있는 것이므로 **임의로 바꾸지 말고 그대로 재사용**할 것. 새 이름이 필요하면 추가만 하고, 여기에도 같이 적을 것.
+
+### `js/data.js` (export)
+
+| 이름 | 형태 | 설명 |
+| --- | --- | --- |
+| `categories` | `{ id: string, name: string }[]` | 카테고리 목록 |
+| `menus` | `{ id: number, categoryId: string, name: string, price: number, description: string, image: string, isSoldOut: boolean }[]` | 메뉴 시드 데이터. **id는 숫자** |
+| `getCategoryById(categoryId)` | → category 객체 \| null | |
+| `getMenuById(menuId)` | → menu 객체 \| null | |
+| `getMenusByCategory(categoryId)` | → menu 배열 | `"all"` 또는 미지정 시 전체 반환 |
+
+### `js/utils.js` (export)
+
+| 이름 | 형태 | 설명 |
+| --- | --- | --- |
+| `formatPrice(price)` | → `"4,500원"` | |
+| `formatDate(date)` | → `"2026.07.06 12:16"` | |
+| `generateId(prefix)` | → `"prefix-..."` | |
+| `qs(selector, scope?)` / `qsa(selector, scope?)` | DOM 헬퍼 | |
+| `getCart()` / `saveCart(items)` | 카트 전체 읽기/쓰기 | |
+| `addToCart(menuId, quantity?)` | 담기 | |
+| `updateCartQuantity(menuId, quantity)` | 수량 변경 (0 이하면 제거) | |
+| `removeFromCart(menuId)` | 제거 | |
+| `clearCart()` | 전체 비우기 | |
+
+### localStorage 키
+
+| 키 | 형태 | 쓰는 곳 |
+| --- | --- | --- |
+| `cafe_cart` | `{ menuId: number, quantity: number }[]` | `basket/*`, `js/utils.js` |
+| `cafe_orders` | `{ id: number, createdAt: string(ISO), items: { menuId, name, price, quantity }[], total: number, status: string }[]` | `basket/list.js`(생성), `orders/*`(조회) — **8단계 관리자 주문관리도 이 키/형태를 그대로 읽을 것** |
+| `cafe_admin_menus` | `menus`와 동일한 형태 | `admin/menus/*` — 최초 접근 시 `data.js`의 `menus`로 시드됨 |
+
+### 주요 CSS 변수 (`css/variables.css`)
+
+색상 `--color-*`(`accent`, `text`, `text-muted`, `surface`, `border`, `success`, `danger` 등), 타이포 `--font-size-{xs,sm,base,lg,xl,2xl}`, 간격 `--spacing-{xs,sm,md,lg,xl,2xl}`, 반경 `--radius-{sm,md,lg,full}`, 글래스 `--glass-bg`, `--glass-border`, `--blur-glass`, `--shadow-glass`, 트랜지션 `--transition-{fast,base}`. 새 변수가 필요하면 `variables.css`에 추가하고 여기 이름도 갱신.
+
+### 7·8단계 시작 전 결정 필요 (조원과 합의 후 체크)
+
+- [ ] **마이페이지(7단계) 범위**: 로그인/사용자 식별 개념이 아직 없음. 정적 placeholder로만 만들지, `cafe_orders`를 재사용해 주문 내역 요약을 보여줄지 결정
+- [ ] **관리자 주문관리(8단계)**: 주문 상태(`status`)를 관리자가 변경할 수 있게 할지, 가능한 상태 값 종류(`"주문완료"` 외 `"준비중"`/`"완료"` 등 추가할지)를 정할지
+- [ ] **관리자 메뉴 ↔ 고객 메뉴 동기화**: `cafe_admin_menus`와 `data.js`의 `menus`가 분리되어 있어 관리자가 메뉴를 바꿔도 고객 화면에 반영 안 됨. 8단계에서 통합할지 여부
+
+---
+
 ## ✅ 구현 TODO
 
 ### 1단계: 공유 자원
