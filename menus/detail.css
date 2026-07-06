@@ -1,0 +1,56 @@
+.menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-xl);
+  background: var(--color-surface);
+  backdrop-filter: var(--blur-glass);
+  box-shadow: var(--shadow-glass);
+}
+
+.menu-header h1 {
+  font-size: var(--font-size-lg);
+  color: var(--color-accent);
+}
+
+.back-link {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.menu-detail-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--spacing-xl) var(--spacing-md);
+}
+
+.detail-card {
+  background: var(--color-surface);
+  backdrop-filter: var(--blur-glass);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-glass);
+  padding: var(--spacing-xl);
+}
+
+.detail-card .menu-category {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-sm);
+}
+
+.detail-card .menu-name {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-md);
+}
+
+.detail-card .menu-price {
+  font-size: var(--font-size-lg);
+  color: var(--color-accent);
+  font-weight: bold;
+  margin-bottom: var(--spacing-md);
+}
+
+.detail-card .menu-description {
+  color: var(--color-text);
+  line-height: 1.7;
+}
