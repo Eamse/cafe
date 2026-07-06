@@ -80,4 +80,27 @@
   font-size: var(--font-size-lg);
   font-weight: bold;
   color: var(--color-accent);
+  margin-bottom: var(--spacing-lg);
+}
+
+.checkout-btn {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: var(--color-cream-100);
+  font-size: var(--font-size-base);
+  font-weight: bold;
+  transition: var(--transition-base);
+}
+
+.checkout-btn:hover {
+  background: var(--color-accent-hover);
+}
+
+.checkout-btn:disabled {
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
 }
