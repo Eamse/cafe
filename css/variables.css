@@ -27,11 +27,11 @@
   --color-danger: #b3532b;
   --color-warning: #c98a1c;
 
-  /* Colors — category accents */
+  /* Colors — category accents (흰 배경 위 WCAG AA 4.5:1 이상 확보) */
   --color-cat-coffee: var(--color-brown-700);
-  --color-cat-tea: #5c8a63;
-  --color-cat-ade: #d99a2b;
-  --color-cat-dessert: #c1665a;
+  --color-cat-tea: #547e5a;
+  --color-cat-ade: #9c6d1c;
+  --color-cat-dessert: #bb584b;
 
   /* Typography */
   --font-family: "Pretendard", "Apple SD Gothic Neo", -apple-system, BlinkMacSystemFont, sans-serif;

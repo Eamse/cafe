@@ -66,7 +66,6 @@
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
-  border: 1px solid var(--color-border);
   transition: var(--transition-fast);
 }
 
