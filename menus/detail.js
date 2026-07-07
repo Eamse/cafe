@@ -1,5 +1,5 @@
 import { getMenus, categories } from "../js/data.js";
-import { formatPrice, addToCart } from "../js/utils.js";
+import { formatPrice, addToCart, escapeHtml } from "../js/utils.js";
 
 function getCategoryName(categoryId) {
   const category = categories.find((c) => c.id === categoryId);
@@ -20,9 +20,9 @@ function renderMenuDetail() {
   container.innerHTML = `
     <div class="detail-card cat-${menu.categoryId}">
       <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
-      <h2 class="menu-name">${menu.name}</h2>
+      <h2 class="menu-name">${escapeHtml(menu.name)}</h2>
       <div class="menu-price">${formatPrice(menu.price)}</div>
-      <p class="menu-description">${menu.description}</p>
+      <p class="menu-description">${escapeHtml(menu.description)}</p>
       ${
         menu.isSoldOut
           ? `<div class="sold-out-badge">품절된 메뉴입니다</div>`

@@ -1,4 +1,4 @@
-import { formatPrice, formatDate, getOrders, updateOrderStatus, ORDER_STATUSES } from "../../js/utils.js";
+import { formatPrice, formatDate, escapeHtml, getOrders, updateOrderStatus, ORDER_STATUSES } from "../../js/utils.js";
 
 let activeStatus = "all";
 
@@ -41,7 +41,7 @@ function renderList() {
     <div class="admin-order-row glass-card">
       <a class="row-main" href="detail.html?id=${order.id}">
         <div class="row-date">${formatDate(order.createdAt)}</div>
-        <div class="row-summary">${order.items[0].name}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
+        <div class="row-summary">${escapeHtml(order.items[0].name)}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
         <div class="row-total">${formatPrice(order.total)}</div>
       </a>
       <select class="status-select" data-id="${order.id}">

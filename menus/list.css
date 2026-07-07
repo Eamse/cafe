@@ -60,6 +60,12 @@
   font-weight: bold;
 }
 
+.menu-empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: var(--spacing-xl) 0;
+}
+
 @media (max-width: 600px) {
   .menu-grid {
     grid-template-columns: 1fr 1fr;

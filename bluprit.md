@@ -139,6 +139,8 @@ cafe-app
 
 > **버그 수정 (2026-07-07)**: 고객이 장바구니에 담을 방법 자체가 없던 문제 발견. `js/utils.js`의 `addToCart()`는 정의만 있고 어디서도 호출되지 않아 `basket`이 항상 비어있었음. `menus/detail.html/js`에 수량 선택(+/-)과 "장바구니 담기" 버튼을 추가해 `addToCart(menuId, quantity)`를 연결. 품절(`isSoldOut`) 메뉴는 버튼 대신 "품절된 메뉴입니다" 뱃지로 대체.
 
+> **버그 수정 (2026-07-07, 2차)**: 같은 이유로 `updateCartQuantity()`도 정의만 있고 UI에서 호출되지 않아, 장바구니에 담은 뒤 수량을 바꾸려면 삭제 후 다시 담아야 했음. `basket/list.js`에 항목별 +/- 버튼을 추가해 `updateCartQuantity(menuId, quantity)`를 연결 (0 이하로 내리면 항목 자동 제거, 기존 함수 동작 그대로 재사용).
+
 ### 5단계: 고객 - 주문 관리 시스템
 
 - [x] `orders/list.html` — 주문 내역 목록
@@ -198,6 +200,7 @@ cafe-app
 | --- | --- | --- |
 | `formatPrice(price)` | → `"4,500원"` | |
 | `formatDate(date)` | → `"2026.07.06 12:16"` | |
+| `escapeHtml(str)` | → HTML 이스케이프된 문자열 | **관리자가 입력한 메뉴명/설명, 주문 항목명처럼 사용자 입력이 `innerHTML`에 들어가는 모든 곳에서 반드시 거쳐야 함** (XSS 방지, 2026-07-07 추가) |
 | `generateId(prefix)` | → `"prefix-..."` | |
 | `qs(selector, scope?)` / `qsa(selector, scope?)` | DOM 헬퍼 | |
 | `getCart()` / `saveCart(items)` | 카트 전체 읽기/쓰기 | |
@@ -219,6 +222,12 @@ cafe-app
 | `cafe_cart` | `{ menuId: number, quantity: number }[]` | `js/utils.js`의 카트 함수가 관리 |
 | `cafe_orders` | `{ id: number, createdAt: string(ISO), items: { menuId, name, price, quantity }[], total: number, status: string }[]` | `js/utils.js`의 주문 함수가 관리. `status`는 `ORDER_STATUSES` 중 하나 |
 | `cafe_admin_menus` | `menus`와 동일한 형태 | `js/data.js`의 `getMenus`/`saveMenus`가 관리. 관리자 CRUD와 고객 메뉴 조회가 동일한 키를 공유(8단계에서 통합 완료) |
+
+### 보안/검증 노트
+
+- **XSS 수정 (2026-07-07)**: 관리자가 메뉴명/설명에 `<img src=x onerror=...>` 같은 스크립트를 넣으면 이스케이프 없이 그대로 `innerHTML`에 렌더링되어 실제로 스크립트가 실행되는 문제 발견. 메뉴명·설명·주문 항목명을 렌더링하는 모든 곳(`index.js`, `menus/*`, `admin/menus/*`, `basket/list.js`, `orders/*`, `admin/orders/*`, `my/index.js`)에서 `escapeHtml()`을 거치도록 수정. **앞으로 사용자 입력 문자열을 새로 `innerHTML`에 넣을 땐 반드시 `escapeHtml()`로 감쌀 것.**
+- **가격 입력 검증 (2026-07-07)**: `admin/menus/create.html`/`edit.html`의 가격 입력에 있던 `step="100"`이 100원 단위 아닌 값(예: 1234원) 입력 시 브라우저 기본 검증에 걸려 저장 버튼이 아무 피드백 없이 안 눌리는 문제가 있었음. `step` 제한을 제거해 임의의 정수 가격을 저장 가능하도록 함 (`min="0"`은 유지).
+- **빈 메뉴 목록 처리 (2026-07-07)**: 메뉴가 0개일 때 `index.html`/`menus/list.html`이 빈 화면만 보여주던 문제 수정 — "등록된 메뉴가 없습니다." 안내 문구 추가 (`orders`/`admin` 쪽 빈 상태 처리와 동일한 패턴).
 
 ### 주요 CSS 변수 (`css/variables.css`)
 
