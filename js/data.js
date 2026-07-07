@@ -110,14 +110,20 @@ export function getCategoryById(categoryId) {
    메뉴 저장소 — 관리자(admin/menus)와 고객 화면이 함께 사용하는 단일 소스.
    최초 접근 시 위 시드 데이터(menus)로 초기화되고, 이후로는 localStorage가
    기준(cafe_admin_menus)이 되어 관리자의 CRUD가 고객 화면에도 반영된다.
+   시드 데이터(사진 등) 자체가 바뀌면 예전 브라우저에 저장된 캐시가 따라가지
+   못하므로, 버전을 함께 저장해 시드가 바뀌면 캐시를 자동으로 재시드한다.
    ========================================================================== */
 
 const MENUS_STORAGE_KEY = "cafe_admin_menus";
+const MENUS_VERSION_KEY = "cafe_admin_menus_version";
+const MENUS_SEED_VERSION = "2";
 
 export function getMenus() {
   try {
     const raw = localStorage.getItem(MENUS_STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw && localStorage.getItem(MENUS_VERSION_KEY) === MENUS_SEED_VERSION) {
+      return JSON.parse(raw);
+    }
   } catch {
     /* 저장된 값이 손상된 경우 시드 데이터로 복구 */
   }
@@ -127,6 +133,7 @@ export function getMenus() {
 
 export function saveMenus(list) {
   localStorage.setItem(MENUS_STORAGE_KEY, JSON.stringify(list));
+  localStorage.setItem(MENUS_VERSION_KEY, MENUS_SEED_VERSION);
 }
 
 export function getMenuById(menuId) {
