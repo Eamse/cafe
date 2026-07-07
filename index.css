@@ -162,6 +162,23 @@ body {
   font-weight: 700;
 }
 
+.favorites-toggle {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  transition: var(--transition-fast);
+}
+
+.favorites-toggle.active {
+  background: var(--color-accent);
+  color: var(--color-cream-100);
+  border-color: var(--color-accent);
+}
+
 /* ---------- 다시 담아보세요 ---------- */
 
 .home-recent {
@@ -183,6 +200,15 @@ body {
   border: 2px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: var(--spacing-md);
+}
+
+.recent-item[role="button"] {
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.recent-item[role="button"]:hover {
+  transform: translateY(-4px);
 }
 
 .recent-item-name {
@@ -298,6 +324,52 @@ body {
 
 .menu-card.is-soldout:hover {
   transform: none;
+}
+
+.favorite-btn {
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  z-index: 1;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-border);
+  font-size: var(--font-size-sm);
+  line-height: 1;
+  transition: var(--transition-fast);
+}
+
+.favorite-btn.is-active {
+  background: var(--color-accent);
+  color: var(--color-cream-100);
+  border-color: var(--color-accent);
+}
+
+.skeleton-card {
+  height: 220px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--color-border);
+  background: linear-gradient(90deg, var(--color-cream-200) 25%, var(--color-cream-300) 50%, var(--color-cream-200) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.featured-row .skeleton-card {
+  flex: 0 0 220px;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-card {
+    animation: none;
+  }
 }
 
 .sold-out-tag,
@@ -473,5 +545,34 @@ body {
 
   .menu-controls {
     width: 100%;
+  }
+}
+
+/* ---------- 접근성 ---------- */
+
+.menu-card:focus-visible,
+.tab-btn:focus-visible,
+.favorite-btn:focus-visible,
+.favorites-toggle:focus-visible,
+.recent-item:focus-visible,
+.btn-reorder-mini:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-card,
+  .menu-card:hover,
+  .tab-btn,
+  .favorite-btn,
+  .favorites-toggle,
+  .btn-reorder-mini,
+  .recent-item[role="button"] {
+    transition: none;
+  }
+
+  .menu-card:hover,
+  .recent-item[role="button"]:hover {
+    transform: none;
   }
 }
