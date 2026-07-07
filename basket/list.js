@@ -1,5 +1,14 @@
 import { getMenus } from "../js/data.js";
-import { getCart, removeFromCart, clearCart, formatPrice, getOrders, saveOrders } from "../js/utils.js";
+import {
+  getCart,
+  removeFromCart,
+  updateCartQuantity,
+  clearCart,
+  formatPrice,
+  escapeHtml,
+  getOrders,
+  saveOrders,
+} from "../js/utils.js";
 
 function nextOrderId(orders) {
   return orders.reduce((max, order) => Math.max(max, order.id), 0) + 1;
@@ -32,8 +41,12 @@ function renderBasket() {
       return `
         <div class="basket-item" data-menu-id="${menu.id}">
           <div>
-            <div class="item-name">${menu.name}</div>
-            <div class="item-quantity">수량: ${item.quantity}</div>
+            <div class="item-name">${escapeHtml(menu.name)}</div>
+            <div class="item-qty-control">
+              <button type="button" data-action="decrease" data-id="${menu.id}" aria-label="수량 감소">-</button>
+              <span>${item.quantity}</span>
+              <button type="button" data-action="increase" data-id="${menu.id}" aria-label="수량 증가">+</button>
+            </div>
           </div>
           <div class="item-price">${formatPrice(subtotal)}</div>
           <button type="button" data-action="remove" data-id="${menu.id}">삭제</button>
@@ -49,6 +62,17 @@ function renderBasket() {
     button.addEventListener("click", () => {
       const menuId = Number(button.dataset.id);
       removeFromCart(menuId);
+      renderBasket();
+    });
+  });
+
+  listEl.querySelectorAll("button[data-action='increase'], button[data-action='decrease']").forEach((button) => {
+    button.addEventListener("click", () => {
+      const menuId = Number(button.dataset.id);
+      const current = getCart().find((item) => item.menuId === menuId);
+      if (!current) return;
+      const delta = button.dataset.action === "increase" ? 1 : -1;
+      updateCartQuantity(menuId, current.quantity + delta);
       renderBasket();
     });
   });

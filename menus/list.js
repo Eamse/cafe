@@ -1,5 +1,5 @@
 import { getMenus, categories } from "../js/data.js";
-import { formatPrice } from "../js/utils.js";
+import { formatPrice, escapeHtml } from "../js/utils.js";
 
 function getCategoryName(categoryId) {
   const category = categories.find((c) => c.id === categoryId);
@@ -8,12 +8,18 @@ function getCategoryName(categoryId) {
 
 function renderMenuGrid() {
   const grid = document.getElementById("menu-grid");
+  const menus = getMenus();
 
-  grid.innerHTML = getMenus()
+  if (menus.length === 0) {
+    grid.innerHTML = `<p class="menu-empty">등록된 메뉴가 없습니다.</p>`;
+    return;
+  }
+
+  grid.innerHTML = menus
     .map(
       (menu) => `
-    <a class="menu-card" href="detail.html?id=${menu.id}">
-      <div class="menu-name">${menu.name}</div>
+    <a class="menu-card cat-${menu.categoryId}" href="detail.html?id=${menu.id}">
+      <div class="menu-name">${escapeHtml(menu.name)}</div>
       <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
       <div class="menu-price">${formatPrice(menu.price)}</div>
     </a>

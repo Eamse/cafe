@@ -1,5 +1,5 @@
 import { getMenus } from "../js/data.js";
-import { formatPrice, formatDate, getOrders } from "../js/utils.js";
+import { formatPrice, formatDate, escapeHtml, getOrders } from "../js/utils.js";
 
 const RECENT_COUNT = 5;
 
@@ -45,7 +45,7 @@ function renderRecentOrders() {
       (order) => `
     <a class="recent-order-row" href="orders/detail.html?id=${order.id}">
       <div class="order-date">${formatDate(order.createdAt)}</div>
-      <div class="order-summary">${order.items[0].name}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
+      <div class="order-summary">${escapeHtml(order.items[0].name)}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
       <div class="order-status">${order.status}</div>
       <div class="order-total">${formatPrice(order.total)}</div>
     </a>

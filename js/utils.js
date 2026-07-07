@@ -10,6 +10,12 @@ export function formatPrice(price) {
   return `${price.toLocaleString("ko-KR")}원`;
 }
 
+const HTML_ESCAPE_MAP = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+
+export function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (ch) => HTML_ESCAPE_MAP[ch]);
+}
+
 export function formatDate(date) {
   const d = date instanceof Date ? date : new Date(date);
   const yyyy = d.getFullYear();

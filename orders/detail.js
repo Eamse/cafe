@@ -1,4 +1,4 @@
-import { formatPrice, formatDate, getOrderById } from "../js/utils.js";
+import { formatPrice, formatDate, escapeHtml, getOrderById } from "../js/utils.js";
 
 function renderDetail() {
   const params = new URLSearchParams(window.location.search);
@@ -23,7 +23,7 @@ function renderDetail() {
           .map(
             (item) => `
           <div class="order-item">
-            <div class="item-name">${item.name}</div>
+            <div class="item-name">${escapeHtml(item.name)}</div>
             <div class="item-quantity">수량: ${item.quantity}</div>
             <div class="item-price">${formatPrice(item.price * item.quantity)}</div>
           </div>
