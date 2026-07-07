@@ -136,6 +136,8 @@ cafe-app
 - [x] `basket/list.css`
 - [x] `basket/list.js`
 
+> **버그 수정 (2026-07-07)**: 고객이 장바구니에 담을 방법 자체가 없던 문제 발견. `js/utils.js`의 `addToCart()`는 정의만 있고 어디서도 호출되지 않아 `basket`이 항상 비어있었음. `menus/detail.html/js`에 수량 선택(+/-)과 "장바구니 담기" 버튼을 추가해 `addToCart(menuId, quantity)`를 연결. 품절(`isSoldOut`) 메뉴는 버튼 대신 "품절된 메뉴입니다" 뱃지로 대체.
+
 ### 5단계: 고객 - 주문 관리 시스템
 
 - [x] `orders/list.html` — 주문 내역 목록

@@ -55,4 +55,65 @@
 .detail-card .menu-description {
   color: var(--color-text);
   line-height: 1.7;
+  margin-bottom: var(--spacing-lg);
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.quantity-control button {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  font-size: var(--font-size-lg);
+  transition: var(--transition-base);
+}
+
+.quantity-control button:hover {
+  background: var(--color-accent);
+  color: var(--color-cream-100);
+}
+
+.quantity-control #qty-value {
+  min-width: 2ch;
+  text-align: center;
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+}
+
+.btn-add-cart {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: var(--color-cream-100);
+  font-size: var(--font-size-base);
+  font-weight: bold;
+  transition: var(--transition-base);
+}
+
+.btn-add-cart:hover {
+  background: var(--color-accent-hover);
+}
+
+.btn-add-cart:disabled {
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.sold-out-badge {
+  text-align: center;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  font-weight: bold;
 }
