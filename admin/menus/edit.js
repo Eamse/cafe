@@ -1,17 +1,7 @@
-import { categories } from "../../js/data.js";
+import { categories, getMenus, saveMenus } from "../../js/data.js";
 
-const STORAGE_KEY = "cafe_admin_menus";
 const params = new URLSearchParams(window.location.search);
 const menuId = Number(params.get("id"));
-
-function loadMenus() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
-
-function saveMenus(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-}
 
 function renderCategoryOptions() {
   const select = document.getElementById("categoryId");
@@ -29,7 +19,7 @@ function fillForm(menu) {
 function handleSubmit(event) {
   event.preventDefault();
 
-  const menus = loadMenus();
+  const menus = getMenus();
   const target = menus.find((m) => m.id === menuId);
   if (!target) return;
 
@@ -45,7 +35,7 @@ function handleSubmit(event) {
 
 function init() {
   renderCategoryOptions();
-  const menus = loadMenus();
+  const menus = getMenus();
   const menu = menus.find((m) => m.id === menuId);
 
   if (!menu) {

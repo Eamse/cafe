@@ -147,43 +147,47 @@ cafe-app
 
 ### 6단계: 고객 - 메인 페이지
 
-- [x] `index.html`
-- [x] `index.css`
-- [x] `index.js`
+- [ ] `index.html` — **재설계 필요 (아래 참고)**
+- [ ] `index.css`
+- [ ] `index.js`
+
+> **재설계 요구사항 (2026-07-07 결정)**: 지금 버전은 히어로 문구 + "메뉴 보러가기" 버튼만 있고 실제 메뉴가 안 보여서 카페 앱 첫 화면 느낌이 안 남. **"메뉴 보러가기" 같은 이동 버튼 없이, 첫 화면 자체에 전체 메뉴를 바로 보여줄 것.** 즉 `index.html`이 사실상 `menus/list.html`의 역할을 겸해야 함 (헤더/히어로는 유지하되 그 아래 바로 메뉴 그리드 노출). `getMenus()`(`js/data.js`)로 렌더링하고, 각 메뉴는 `menus/detail.html?id=`로 연결.
 
 ### 7단계: 고객 - 마이페이지
 
-- [ ] `my/index.html`
-- [ ] `my/index.css`
-- [ ] `my/index.js`
+- [x] `my/index.html`
+- [x] `my/index.css`
+- [x] `my/index.js`
 
 ### 8단계: 관리자 - 대시보드 & 주문 관리
 
-- [ ] `admin/index.html` — 대시보드
-- [ ] `admin/index.css`
-- [ ] `admin/index.js`
-- [ ] `admin/orders/list.html` — 주문 목록
-- [ ] `admin/orders/list.css`
-- [ ] `admin/orders/list.js`
-- [ ] `admin/orders/detail.html` — 주문 상세
-- [ ] `admin/orders/detail.css`
-- [ ] `admin/orders/detail.js`
+- [x] `admin/index.html` — 대시보드
+- [x] `admin/index.css`
+- [x] `admin/index.js`
+- [x] `admin/orders/list.html` — 주문 목록
+- [x] `admin/orders/list.css`
+- [x] `admin/orders/list.js`
+- [x] `admin/orders/detail.html` — 주문 상세
+- [x] `admin/orders/detail.css`
+- [x] `admin/orders/detail.js`
 
 ---
 
 ## 🔒 데이터 인터페이스 (계약)
 
-> 7·8단계 작업 전 필독. 여기 적힌 이름/형태는 이미 1~6단계 코드가 실제로 쓰고 있는 것이므로 **임의로 바꾸지 말고 그대로 재사용**할 것. 새 이름이 필요하면 추가만 하고, 여기에도 같이 적을 것.
+> 여기 적힌 이름/형태는 전체 코드(1~8단계)가 실제로 쓰고 있는 것이므로 **임의로 바꾸지 말고 그대로 재사용**할 것. 새 이름이 필요하면 추가만 하고, 여기에도 같이 적을 것.
 
 ### `js/data.js` (export)
 
 | 이름 | 형태 | 설명 |
 | --- | --- | --- |
 | `categories` | `{ id: string, name: string }[]` | 카테고리 목록 |
-| `menus` | `{ id: number, categoryId: string, name: string, price: number, description: string, image: string, isSoldOut: boolean }[]` | 메뉴 시드 데이터. **id는 숫자** |
+| `menus` | `{ id: number, categoryId: string, name: string, price: number, description: string, image: string, isSoldOut: boolean }[]` | **시드(초기값)만**. 실제 조회/저장은 아래 `getMenus`/`saveMenus` 사용 |
+| `getMenus()` | → menu 배열 | **메뉴 단일 소스.** `cafe_admin_menus`를 읽고, 없으면 `menus`로 시드. 관리자/고객/장바구니 전부 이 함수로 메뉴를 읽음 |
+| `saveMenus(list)` | 저장 | `admin/menus/*`의 CRUD가 이걸로 저장 |
 | `getCategoryById(categoryId)` | → category 객체 \| null | |
-| `getMenuById(menuId)` | → menu 객체 \| null | |
-| `getMenusByCategory(categoryId)` | → menu 배열 | `"all"` 또는 미지정 시 전체 반환 |
+| `getMenuById(menuId)` | → menu 객체 \| null | 내부적으로 `getMenus()` 사용 |
+| `getMenusByCategory(categoryId)` | → menu 배열 | `"all"` 또는 미지정 시 전체 반환. 내부적으로 `getMenus()` 사용 |
 
 ### `js/utils.js` (export)
 
@@ -198,24 +202,27 @@ cafe-app
 | `updateCartQuantity(menuId, quantity)` | 수량 변경 (0 이하면 제거) | |
 | `removeFromCart(menuId)` | 제거 | |
 | `clearCart()` | 전체 비우기 | |
+| `ORDER_STATUSES` | `["주문완료", "조리중", "수령완료", "취소"]` | 주문 상태 값 전체 목록 |
+| `getOrders()` / `saveOrders(orders)` | 주문 전체 읽기/쓰기 | **주문 단일 소스.** `basket`, `orders/*`, `my/*`, `admin/orders/*` 전부 이 함수로 주문을 읽고 씀 |
+| `getOrderById(orderId)` | → order 객체 \| null | |
+| `updateOrderStatus(orderId, status)` | 상태 변경 | `admin/orders/*`가 사용 |
 
 ### localStorage 키
 
-| 키 | 형태 | 쓰는 곳 |
+> 아래 키는 직접 `localStorage.getItem/setItem`으로 만지지 말고, 반드시 위 `getMenus`/`saveMenus`, `getOrders`/`saveOrders` 함수를 통해서만 접근할 것.
+
+| 키 | 형태 | 비고 |
 | --- | --- | --- |
-| `cafe_cart` | `{ menuId: number, quantity: number }[]` | `basket/*`, `js/utils.js` |
-| `cafe_orders` | `{ id: number, createdAt: string(ISO), items: { menuId, name, price, quantity }[], total: number, status: string }[]` | `basket/list.js`(생성), `orders/*`(조회) — **8단계 관리자 주문관리도 이 키/형태를 그대로 읽을 것** |
-| `cafe_admin_menus` | `menus`와 동일한 형태 | `admin/menus/*` — 최초 접근 시 `data.js`의 `menus`로 시드됨 |
+| `cafe_cart` | `{ menuId: number, quantity: number }[]` | `js/utils.js`의 카트 함수가 관리 |
+| `cafe_orders` | `{ id: number, createdAt: string(ISO), items: { menuId, name, price, quantity }[], total: number, status: string }[]` | `js/utils.js`의 주문 함수가 관리. `status`는 `ORDER_STATUSES` 중 하나 |
+| `cafe_admin_menus` | `menus`와 동일한 형태 | `js/data.js`의 `getMenus`/`saveMenus`가 관리. 관리자 CRUD와 고객 메뉴 조회가 동일한 키를 공유(8단계에서 통합 완료) |
 
 ### 주요 CSS 변수 (`css/variables.css`)
 
 색상 `--color-*`(`accent`, `text`, `text-muted`, `surface`, `border`, `success`, `danger` 등), 타이포 `--font-size-{xs,sm,base,lg,xl,2xl}`, 간격 `--spacing-{xs,sm,md,lg,xl,2xl}`, 반경 `--radius-{sm,md,lg,full}`, 글래스 `--glass-bg`, `--glass-border`, `--blur-glass`, `--shadow-glass`, 트랜지션 `--transition-{fast,base}`. 새 변수가 필요하면 `variables.css`에 추가하고 여기 이름도 갱신.
 
-### 7·8단계 시작 전 결정 필요 (조원과 합의 후 체크)
+### 7·8단계 결정사항 (전부 구현 완료)
 
-- [x] **마이페이지(7단계) 범위**: 로그인/사용자 식별 개념이 아직 없음. 정적 placeholder로만 만들지, `cafe_orders`를 재사용해 주문 내역 요약을 보여줄지 결정
-  → **결정: `cafe_orders`를 재사용해서 주문 내역 요약을 보여준다.**
-- [x] **관리자 주문관리(8단계)**: 주문 상태(`status`)를 관리자가 변경할 수 있게 할지, 가능한 상태 값 종류를 정할지
-  → **결정: 상태값 4단계 — `"주문완료"` → `"조리중"` → `"수령완료"` / `"취소"`. 관리자가 이 값들 사이로 변경 가능하도록 구현.**
-- [x] **관리자 메뉴 ↔ 고객 메뉴 동기화**: `cafe_admin_menus`와 `data.js`의 `menus`가 분리되어 있어 관리자가 메뉴를 바꿔도 고객 화면에 반영 안 됨. 8단계에서 통합할지 여부
-  → **결정: 8단계에서 통합한다.** (고객 메뉴 조회도 `cafe_admin_menus` 기준으로 읽도록 정리 필요)
+- [x] **마이페이지(7단계) 범위**: `cafe_orders`를 재사용해서 프로필 placeholder + 주문 요약(총 주문/누적 결제) + 최근 주문 3건을 보여준다. → `my/index.js`
+- [x] **관리자 주문관리(8단계) 상태값**: `주문완료 → 조리중 → 수령완료 / 취소` 4단계. 관리자가 목록/상세에서 셀렉트로 자유롭게 변경 가능. → `js/utils.js`의 `ORDER_STATUSES`, `admin/orders/*`
+- [x] **관리자 메뉴 ↔ 고객 메뉴 동기화**: `js/data.js`에 `getMenus()`/`saveMenus()`를 만들어 `cafe_admin_menus`를 단일 소스로 통합. 관리자 CRUD, 고객 메뉴 조회, 장바구니가 전부 이 함수를 통해 같은 데이터를 본다.

@@ -1,16 +1,5 @@
-import { categories } from "../../js/data.js";
+import { categories, getMenus, saveMenus } from "../../js/data.js";
 import { formatPrice } from "../../js/utils.js";
-
-const STORAGE_KEY = "cafe_admin_menus";
-
-function loadMenus() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
-
-function saveMenus(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-}
 
 function getCategoryName(categoryId) {
   const category = categories.find((c) => c.id === categoryId);
@@ -20,7 +9,7 @@ function getCategoryName(categoryId) {
 function renderDetail() {
   const params = new URLSearchParams(window.location.search);
   const menuId = Number(params.get("id"));
-  const menus = loadMenus();
+  const menus = getMenus();
   const menu = menus.find((m) => m.id === menuId);
   const container = document.getElementById("menu-detail");
 

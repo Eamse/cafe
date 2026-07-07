@@ -1,4 +1,4 @@
-import { menus, categories } from "../js/data.js";
+import { getMenus, categories } from "../js/data.js";
 import { formatPrice } from "../js/utils.js";
 
 function getCategoryName(categoryId) {
@@ -9,7 +9,7 @@ function getCategoryName(categoryId) {
 function renderMenuDetail() {
   const params = new URLSearchParams(window.location.search);
   const menuId = Number(params.get("id"));
-  const menu = menus.find((m) => m.id === menuId);
+  const menu = getMenus().find((m) => m.id === menuId);
   const container = document.getElementById("menu-detail");
 
   if (!menu) {

@@ -1,15 +1,8 @@
-import { formatPrice, formatDate } from "../js/utils.js";
-
-const ORDERS_STORAGE_KEY = "cafe_orders";
-
-function loadOrders() {
-  const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
+import { formatPrice, formatDate, getOrders } from "../js/utils.js";
 
 function renderOrders() {
   const listEl = document.getElementById("orders-list");
-  const orders = loadOrders().slice().reverse();
+  const orders = getOrders().slice().reverse();
 
   if (orders.length === 0) {
     listEl.innerHTML = `<p class="orders-empty">주문 내역이 없습니다.</p>`;

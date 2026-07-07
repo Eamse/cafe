@@ -106,11 +106,35 @@ export function getCategoryById(categoryId) {
   return categories.find((category) => category.id === categoryId) || null;
 }
 
+/* ==========================================================================
+   메뉴 저장소 — 관리자(admin/menus)와 고객 화면이 함께 사용하는 단일 소스.
+   최초 접근 시 위 시드 데이터(menus)로 초기화되고, 이후로는 localStorage가
+   기준(cafe_admin_menus)이 되어 관리자의 CRUD가 고객 화면에도 반영된다.
+   ========================================================================== */
+
+const MENUS_STORAGE_KEY = "cafe_admin_menus";
+
+export function getMenus() {
+  try {
+    const raw = localStorage.getItem(MENUS_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {
+    /* 저장된 값이 손상된 경우 시드 데이터로 복구 */
+  }
+  saveMenus(menus);
+  return menus.slice();
+}
+
+export function saveMenus(list) {
+  localStorage.setItem(MENUS_STORAGE_KEY, JSON.stringify(list));
+}
+
 export function getMenuById(menuId) {
-  return menus.find((menu) => menu.id === menuId) || null;
+  return getMenus().find((menu) => menu.id === menuId) || null;
 }
 
 export function getMenusByCategory(categoryId) {
-  if (!categoryId || categoryId === "all") return menus;
-  return menus.filter((menu) => menu.categoryId === categoryId);
+  const list = getMenus();
+  if (!categoryId || categoryId === "all") return list;
+  return list.filter((menu) => menu.categoryId === categoryId);
 }

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>마이페이지 - 카페 앱</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <header class="my-header">
+    <h1>☕ 카페 앱</h1>
+    <a href="../index.html" class="back-link">← 메인으로</a>
+  </header>
+
+  <main class="my-page">
+    <section class="profile-card glass-card">
+      <div class="profile-avatar">☕</div>
+      <div class="profile-name">게스트님</div>
+      <div class="profile-sub">오늘도 좋은 하루 되세요</div>
+    </section>
+
+    <section class="summary-card glass-card">
+      <div class="summary-item">
+        <div class="summary-value" id="summary-count">0</div>
+        <div class="summary-label">총 주문</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-value" id="summary-total">0원</div>
+        <div class="summary-label">누적 결제</div>
+      </div>
+    </section>
+
+    <section class="recent-orders">
+      <div class="section-heading">
+        <h2>최근 주문</h2>
+        <a href="../orders/list.html">전체보기 →</a>
+      </div>
+      <div class="recent-orders-list" id="recent-orders-list">
+        <!-- index.js가 최근 주문을 렌더링 -->
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="index.js"></script>
+</body>
+</html>

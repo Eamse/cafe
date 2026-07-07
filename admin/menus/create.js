@@ -1,15 +1,4 @@
-import { categories } from "../../js/data.js";
-
-const STORAGE_KEY = "cafe_admin_menus";
-
-function loadMenus() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
-
-function saveMenus(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-}
+import { categories, getMenus, saveMenus } from "../../js/data.js";
 
 function nextId(menus) {
   return menus.reduce((max, menu) => Math.max(max, menu.id), 0) + 1;
@@ -23,7 +12,7 @@ function renderCategoryOptions() {
 function handleSubmit(event) {
   event.preventDefault();
 
-  const menus = loadMenus();
+  const menus = getMenus();
   const newMenu = {
     id: nextId(menus),
     categoryId: document.getElementById("categoryId").value,
