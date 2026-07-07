@@ -1,4 +1,7 @@
 .home-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -67,14 +70,72 @@
   opacity: 0.9;
 }
 
+/* ---------- 차별점 ---------- */
+
+.home-usp {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-xl) var(--spacing-md) 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-lg);
+}
+
+.usp-item {
+  text-align: center;
+  padding: var(--spacing-lg);
+}
+
+.usp-item h3 {
+  font-size: var(--font-size-base);
+  color: var(--color-accent);
+  margin-bottom: var(--spacing-xs);
+}
+
+.usp-item p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
 /* ---------- 공통 섹션 ---------- */
 
 .section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
   margin-bottom: var(--spacing-lg);
 }
 
 .section-heading h2 {
   font-size: var(--font-size-xl);
+}
+
+.menu-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.menu-search {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  width: 160px;
+}
+
+.sort-select {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
 }
 
 /* ---------- 오늘의 추천 ---------- */
@@ -284,5 +345,17 @@
 
   .home-hero {
     height: 240px;
+  }
+
+  .home-usp {
+    grid-template-columns: 1fr;
+  }
+
+  .menu-search {
+    width: 100%;
+  }
+
+  .menu-controls {
+    width: 100%;
   }
 }

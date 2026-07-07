@@ -3,6 +3,16 @@ import { formatPrice, escapeHtml, renderCartBadge } from "./js/utils.js";
 import { openCartPanel } from "./js/cartPanel.js";
 
 let activeCategory = "all";
+let activeSort = "default";
+let searchQuery = "";
+
+function sortMenus(menus) {
+  const sorted = menus.slice();
+  if (activeSort === "price-asc") sorted.sort((a, b) => a.price - b.price);
+  else if (activeSort === "price-desc") sorted.sort((a, b) => b.price - a.price);
+  else if (activeSort === "name") sorted.sort((a, b) => a.name.localeCompare(b.name, "ko"));
+  return sorted;
+}
 
 function getCategoryName(categoryId) {
   const category = categories.find((c) => c.id === categoryId);
@@ -66,10 +76,14 @@ function renderTabs() {
 function renderMenuGrid() {
   const grid = document.getElementById("menu-grid");
   const menus = getMenus();
-  const filtered = activeCategory === "all" ? menus : menus.filter((menu) => menu.categoryId === activeCategory);
+  const query = searchQuery.trim().toLowerCase();
+
+  let filtered = activeCategory === "all" ? menus : menus.filter((menu) => menu.categoryId === activeCategory);
+  if (query) filtered = filtered.filter((menu) => menu.name.toLowerCase().includes(query));
+  filtered = sortMenus(filtered);
 
   if (filtered.length === 0) {
-    grid.innerHTML = `<p class="menu-empty">등록된 메뉴가 없습니다.</p>`;
+    grid.innerHTML = `<p class="menu-empty">${query ? "검색 결과가 없습니다." : "등록된 메뉴가 없습니다."}</p>`;
     return;
   }
 
@@ -88,6 +102,16 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault();
     openMenuCard(card);
   }
+});
+
+document.getElementById("sort-select").addEventListener("change", (event) => {
+  activeSort = event.target.value;
+  renderMenuGrid();
+});
+
+document.getElementById("menu-search").addEventListener("input", (event) => {
+  searchQuery = event.target.value;
+  renderMenuGrid();
 });
 
 window.addEventListener("cart:updated", renderCartBadge);

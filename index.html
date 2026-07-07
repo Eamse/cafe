@@ -27,6 +27,21 @@
     </div>
   </section>
 
+  <section class="home-usp">
+    <div class="usp-item">
+      <h3>매일 로스팅</h3>
+      <p>매장에서 매일 신선하게 로스팅한 원두만 사용해요.</p>
+    </div>
+    <div class="usp-item">
+      <h3>빠른 픽업</h3>
+      <p>미리 담아두고 매장에서 바로 픽업할 수 있어요.</p>
+    </div>
+    <div class="usp-item">
+      <h3>간편한 주문</h3>
+      <p>메뉴를 눌러서 담고, 몇 번의 클릭으로 주문 끝.</p>
+    </div>
+  </section>
+
   <section class="home-featured">
     <div class="section-heading">
       <h2>오늘의 추천</h2>
@@ -39,6 +54,15 @@
   <main class="home-menu-section">
     <div class="section-heading">
       <h2>전체 메뉴</h2>
+      <div class="menu-controls">
+        <input type="search" id="menu-search" class="menu-search" placeholder="메뉴 검색" />
+        <select class="sort-select" id="sort-select">
+          <option value="default">기본순</option>
+          <option value="price-asc">가격 낮은순</option>
+          <option value="price-desc">가격 높은순</option>
+          <option value="name">이름순</option>
+        </select>
+      </div>
     </div>
 
     <div class="category-tabs" id="category-tabs">
