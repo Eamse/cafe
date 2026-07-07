@@ -26,6 +26,7 @@
   height: 100%;
   pointer-events: auto;
   background: var(--color-surface);
+  border-left: 3px solid var(--color-border);
   box-shadow: var(--shadow-md);
   transform: translateX(100%);
   transition: transform var(--transition-base);
@@ -43,9 +44,10 @@
   right: var(--spacing-md);
   width: 32px;
   height: 32px;
+  border: 2px solid var(--color-border);
   border-radius: var(--radius-full);
   background: var(--color-cream-200);
-  color: var(--color-text-muted);
+  color: var(--color-text);
   font-size: var(--font-size-sm);
 }
 
@@ -65,7 +67,8 @@
 
 .cart-panel-image {
   height: 180px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--color-border);
   background-size: cover;
   background-position: center;
   background-color: var(--color-border);
@@ -75,17 +78,20 @@
 
 .cart-panel-category {
   font-size: var(--font-size-sm);
+  text-transform: uppercase;
   color: var(--cat-accent, var(--color-text-muted));
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: var(--spacing-sm);
 }
 
 .cart-panel-name {
   font-size: var(--font-size-xl);
+  font-weight: 700;
   margin-bottom: var(--spacing-md);
 }
 
 .cart-panel-price {
+  font-family: "Courier New", monospace;
   font-size: var(--font-size-lg);
   color: var(--color-accent);
   font-weight: bold;
@@ -109,7 +115,7 @@
   width: 36px;
   height: 36px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-border);
   background: var(--color-surface);
   font-size: var(--font-size-lg);
   transition: var(--transition-base);
@@ -198,11 +204,13 @@
 }
 
 .cart-panel-summary-price {
+  font-family: "Courier New", monospace;
   color: var(--color-text-muted);
   white-space: nowrap;
 }
 
 .cart-panel-summary-total {
+  font-family: "Courier New", monospace;
   font-weight: bold;
   color: var(--color-accent);
   margin-bottom: var(--spacing-md);

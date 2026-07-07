@@ -27,18 +27,71 @@
     </div>
   </section>
 
+  <section class="home-usp">
+    <div class="usp-item">
+      <h3>매일 로스팅</h3>
+      <p>매장에서 매일 신선하게 로스팅한 원두만 사용해요.</p>
+    </div>
+    <div class="usp-item">
+      <h3>빠른 픽업</h3>
+      <p>미리 담아두고 매장에서 바로 픽업할 수 있어요.</p>
+    </div>
+    <div class="usp-item">
+      <h3>간편한 주문</h3>
+      <p>메뉴를 눌러서 담고, 몇 번의 클릭으로 주문 끝.</p>
+    </div>
+  </section>
+
+  <section class="home-recent" id="home-recent-section" hidden>
+    <div class="section-heading">
+      <h2>다시 담아보세요</h2>
+    </div>
+    <div class="recent-order-row" id="recent-order-row">
+      <!-- index.js가 최근 주문 메뉴를 렌더링 -->
+    </div>
+  </section>
+
+  <section class="home-recent" id="home-viewed-section" hidden>
+    <div class="section-heading">
+      <h2>최근 본 메뉴</h2>
+    </div>
+    <div class="recent-order-row" id="recent-viewed-row">
+      <!-- index.js가 최근 조회한 메뉴를 렌더링 -->
+    </div>
+  </section>
+
   <section class="home-featured">
     <div class="section-heading">
       <h2>오늘의 추천</h2>
     </div>
     <div class="featured-row" id="featured-row">
-      <!-- index.js가 카테고리별 추천 메뉴를 렌더링 -->
+      <div class="skeleton-card" aria-hidden="true"></div>
+      <div class="skeleton-card" aria-hidden="true"></div>
+      <div class="skeleton-card" aria-hidden="true"></div>
     </div>
   </section>
 
   <main class="home-menu-section">
     <div class="section-heading">
-      <h2>전체 메뉴</h2>
+      <h2>전체 메뉴 <span class="menu-count" id="menu-count"></span></h2>
+      <div class="menu-controls">
+        <input type="search" id="menu-search" class="menu-search" placeholder="메뉴 검색" aria-label="메뉴 검색" />
+        <button type="button" id="favorites-toggle" class="favorites-toggle" aria-pressed="false">
+          ♥ 즐겨찾기만
+        </button>
+        <select class="price-filter" id="price-filter" aria-label="가격 범위 필터">
+          <option value="all">전체 가격</option>
+          <option value="under5000">5,000원 이하</option>
+          <option value="5000to6000">5,000~6,000원</option>
+          <option value="over6000">6,000원 이상</option>
+        </select>
+        <select class="sort-select" id="sort-select" aria-label="정렬 기준">
+          <option value="default">기본순</option>
+          <option value="price-asc">가격 낮은순</option>
+          <option value="price-desc">가격 높은순</option>
+          <option value="name">이름순</option>
+        </select>
+      </div>
     </div>
 
     <div class="category-tabs" id="category-tabs">
@@ -46,7 +99,10 @@
     </div>
 
     <div class="menu-grid" id="menu-grid">
-      <!-- index.js가 메뉴 데이터를 렌더링 -->
+      <div class="skeleton-card" aria-hidden="true"></div>
+      <div class="skeleton-card" aria-hidden="true"></div>
+      <div class="skeleton-card" aria-hidden="true"></div>
+      <div class="skeleton-card" aria-hidden="true"></div>
     </div>
   </main>
 
