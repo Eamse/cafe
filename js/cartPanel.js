@@ -83,7 +83,7 @@ export function openCartPanel(menu, categoryName, basketHref = "basket/list.html
     const itemEl = document.createElement("div");
     itemEl.className = `cart-panel-content cat-${menu.categoryId}`;
     itemEl.innerHTML = `
-      ${menu.image ? `<div class="cart-panel-image" style="background-image: url('${menu.image}')"></div>` : ""}
+      ${menu.image ? `<div class="cart-panel-image" style="background-image: url('${escapeHtml(menu.image)}')"></div>` : ""}
       <div class="cart-panel-category">${escapeHtml(categoryName)}</div>
       <h2 class="cart-panel-name">${escapeHtml(menu.name)}</h2>
       <div class="cart-panel-price">${formatPrice(menu.price)}</div>
