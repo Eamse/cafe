@@ -95,7 +95,7 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-lg);
-  border-bottom: 2px dashed var(--color-border);
+  border-bottom: 3px solid var(--color-border);
 }
 
 .usp-item {
