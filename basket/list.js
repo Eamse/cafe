@@ -1,16 +1,5 @@
-import { menus } from "../js/data.js";
-import { getCart, removeFromCart, clearCart, formatPrice } from "../js/utils.js";
-
-const ORDERS_STORAGE_KEY = "cafe_orders";
-
-function loadOrders() {
-  const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
-
-function saveOrders(orders) {
-  localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
-}
+import { getMenus } from "../js/data.js";
+import { getCart, removeFromCart, clearCart, formatPrice, getOrders, saveOrders } from "../js/utils.js";
 
 function nextOrderId(orders) {
   return orders.reduce((max, order) => Math.max(max, order.id), 0) + 1;
@@ -29,6 +18,7 @@ function renderBasket() {
     return;
   }
 
+  const menus = getMenus();
   let total = 0;
 
   listEl.innerHTML = cart
@@ -68,6 +58,7 @@ function handleCheckout() {
   const cart = getCart();
   if (cart.length === 0) return;
 
+  const menus = getMenus();
   const items = cart
     .map((item) => {
       const menu = menus.find((m) => m.id === item.menuId);
@@ -78,7 +69,7 @@ function handleCheckout() {
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const orders = loadOrders();
+  const orders = getOrders();
   orders.push({
     id: nextOrderId(orders),
     createdAt: new Date().toISOString(),

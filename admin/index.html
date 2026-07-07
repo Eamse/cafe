@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>대시보드 - 카페 앱 관리자</title>
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <header class="admin-header">
+    <h1>☕ 카페 앱 관리자</h1>
+    <nav class="admin-nav">
+      <a href="menus/list.html">메뉴 관리</a>
+      <a href="orders/list.html">주문 관리</a>
+    </nav>
+  </header>
+
+  <main class="dashboard-page">
+    <h2>대시보드</h2>
+
+    <div class="stat-grid" id="stat-grid">
+      <!-- index.js가 통계 카드를 렌더링 -->
+    </div>
+
+    <section class="recent-orders">
+      <div class="section-heading">
+        <h3>최근 주문</h3>
+        <a href="orders/list.html">전체보기 →</a>
+      </div>
+      <div class="recent-orders-list" id="recent-orders-list">
+        <!-- index.js가 최근 주문을 렌더링 -->
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="index.js"></script>
+</body>
+</html>

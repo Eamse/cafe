@@ -1,4 +1,4 @@
-import { menus, categories } from "../js/data.js";
+import { getMenus, categories } from "../js/data.js";
 import { formatPrice } from "../js/utils.js";
 
 function getCategoryName(categoryId) {
@@ -9,7 +9,7 @@ function getCategoryName(categoryId) {
 function renderMenuGrid() {
   const grid = document.getElementById("menu-grid");
 
-  grid.innerHTML = menus
+  grid.innerHTML = getMenus()
     .map(
       (menu) => `
     <a class="menu-card" href="detail.html?id=${menu.id}">

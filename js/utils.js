@@ -82,3 +82,34 @@ export function removeFromCart(menuId) {
 export function clearCart() {
   saveCart([]);
 }
+
+/* ---------- 주문 ---------- */
+
+const ORDERS_STORAGE_KEY = "cafe_orders";
+
+export const ORDER_STATUSES = ["주문완료", "조리중", "수령완료", "취소"];
+
+export function getOrders() {
+  try {
+    const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveOrders(orders) {
+  localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
+}
+
+export function getOrderById(orderId) {
+  return getOrders().find((order) => order.id === orderId) || null;
+}
+
+export function updateOrderStatus(orderId, status) {
+  const orders = getOrders();
+  const target = orders.find((order) => order.id === orderId);
+  if (target) target.status = status;
+  saveOrders(orders);
+  return orders;
+}

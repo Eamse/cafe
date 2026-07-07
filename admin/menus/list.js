@@ -1,23 +1,7 @@
-import { menus as seedMenus, categories } from "../../js/data.js";
+import { categories, getMenus, saveMenus } from "../../js/data.js";
 import { formatPrice } from "../../js/utils.js";
 
-const STORAGE_KEY = "cafe_admin_menus";
 let activeCategory = "all";
-
-function loadMenus() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {
-    /* 저장된 값이 손상된 경우 시드 데이터로 복구 */
-  }
-  saveMenus(seedMenus);
-  return seedMenus.slice();
-}
-
-function saveMenus(list) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-}
 
 function getCategoryName(categoryId) {
   const category = categories.find((c) => c.id === categoryId);
@@ -49,7 +33,7 @@ function renderTabs() {
 
 function renderList() {
   const listEl = document.getElementById("admin-menu-list");
-  const menus = loadMenus();
+  const menus = getMenus();
   const filtered = activeCategory === "all" ? menus : menus.filter((m) => m.categoryId === activeCategory);
 
   if (filtered.length === 0) {
@@ -88,7 +72,7 @@ function renderList() {
 }
 
 function toggleSoldOut(menuId) {
-  const menus = loadMenus();
+  const menus = getMenus();
   const target = menus.find((m) => m.id === menuId);
   if (!target) return;
   target.isSoldOut = !target.isSoldOut;
@@ -98,7 +82,7 @@ function toggleSoldOut(menuId) {
 
 function deleteMenu(menuId) {
   if (!confirm("이 메뉴를 삭제하시겠습니까?")) return;
-  const menus = loadMenus().filter((m) => m.id !== menuId);
+  const menus = getMenus().filter((m) => m.id !== menuId);
   saveMenus(menus);
   renderList();
 }
