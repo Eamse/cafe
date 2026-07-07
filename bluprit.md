@@ -131,6 +131,8 @@ cafe-app
 - [x] `menus/detail.css`
 - [x] `menus/detail.js`
 
+> **개선 (2026-07-07)**: 메뉴 목록/홈 카드에 품절(`isSoldOut`) 뱃지가 전혀 안 보여서 클릭해서 상세로 들어가야만 품절 여부를 알 수 있던 문제 수정 — `index.js`/`menus/list.js` 카드에 "품절" 뱃지 추가. 또한 두 페이지 다 전체 메뉴를 필터 없이 쭉 나열만 하던 것을, `admin/menus/list.js`와 동일한 패턴의 카테고리 탭(`category-tabs`)으로 필터링 가능하게 함.
+
 ### 4단계: 고객 - 장바구니 관리 시스템
 
 - [x] `basket/list.html` — 장바구니
@@ -157,6 +159,8 @@ cafe-app
 - [x] `index.js`
 
 > **재설계 완료 (2026-07-07)**: "메뉴 보러가기" 이동 버튼을 없애고, 헤더/히어로 아래에 `getMenus()`(`js/data.js`)로 렌더링한 전체 메뉴 그리드를 바로 노출. 각 메뉴는 `menus/detail.html?id=`로 연결.
+
+> **버그 발견/수정 (2026-07-07)**: 홈을 포함한 고객용 페이지 전체에 장바구니·주문내역·마이페이지로 가는 링크가 **하나도 없어서**, 메뉴 상세에서 장바구니에 담아도 그 장바구니 화면 자체에 도달할 방법이 URL 직접 입력밖에 없던 문제 발견. 고객용 7개 페이지(`index.html`, `menus/list.html`, `menus/detail.html`, `basket/list.html`, `orders/list.html`, `orders/detail.html`, `my/index.html`) 헤더에 공통 `<nav class="main-nav">`(홈/메뉴/장바구니/주문내역/마이페이지)를 추가하고, 기존 개별 "← 뒤로가기" 링크는 이 nav로 대체함. 장바구니 링크에는 담긴 수량을 보여주는 뱃지(`#cart-badge`, `js/utils.js`의 `renderCartBadge()`)도 추가해 담을 때마다 실시간 갱신.
 
 ### 7단계: 고객 - 마이페이지
 
@@ -208,6 +212,7 @@ cafe-app
 | `updateCartQuantity(menuId, quantity)` | 수량 변경 (0 이하면 제거) | |
 | `removeFromCart(menuId)` | 제거 | |
 | `clearCart()` | 전체 비우기 | |
+| `renderCartBadge()` | `#cart-badge` 엘리먼트를 찾아 담긴 수량으로 갱신 | 고객용 페이지가 공통으로 쓰는 헤더 nav의 장바구니 뱃지용 (2026-07-07 추가). 카트가 바뀌는 지점(담기/수량변경/체크아웃)과 각 페이지 로드 시 호출 |
 | `ORDER_STATUSES` | `["주문완료", "조리중", "수령완료", "취소"]` | 주문 상태 값 전체 목록 |
 | `getOrders()` / `saveOrders(orders)` | 주문 전체 읽기/쓰기 | **주문 단일 소스.** `basket`, `orders/*`, `my/*`, `admin/orders/*` 전부 이 함수로 주문을 읽고 씀 |
 | `getOrderById(orderId)` | → order 객체 \| null | |

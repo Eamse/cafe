@@ -1,4 +1,4 @@
-import { formatPrice, formatDate, escapeHtml, getOrders } from "../js/utils.js";
+import { formatPrice, formatDate, escapeHtml, renderCartBadge, getOrders } from "../js/utils.js";
 
 const RECENT_COUNT = 3;
 
@@ -37,6 +37,7 @@ function init() {
   const orders = getOrders();
   renderSummary(orders);
   renderRecentOrders(orders);
+  renderCartBadge();
 }
 
 init();

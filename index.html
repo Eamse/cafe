@@ -10,6 +10,13 @@
 <body>
   <header class="home-header">
     <h1>☕ 카페 앱</h1>
+    <nav class="main-nav">
+      <a href="index.html">홈</a>
+      <a href="menus/list.html">메뉴</a>
+      <a href="basket/list.html" class="nav-cart">장바구니<span class="cart-badge" id="cart-badge"></span></a>
+      <a href="orders/list.html">주문내역</a>
+      <a href="my/index.html">마이페이지</a>
+    </nav>
   </header>
 
   <section class="home-hero">
@@ -19,6 +26,9 @@
 
   <main class="home-menu-section">
     <h2>메뉴</h2>
+    <div class="category-tabs" id="category-tabs">
+      <!-- index.js가 카테고리 탭을 렌더링 -->
+    </div>
     <div class="menu-grid" id="menu-grid">
       <!-- js/data.js의 메뉴 데이터를 index.js가 여기에 렌더링 -->
     </div>

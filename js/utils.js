@@ -89,6 +89,14 @@ export function clearCart() {
   saveCart([]);
 }
 
+export function renderCartBadge() {
+  const badge = document.getElementById("cart-badge");
+  if (!badge) return;
+  const count = getCart().reduce((sum, item) => sum + item.quantity, 0);
+  badge.textContent = count > 0 ? String(count) : "";
+  badge.classList.toggle("is-visible", count > 0);
+}
+
 /* ---------- 주문 ---------- */
 
 const ORDERS_STORAGE_KEY = "cafe_orders";

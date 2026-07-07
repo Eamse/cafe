@@ -1,4 +1,4 @@
-import { formatPrice, formatDate, escapeHtml, getOrders } from "../js/utils.js";
+import { formatPrice, formatDate, escapeHtml, renderCartBadge, getOrders } from "../js/utils.js";
 
 function renderOrders() {
   const listEl = document.getElementById("orders-list");
@@ -24,3 +24,4 @@ function renderOrders() {
 }
 
 renderOrders();
+renderCartBadge();

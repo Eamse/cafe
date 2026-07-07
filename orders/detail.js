@@ -1,4 +1,4 @@
-import { formatPrice, formatDate, escapeHtml, getOrderById } from "../js/utils.js";
+import { formatPrice, formatDate, escapeHtml, renderCartBadge, getOrderById } from "../js/utils.js";
 
 function renderDetail() {
   const params = new URLSearchParams(window.location.search);
@@ -38,3 +38,4 @@ function renderDetail() {
 }
 
 renderDetail();
+renderCartBadge();
