@@ -42,6 +42,15 @@
     </div>
   </section>
 
+  <section class="home-recent" id="home-recent-section" hidden>
+    <div class="section-heading">
+      <h2>다시 담아보세요</h2>
+    </div>
+    <div class="recent-order-row" id="recent-order-row">
+      <!-- index.js가 최근 주문 메뉴를 렌더링 -->
+    </div>
+  </section>
+
   <section class="home-featured">
     <div class="section-heading">
       <h2>오늘의 추천</h2>
@@ -53,9 +62,15 @@
 
   <main class="home-menu-section">
     <div class="section-heading">
-      <h2>전체 메뉴</h2>
+      <h2>전체 메뉴 <span class="menu-count" id="menu-count"></span></h2>
       <div class="menu-controls">
         <input type="search" id="menu-search" class="menu-search" placeholder="메뉴 검색" />
+        <select class="price-filter" id="price-filter">
+          <option value="all">전체 가격</option>
+          <option value="under5000">5,000원 이하</option>
+          <option value="5000to6000">5,000~6,000원</option>
+          <option value="over6000">6,000원 이상</option>
+        </select>
         <select class="sort-select" id="sort-select">
           <option value="default">기본순</option>
           <option value="price-asc">가격 낮은순</option>
