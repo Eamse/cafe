@@ -1,9 +1,48 @@
 import { getMenus, categories } from "../js/data.js";
-import { formatPrice, addToCart, escapeHtml, renderCartBadge } from "../js/utils.js";
+import { formatPrice, addToCart, escapeHtml } from "../js/utils.js";
+import { openCartPanel } from "../js/cartPanel.js";
 
 function getCategoryName(categoryId) {
   const category = categories.find((c) => c.id === categoryId);
   return category ? category.name : categoryId;
+}
+
+function renderMoreMenus(currentMenu) {
+  const grid = document.getElementById("more-menu-grid");
+  const others = getMenus().filter((m) => m.id !== currentMenu.id);
+
+  if (others.length === 0) {
+    grid.innerHTML = "";
+    return;
+  }
+
+  grid.innerHTML = others
+    .map(
+      (menu) => `
+    <div class="menu-card cat-${menu.categoryId}" data-menu-id="${menu.id}" role="button" tabindex="0">
+      <div class="menu-name">${escapeHtml(menu.name)}</div>
+      <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
+      <div class="menu-price">${formatPrice(menu.price)}</div>
+    </div>
+  `
+    )
+    .join("");
+
+  grid.querySelectorAll(".menu-card[data-menu-id]").forEach((card) => {
+    card.addEventListener("click", () => openOtherMenu(card));
+    card.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      openOtherMenu(card);
+    });
+  });
+}
+
+function openOtherMenu(cardEl) {
+  const menuId = Number(cardEl.dataset.menuId);
+  const menu = getMenus().find((m) => m.id === menuId);
+  if (!menu) return;
+  openCartPanel(menu, getCategoryName(menu.categoryId), "../basket/list.html");
 }
 
 function renderMenuDetail() {
@@ -38,6 +77,8 @@ function renderMenuDetail() {
     </div>
   `;
 
+  renderMoreMenus(menu);
+
   if (menu.isSoldOut) return;
 
   let quantity = 1;
@@ -56,7 +97,6 @@ function renderMenuDetail() {
 
   addBtn.addEventListener("click", () => {
     addToCart(menu.id, quantity);
-    renderCartBadge();
     addBtn.textContent = "담았습니다 ✓";
     addBtn.disabled = true;
     setTimeout(() => {
@@ -67,4 +107,3 @@ function renderMenuDetail() {
 }
 
 renderMenuDetail();
-renderCartBadge();

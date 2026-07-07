@@ -16,7 +16,7 @@ export const menus = [
     name: "아메리카노",
     price: 4500,
     description: "깊고 진한 에스프레소에 물을 더한 클래식 커피",
-    image: "",
+    image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
@@ -25,7 +25,7 @@ export const menus = [
     name: "카페라떼",
     price: 5000,
     description: "부드러운 우유 거품과 에스프레소의 조화",
-    image: "",
+    image: "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
@@ -34,7 +34,7 @@ export const menus = [
     name: "바닐라라떼",
     price: 5500,
     description: "달콤한 바닐라 시럽이 더해진 라떼",
-    image: "",
+    image: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
@@ -43,7 +43,7 @@ export const menus = [
     name: "카페모카",
     price: 5800,
     description: "초콜릿과 에스프레소, 휘핑크림의 만남",
-    image: "",
+    image: "https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
@@ -52,7 +52,7 @@ export const menus = [
     name: "얼그레이",
     price: 4800,
     description: "은은한 베르가못 향의 홍차",
-    image: "",
+    image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
@@ -61,7 +61,7 @@ export const menus = [
     name: "캐모마일",
     price: 4800,
     description: "편안한 휴식을 위한 허브티",
-    image: "",
+    image: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
@@ -70,7 +70,7 @@ export const menus = [
     name: "자몽에이드",
     price: 5500,
     description: "상큼한 자몽과 탄산의 청량감",
-    image: "",
+    image: "https://images.unsplash.com/photo-1546173159-315724a31696?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
@@ -79,7 +79,7 @@ export const menus = [
     name: "청포도에이드",
     price: 5500,
     description: "새콤달콤한 청포도 에이드",
-    image: "",
+    image: "https://images.unsplash.com/photo-1556881286-fc6915169721?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
@@ -88,7 +88,7 @@ export const menus = [
     name: "치즈케이크",
     price: 6500,
     description: "진한 크림치즈의 부드러운 케이크",
-    image: "",
+    image: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
@@ -97,7 +97,7 @@ export const menus = [
     name: "크루아상",
     price: 4200,
     description: "겹겹이 바삭한 버터 크루아상",
-    image: "",
+    image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
 ];

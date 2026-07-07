@@ -2,8 +2,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
   padding: var(--spacing-md) var(--spacing-xl);
   background: var(--color-surface);
   box-shadow: var(--shadow-md);
@@ -14,88 +12,96 @@
   color: var(--color-accent);
 }
 
-.main-nav {
+.home-nav {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-md) var(--spacing-lg);
+  gap: var(--spacing-lg);
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 
-.main-nav a {
-  white-space: nowrap;
-}
-
-.main-nav a:hover {
-  color: var(--color-accent);
-}
-
-.nav-cart {
+.cart-link {
   position: relative;
 }
 
 .cart-badge {
-  display: none;
   position: absolute;
-  top: -8px;
-  right: -14px;
-  min-width: 16px;
-  padding: 0 4px;
-  border-radius: var(--radius-full);
-  background: var(--color-accent);
+  top: -10px;
+  right: -16px;
+  background: var(--color-danger);
   color: var(--color-cream-100);
   font-size: var(--font-size-xs);
-  line-height: 16px;
-  text-align: center;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: var(--radius-full);
 }
 
-.cart-badge.is-visible {
-  display: inline-block;
-}
+/* ---------- 히어로 ---------- */
 
 .home-hero {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: var(--spacing-xl) var(--spacing-md) var(--spacing-lg);
-  text-align: center;
+  position: relative;
+  height: 490px;
+  background-image:
+    linear-gradient(180deg, rgba(58, 42, 32, 0.55), rgba(58, 42, 32, 0.4)),
+    url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.home-hero h2 {
+.hero-overlay {
+  text-align: center;
+  color: var(--color-cream-100);
+  padding: 0 var(--spacing-md);
+}
+
+.hero-overlay h2 {
   font-size: var(--font-size-2xl);
   line-height: 1.4;
   margin-bottom: var(--spacing-md);
-  color: var(--color-text);
 }
 
-.home-hero p {
-  color: var(--color-text-muted);
+.hero-overlay p {
+  opacity: 0.9;
 }
 
-.home-menu-section {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: var(--spacing-md) var(--spacing-md) var(--spacing-xl);
-}
+/* ---------- 공통 섹션 ---------- */
 
-.menu-section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.section-heading {
   margin-bottom: var(--spacing-lg);
 }
 
-.menu-section-heading h2 {
+.section-heading h2 {
   font-size: var(--font-size-xl);
 }
 
-.sort-select {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
+/* ---------- 오늘의 추천 ---------- */
+
+.home-featured {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-xl) var(--spacing-md) 0;
+}
+
+.featured-row {
+  display: flex;
+  gap: var(--spacing-lg);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-sm);
+}
+
+.featured-row .menu-card {
+  flex: 0 0 220px;
+}
+
+/* ---------- 전체 메뉴 ---------- */
+
+.home-menu-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-xl) var(--spacing-md);
 }
 
 .category-tabs {
@@ -109,9 +115,9 @@
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: var(--radius-full);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+  border: 1px solid var(--color-border);
   transition: var(--transition-fast);
 }
 
@@ -129,12 +135,12 @@
 
 .menu-card {
   display: block;
+  cursor: pointer;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-left: 4px solid var(--cat-accent, var(--color-border));
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
-  padding: var(--spacing-lg);
+  overflow: hidden;
   transition: var(--transition-base);
 }
 
@@ -142,15 +148,16 @@
   transform: translateY(-4px);
 }
 
-.sold-out-tag {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  background: var(--color-danger);
-  color: var(--color-cream-100);
-  font-size: var(--font-size-xs);
-  font-weight: bold;
-  margin-bottom: var(--spacing-xs);
+.menu-card-image {
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--color-border);
+  border-bottom: 4px solid var(--cat-accent, var(--color-border));
+}
+
+.menu-card-body {
+  padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
 }
 
 .menu-card .menu-name {
@@ -175,146 +182,107 @@
   text-align: center;
   color: var(--color-text-muted);
   padding: var(--spacing-xl) 0;
+  grid-column: 1 / -1;
 }
 
-@media (max-width: 600px) {
+/* ---------- 매장 안내 ---------- */
+
+.home-info {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md) var(--spacing-xl);
+}
+
+.info-card {
+  background: var(--color-cream-200);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  text-align: center;
+}
+
+.info-card h3 {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-accent);
+}
+
+.info-card p {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* ---------- 푸터 ---------- */
+
+.home-footer {
+  background: var(--color-brown-900);
+  color: var(--color-cream-200);
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-xl);
+}
+
+.footer-logo {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-sm);
+}
+
+.footer-brand p {
+  font-size: var(--font-size-sm);
+  opacity: 0.8;
+}
+
+.home-footer h4 {
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-sm);
+  opacity: 0.9;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-links a {
+  font-size: var(--font-size-sm);
+  opacity: 0.8;
+  margin-bottom: var(--spacing-xs);
+}
+
+.sns-icons {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.sns-icons span {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-cream-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+}
+
+.footer-copyright {
+  grid-column: 1 / -1;
+  font-size: var(--font-size-xs);
+  opacity: 0.6;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 700px) {
+  .home-footer {
+    grid-template-columns: 1fr;
+  }
+
   .menu-grid {
     grid-template-columns: 1fr 1fr;
   }
-}
 
-/* ==========================================================================
-   문의하기 챗봇
-   ========================================================================== */
-
-.inquiry-fab {
-  position: fixed;
-  right: var(--spacing-xl);
-  bottom: var(--spacing-xl);
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-full);
-  background: var(--color-accent);
-  color: var(--color-cream-100);
-  font-size: var(--font-size-lg);
-  box-shadow: var(--shadow-md);
-  z-index: 100;
-  transition: var(--transition-base);
-}
-
-.inquiry-fab:hover {
-  background: var(--color-accent-hover);
-}
-
-.inquiry-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(58, 42, 32, 0.35);
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  padding: var(--spacing-xl);
-  z-index: 200;
-}
-
-.inquiry-modal[hidden] {
-  display: none;
-}
-
-.inquiry-panel {
-  width: 100%;
-  max-width: 360px;
-  height: 480px;
-  max-height: 70vh;
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.inquiry-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-md);
-  background: var(--color-accent);
-  color: var(--color-cream-100);
-}
-
-.inquiry-header h3 {
-  font-size: var(--font-size-base);
-}
-
-.inquiry-close {
-  color: var(--color-cream-100);
-  font-size: var(--font-size-lg);
-  line-height: 1;
-}
-
-.inquiry-log {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--spacing-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.inquiry-message {
-  max-width: 80%;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  line-height: 1.5;
-}
-
-.inquiry-message-bot {
-  align-self: flex-start;
-  background: var(--color-bg);
-  color: var(--color-text);
-}
-
-.inquiry-message-user {
-  align-self: flex-end;
-  background: var(--color-accent);
-  color: var(--color-cream-100);
-}
-
-.inquiry-form {
-  display: flex;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md);
-  border-top: 1px solid var(--color-border);
-}
-
-.inquiry-form input {
-  flex: 1;
-  padding: var(--spacing-sm);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-}
-
-.inquiry-form button {
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-sm);
-  background: var(--color-accent);
-  color: var(--color-cream-100);
-  font-weight: bold;
-}
-
-.inquiry-form button:hover {
-  background: var(--color-accent-hover);
-}
-
-@media (max-width: 480px) {
-  .inquiry-modal {
-    padding: var(--spacing-md);
-  }
-
-  .inquiry-panel {
-    max-width: none;
-    height: 70vh;
+  .home-hero {
+    height: 240px;
   }
 }
