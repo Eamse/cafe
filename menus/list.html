@@ -10,11 +10,21 @@
 </head>
 <body>
   <header class="menu-header">
-    <h1>☕ 카페 앱</h1>
+    <h1><a href="../index.html">☕ 카페 앱</a></h1>
+    <nav class="home-nav">
+      <a href="../my/index.html">마이페이지</a>
+      <a href="../basket/list.html" class="cart-link">
+        장바구니
+        <span class="cart-badge" id="cart-badge" hidden>0</span>
+      </a>
+    </nav>
   </header>
 
   <main class="menu-list-page">
     <h2>메뉴</h2>
+    <div class="category-tabs" id="category-tabs">
+      <!-- list.js가 카테고리 탭을 렌더링 -->
+    </div>
     <div class="menu-grid" id="menu-grid">
       <!-- js/data.js의 메뉴 데이터를 list.js가 여기에 렌더링 -->
     </div>

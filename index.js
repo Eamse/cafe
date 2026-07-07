@@ -1,5 +1,5 @@
 import { getMenus, categories } from "./js/data.js";
-import { formatPrice, escapeHtml, getCart } from "./js/utils.js";
+import { formatPrice, escapeHtml, renderCartBadge } from "./js/utils.js";
 import { openCartPanel } from "./js/cartPanel.js";
 
 let activeCategory = "all";
@@ -7,19 +7,6 @@ let activeCategory = "all";
 function getCategoryName(categoryId) {
   const category = categories.find((c) => c.id === categoryId);
   return category ? category.name : categoryId;
-}
-
-function renderCartBadge() {
-  const badge = document.getElementById("cart-badge");
-  const count = getCart().reduce((sum, item) => sum + item.quantity, 0);
-
-  if (count === 0) {
-    badge.hidden = true;
-    return;
-  }
-
-  badge.hidden = false;
-  badge.textContent = count > 99 ? "99+" : String(count);
 }
 
 function menuCardHtml(menu) {

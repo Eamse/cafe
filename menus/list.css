@@ -1,4 +1,9 @@
 .menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
   padding: var(--spacing-md) var(--spacing-xl);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -10,6 +15,34 @@
   color: var(--color-accent);
 }
 
+.home-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.home-nav a:hover {
+  color: var(--color-accent);
+}
+
+.cart-link {
+  position: relative;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -10px;
+  right: -16px;
+  background: var(--color-danger);
+  color: var(--color-cream-100);
+  font-size: var(--font-size-xs);
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: var(--radius-full);
+}
+
 .menu-list-page {
   max-width: 960px;
   margin: 0 auto;
@@ -19,6 +52,29 @@
 .menu-list-page h2 {
   font-size: var(--font-size-xl);
   margin-bottom: var(--spacing-lg);
+}
+
+.category-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  transition: var(--transition-fast);
+}
+
+.tab-btn.active {
+  background: var(--color-accent);
+  color: var(--color-cream-100);
+  border-color: var(--color-accent);
 }
 
 .menu-grid {
@@ -41,6 +97,17 @@
 
 .menu-card:hover {
   transform: translateY(-4px);
+}
+
+.sold-out-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-danger);
+  color: var(--color-cream-100);
+  font-size: var(--font-size-xs);
+  font-weight: bold;
+  margin-bottom: var(--spacing-xs);
 }
 
 .menu-card .menu-name {

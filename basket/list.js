@@ -6,6 +6,7 @@ import {
   clearCart,
   formatPrice,
   escapeHtml,
+  renderCartBadge,
   getOrders,
   saveOrders,
 } from "../js/utils.js";
@@ -19,6 +20,8 @@ function renderBasket() {
   const listEl = document.getElementById("basket-list");
   const totalEl = document.getElementById("basket-total");
   const checkoutBtn = document.getElementById("checkout-btn");
+
+  renderCartBadge();
 
   if (cart.length === 0) {
     listEl.innerHTML = `<p class="basket-empty">장바구니가 비어있습니다.</p>`;

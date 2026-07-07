@@ -131,6 +131,8 @@ cafe-app
 - [x] `menus/detail.css`
 - [x] `menus/detail.js`
 
+> **개선 (2026-07-07)**: 메뉴 목록/홈 카드에 품절(`isSoldOut`) 뱃지가 전혀 안 보여서 클릭해서 상세로 들어가야만 품절 여부를 알 수 있던 문제 수정 — `index.js`/`menus/list.js` 카드에 "품절" 뱃지 추가. 또한 두 페이지 다 전체 메뉴를 필터 없이 쭉 나열만 하던 것을, `admin/menus/list.js`와 동일한 패턴의 카테고리 탭(`category-tabs`)으로 필터링 가능하게 함.
+
 ### 4단계: 고객 - 장바구니 관리 시스템
 
 - [x] `basket/list.html` — 장바구니
@@ -150,6 +152,8 @@ cafe-app
 - [x] `orders/detail.css`
 - [x] `orders/detail.js`
 
+> **개선 (2026-07-07)**: 주문 상태 변경을 관리자만 할 수 있어서, 고객이 잘못 주문해도 취소할 방법이 없던 문제 보완 — `orders/detail.html`에서 주문 상태가 `주문완료`일 때만 "주문 취소" 버튼 노출(`updateOrderStatus(orderId, "취소")` 재사용, 관리자 쪽과 동일 함수). 또한 `orders/list.html`/`orders/detail.html` 양쪽에 "다시 담기" 버튼을 추가해 그 주문의 메뉴들을 한번에 장바구니로 재추가 가능(주문 당시 메뉴가 삭제된 경우엔 버튼 자체를 숨김). `orders/list.js`의 카드는 `<a>` 하나로 감싸던 구조를 `<div class="order-card">` + `display:contents`인 내부 `<a class="order-card-link">` + 별도 `<button class="btn-reorder">`로 바꿔서, 버튼과 상세이동 링크가 서로 안 겹치게 함.
+
 ### 6단계: 고객 - 메인 페이지
 
 - [x] `index.html` — 헤더(장바구니 뱃지) + 히어로(배경 사진) + 오늘의 추천 + 카테고리 탭 + 전체 메뉴 그리드(실사 이미지) + 매장 안내 + 푸터로 재구성
@@ -157,6 +161,18 @@ cafe-app
 - [x] `index.js`
 
 > **재설계 완료 (2026-07-07)**: "메뉴 보러가기" 이동 버튼을 없애고, 헤더/히어로 아래에 `getMenus()`(`js/data.js`)로 렌더링한 전체 메뉴 그리드를 바로 노출. 각 메뉴는 `menus/detail.html?id=`로 연결.
+
+> **버그 발견/수정 (2026-07-07)**: 홈을 포함한 고객용 페이지 전체에 장바구니·주문내역·마이페이지로 가는 링크가 **하나도 없어서**, 메뉴 상세에서 장바구니에 담아도 그 장바구니 화면 자체에 도달할 방법이 URL 직접 입력밖에 없던 문제 발견. ~~고객용 7개 페이지 헤더에 공통 `<nav class="main-nav">`(홈/메뉴/장바구니/주문내역/마이페이지)를 추가~~ → 아래 "팀원 디자인 병합" 항목에서 팀원의 더 단순한 nav(마이페이지/장바구니)로 대체됨.
+
+> ~~**개선 (2026-07-07)**: `index.html`/`menus/list.html`에 정렬 옵션(`#sort-select`) 추가~~ — 아래 "팀원 디자인 병합" 때 충돌 해결하면서 제거됨(팀원 버전에는 없는 기능).
+
+> ~~**신규 기능 (2026-07-07) — 문의하기 챗봇**: 홈 화면에 규칙 기반 FAQ 챗봇(`#inquiry-fab`)~~ — 아래 "팀원 디자인 병합" 때 `index.html`을 팀원 버전으로 교체하면서 제거됨. 되살리려면 `js/utils.js`의 `escapeHtml`/`renderCartBadge`처럼 다시 구현 필요.
+
+> **팀원 디자인 병합 (2026-07-07, PR #19 `feature/homepage-redesign`)**: 팀원이 홈 화면을 히어로 배경사진 + "오늘의 추천" + 카테고리 탭 + 실사 이미지 메뉴 그리드 + 매장 안내 + 푸터로 재설계하고, 메뉴 카드를 클릭하면 페이지 이동 없이 우측에서 슬라이드로 열리는 **장바구니 담기 패널**(`js/cartPanel.js`, `css/cart-panel.css`, `openCartPanel()`)을 새로 추가함. `index.css/html/js`, `menus/detail.html/js`, `menus/list.js`가 충돌해서 **팀원 버전으로 맞춤** — 그 결과 위 두 항목(정렬 옵션, 문의 챗봇)과 5개짜리 nav는 없어짐.
+>
+> 병합 직후 팀원 코드 자체의 버그 2건 발견/수정: `menus/detail.html` 헤더 홈 링크가 `href="inede.html"`(오타, 존재하지 않는 파일)로 깨져있던 것을 `../index.html`로 수정, `menus/list.html`에 연결된 JS 없이 죽어있던 정렬 `<select>` 제거.
+>
+> 이어서 **네비게이션을 사이트 전체에 통일**함 — 팀원이 만든 홈 화면의 nav(마이페이지 / 장바구니+뱃지, 워드마크 클릭 시 홈으로)를 `menus/detail.html`(기존엔 nav 자체가 없었음), `basket/list.html`, `orders/list.html`, `orders/detail.html`, `my/index.html`(자기 자신 링크는 제외)에도 동일하게 적용. `js/utils.js`의 `renderCartBadge()`도 팀원 방식(`hidden` 속성 토글)으로 통일해서, `cart:updated` 이벤트나 페이지 로드 시 어느 페이지에서든 같은 방식으로 뱃지가 갱신됨. 주문내역 링크는 헤더에서 빠졌지만 마이페이지의 "전체보기 →"로 계속 접근 가능.
 
 ### 7단계: 고객 - 마이페이지
 
@@ -208,6 +224,7 @@ cafe-app
 | `updateCartQuantity(menuId, quantity)` | 수량 변경 (0 이하면 제거) | |
 | `removeFromCart(menuId)` | 제거 | |
 | `clearCart()` | 전체 비우기 | |
+| `renderCartBadge()` | `#cart-badge` 엘리먼트를 찾아 담긴 수량으로 갱신 | 고객용 페이지가 공통으로 쓰는 헤더 nav의 장바구니 뱃지용 (2026-07-07 추가). 카트가 바뀌는 지점(담기/수량변경/체크아웃)과 각 페이지 로드 시 호출 |
 | `ORDER_STATUSES` | `["주문완료", "조리중", "수령완료", "취소"]` | 주문 상태 값 전체 목록 |
 | `getOrders()` / `saveOrders(orders)` | 주문 전체 읽기/쓰기 | **주문 단일 소스.** `basket`, `orders/*`, `my/*`, `admin/orders/*` 전부 이 함수로 주문을 읽고 씀 |
 | `getOrderById(orderId)` | → order 객체 \| null | |
