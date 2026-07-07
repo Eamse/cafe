@@ -152,6 +152,8 @@ cafe-app
 - [x] `orders/detail.css`
 - [x] `orders/detail.js`
 
+> **개선 (2026-07-07)**: 주문 상태 변경을 관리자만 할 수 있어서, 고객이 잘못 주문해도 취소할 방법이 없던 문제 보완 — `orders/detail.html`에서 주문 상태가 `주문완료`일 때만 "주문 취소" 버튼 노출(`updateOrderStatus(orderId, "취소")` 재사용, 관리자 쪽과 동일 함수). 또한 `orders/list.html`/`orders/detail.html` 양쪽에 "다시 담기" 버튼을 추가해 그 주문의 메뉴들을 한번에 장바구니로 재추가 가능(주문 당시 메뉴가 삭제된 경우엔 버튼 자체를 숨김). `orders/list.js`의 카드는 `<a>` 하나로 감싸던 구조를 `<div class="order-card">` + `display:contents`인 내부 `<a class="order-card-link">` + 별도 `<button class="btn-reorder">`로 바꿔서, 버튼과 상세이동 링크가 서로 안 겹치게 함.
+
 ### 6단계: 고객 - 메인 페이지
 
 - [x] `index.html` — 재설계 완료 (아래 참고)
@@ -161,6 +163,8 @@ cafe-app
 > **재설계 완료 (2026-07-07)**: "메뉴 보러가기" 이동 버튼을 없애고, 헤더/히어로 아래에 `getMenus()`(`js/data.js`)로 렌더링한 전체 메뉴 그리드를 바로 노출. 각 메뉴는 `menus/detail.html?id=`로 연결.
 
 > **버그 발견/수정 (2026-07-07)**: 홈을 포함한 고객용 페이지 전체에 장바구니·주문내역·마이페이지로 가는 링크가 **하나도 없어서**, 메뉴 상세에서 장바구니에 담아도 그 장바구니 화면 자체에 도달할 방법이 URL 직접 입력밖에 없던 문제 발견. 고객용 7개 페이지(`index.html`, `menus/list.html`, `menus/detail.html`, `basket/list.html`, `orders/list.html`, `orders/detail.html`, `my/index.html`) 헤더에 공통 `<nav class="main-nav">`(홈/메뉴/장바구니/주문내역/마이페이지)를 추가하고, 기존 개별 "← 뒤로가기" 링크는 이 nav로 대체함. 장바구니 링크에는 담긴 수량을 보여주는 뱃지(`#cart-badge`, `js/utils.js`의 `renderCartBadge()`)도 추가해 담을 때마다 실시간 갱신.
+
+> **개선 (2026-07-07)**: `index.html`/`menus/list.html`에 정렬 옵션(`#sort-select`: 기본순/가격 낮은순/가격 높은순/이름순) 추가. 카테고리 필터와 함께 적용되는 클라이언트 사이드 정렬이라 데이터 계약 변경 없음.
 
 ### 7단계: 고객 - 마이페이지
 

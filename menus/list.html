@@ -20,7 +20,15 @@
   </header>
 
   <main class="menu-list-page">
-    <h2>메뉴</h2>
+    <div class="menu-section-heading">
+      <h2>메뉴</h2>
+      <select class="sort-select" id="sort-select">
+        <option value="default">기본순</option>
+        <option value="price-asc">가격 낮은순</option>
+        <option value="price-desc">가격 높은순</option>
+        <option value="name">이름순</option>
+      </select>
+    </div>
     <div class="category-tabs" id="category-tabs">
       <!-- list.js가 카테고리 탭을 렌더링 -->
     </div>

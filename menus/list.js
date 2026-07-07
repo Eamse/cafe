@@ -2,6 +2,15 @@ import { getMenus, categories } from "../js/data.js";
 import { formatPrice, escapeHtml, renderCartBadge } from "../js/utils.js";
 
 let activeCategory = "all";
+let activeSort = "default";
+
+function sortMenus(menus) {
+  const sorted = menus.slice();
+  if (activeSort === "price-asc") sorted.sort((a, b) => a.price - b.price);
+  else if (activeSort === "price-desc") sorted.sort((a, b) => b.price - a.price);
+  else if (activeSort === "name") sorted.sort((a, b) => a.name.localeCompare(b.name, "ko"));
+  return sorted;
+}
 
 function getCategoryName(categoryId) {
   const category = categories.find((c) => c.id === categoryId);
@@ -34,7 +43,7 @@ function renderTabs() {
 function renderMenuGrid() {
   const grid = document.getElementById("menu-grid");
   const menus = getMenus();
-  const filtered = activeCategory === "all" ? menus : menus.filter((m) => m.categoryId === activeCategory);
+  const filtered = sortMenus(activeCategory === "all" ? menus : menus.filter((m) => m.categoryId === activeCategory));
 
   if (filtered.length === 0) {
     grid.innerHTML = `<p class="menu-empty">등록된 메뉴가 없습니다.</p>`;
@@ -54,6 +63,11 @@ function renderMenuGrid() {
     )
     .join("");
 }
+
+document.getElementById("sort-select").addEventListener("change", (event) => {
+  activeSort = event.target.value;
+  renderMenuGrid();
+});
 
 renderTabs();
 renderMenuGrid();
