@@ -109,6 +109,17 @@
   cursor: not-allowed;
 }
 
+.menu-detail-more {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md) var(--spacing-xl);
+}
+
+.menu-detail-more h2 {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
 .sold-out-badge {
   text-align: center;
   padding: var(--spacing-md);
