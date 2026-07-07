@@ -15,44 +15,21 @@
   color: var(--color-accent);
 }
 
-.main-nav {
+.menu-header-right {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-md) var(--spacing-lg);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  gap: var(--spacing-lg);
 }
 
-.main-nav a {
+.back-link {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
   white-space: nowrap;
 }
 
-.main-nav a:hover {
+.back-link:hover {
   color: var(--color-accent);
-}
-
-.nav-cart {
-  position: relative;
-}
-
-.cart-badge {
-  display: none;
-  position: absolute;
-  top: -8px;
-  right: -14px;
-  min-width: 16px;
-  padding: 0 4px;
-  border-radius: var(--radius-full);
-  background: var(--color-accent);
-  color: var(--color-cream-100);
-  font-size: var(--font-size-xs);
-  line-height: 16px;
-  text-align: center;
-}
-
-.cart-badge.is-visible {
-  display: inline-block;
 }
 
 .menu-detail-page {

@@ -1,5 +1,5 @@
 import { getMenus, categories } from "../js/data.js";
-import { formatPrice, addToCart, escapeHtml } from "../js/utils.js";
+import { formatPrice, addToCart, escapeHtml, renderCartBadge } from "../js/utils.js";
 import { openCartPanel } from "../js/cartPanel.js";
 
 function getCategoryName(categoryId) {
@@ -97,6 +97,7 @@ function renderMenuDetail() {
 
   addBtn.addEventListener("click", () => {
     addToCart(menu.id, quantity);
+    renderCartBadge();
     addBtn.textContent = "담았습니다 ✓";
     addBtn.disabled = true;
     setTimeout(() => {
@@ -106,4 +107,7 @@ function renderMenuDetail() {
   });
 }
 
+window.addEventListener("cart:updated", renderCartBadge);
+
 renderMenuDetail();
+renderCartBadge();

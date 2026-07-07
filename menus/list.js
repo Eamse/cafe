@@ -1,5 +1,5 @@
 import { getMenus, categories } from "../js/data.js";
-import { formatPrice, escapeHtml } from "../js/utils.js";
+import { formatPrice, escapeHtml, renderCartBadge } from "../js/utils.js";
 import { openCartPanel } from "../js/cartPanel.js";
 
 function getCategoryName(categoryId) {
@@ -50,4 +50,7 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+window.addEventListener("cart:updated", renderCartBadge);
+
 renderMenuGrid();
+renderCartBadge();

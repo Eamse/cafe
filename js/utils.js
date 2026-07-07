@@ -93,8 +93,14 @@ export function renderCartBadge() {
   const badge = document.getElementById("cart-badge");
   if (!badge) return;
   const count = getCart().reduce((sum, item) => sum + item.quantity, 0);
-  badge.textContent = count > 0 ? String(count) : "";
-  badge.classList.toggle("is-visible", count > 0);
+
+  if (count === 0) {
+    badge.hidden = true;
+    return;
+  }
+
+  badge.hidden = false;
+  badge.textContent = count > 99 ? "99+" : String(count);
 }
 
 /* ---------- 주문 ---------- */

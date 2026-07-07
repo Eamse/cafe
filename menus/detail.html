@@ -12,7 +12,16 @@
   <body>
     <header class="menu-header">
       <h1><a href="../index.html">☕ 카페 앱</a></h1>
-      <a href="list.html" class="back-link">← 메뉴로 돌아가기</a>
+      <div class="menu-header-right">
+        <a href="list.html" class="back-link">← 메뉴로 돌아가기</a>
+        <nav class="home-nav">
+          <a href="../my/index.html">마이페이지</a>
+          <a href="../basket/list.html" class="cart-link">
+            장바구니
+            <span class="cart-badge" id="cart-badge" hidden>0</span>
+          </a>
+        </nav>
+      </div>
     </header>
 
     <main class="menu-detail-page" id="menu-detail">

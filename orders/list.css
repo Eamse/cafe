@@ -15,44 +15,32 @@
   color: var(--color-accent);
 }
 
-.main-nav {
+.home-nav {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-md) var(--spacing-lg);
+  gap: var(--spacing-lg);
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 
-.main-nav a {
-  white-space: nowrap;
-}
-
-.main-nav a:hover {
+.home-nav a:hover {
   color: var(--color-accent);
 }
 
-.nav-cart {
+.cart-link {
   position: relative;
 }
 
 .cart-badge {
-  display: none;
   position: absolute;
-  top: -8px;
-  right: -14px;
-  min-width: 16px;
-  padding: 0 4px;
-  border-radius: var(--radius-full);
-  background: var(--color-accent);
+  top: -10px;
+  right: -16px;
+  background: var(--color-danger);
   color: var(--color-cream-100);
   font-size: var(--font-size-xs);
-  line-height: 16px;
-  text-align: center;
-}
-
-.cart-badge.is-visible {
-  display: inline-block;
+  line-height: 1;
+  padding: 3px 6px;
+  border-radius: var(--radius-full);
 }
 
 .orders-page {
