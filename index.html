@@ -42,6 +42,24 @@
     </div>
   </main>
 
+  <button type="button" class="inquiry-fab" id="inquiry-fab" aria-label="문의하기">💬</button>
+
+  <div class="inquiry-modal" id="inquiry-modal" hidden>
+    <div class="inquiry-panel">
+      <div class="inquiry-header">
+        <h3>문의하기</h3>
+        <button type="button" class="inquiry-close" id="inquiry-close" aria-label="닫기">×</button>
+      </div>
+      <div class="inquiry-log" id="inquiry-log">
+        <!-- index.js가 대화 내용을 렌더링 -->
+      </div>
+      <form class="inquiry-form" id="inquiry-form">
+        <input type="text" id="inquiry-input" placeholder="궁금한 걸 물어보세요" autocomplete="off" />
+        <button type="submit">전송</button>
+      </form>
+    </div>
+  </div>
+
   <script type="module" src="index.js"></script>
 </body>
 </html>
