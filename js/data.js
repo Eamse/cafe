@@ -16,7 +16,7 @@ export const menus = [
     name: "아메리카노",
     price: 4500,
     description: "깊고 진한 에스프레소에 물을 더한 클래식 커피",
-    image: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=600&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
@@ -43,7 +43,7 @@ export const menus = [
     name: "카페모카",
     price: 5800,
     description: "초콜릿과 에스프레소, 휘핑크림의 만남",
-    image: "https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=600&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
@@ -61,7 +61,7 @@ export const menus = [
     name: "캐모마일",
     price: 4800,
     description: "편안한 휴식을 위한 허브티",
-    image: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?w=600&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1612706965205-7570f423e339?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
@@ -70,7 +70,7 @@ export const menus = [
     name: "자몽에이드",
     price: 5500,
     description: "상큼한 자몽과 탄산의 청량감",
-    image: "https://images.unsplash.com/photo-1546173159-315724a31696?w=600&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1592858321831-dabeabc2dd65?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
@@ -79,7 +79,7 @@ export const menus = [
     name: "청포도에이드",
     price: 5500,
     description: "새콤달콤한 청포도 에이드",
-    image: "https://images.unsplash.com/photo-1556881286-fc6915169721?w=600&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1610622930110-3c076902312a?w=600&auto=format&fit=crop",
     isSoldOut: false,
   },
   {
