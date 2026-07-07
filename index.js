@@ -12,7 +12,7 @@ function renderMenuGrid() {
   grid.innerHTML = getMenus()
     .map(
       (menu) => `
-    <a class="menu-card" href="menus/detail.html?id=${menu.id}">
+    <a class="menu-card cat-${menu.categoryId}" href="menus/detail.html?id=${menu.id}">
       <div class="menu-name">${menu.name}</div>
       <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
       <div class="menu-price">${formatPrice(menu.price)}</div>

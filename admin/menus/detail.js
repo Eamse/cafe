@@ -19,7 +19,7 @@ function renderDetail() {
   }
 
   container.innerHTML = `
-    <div class="detail-card glass-card">
+    <div class="detail-card glass-card cat-${menu.categoryId}">
       <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
       <h2 class="menu-name">${menu.name}</h2>
       <div class="menu-price">${formatPrice(menu.price)}</div>

@@ -27,11 +27,11 @@
   --color-danger: #b3532b;
   --color-warning: #c98a1c;
 
-  /* Glass morphism */
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.4);
-  --blur-glass: 12px;
-  --shadow-glass: 0 8px 32px rgba(58, 42, 32, 0.12);
+  /* Colors — category accents */
+  --color-cat-coffee: var(--color-brown-700);
+  --color-cat-tea: #5c8a63;
+  --color-cat-ade: #d99a2b;
+  --color-cat-dessert: #c1665a;
 
   /* Typography */
   --font-family: "Pretendard", "Apple SD Gothic Neo", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -137,10 +137,29 @@ img {
 }
 
 .glass-card {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-glass);
-  backdrop-filter: blur(var(--blur-glass));
-  -webkit-backdrop-filter: blur(var(--blur-glass));
+  box-shadow: var(--shadow-md);
+}
+
+/* ==========================================================================
+   카테고리 포인트 컬러 — 카드에 붙이는 cat-* 클래스가 --cat-accent를 정의하고,
+   각 페이지 CSS가 그 값을 참조해 강조 색을 사용한다.
+   ========================================================================== */
+
+.cat-coffee {
+  --cat-accent: var(--color-cat-coffee);
+}
+
+.cat-tea {
+  --cat-accent: var(--color-cat-tea);
+}
+
+.cat-ade {
+  --cat-accent: var(--color-cat-ade);
+}
+
+.cat-dessert {
+  --cat-accent: var(--color-cat-dessert);
 }

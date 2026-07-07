@@ -86,7 +86,8 @@ cafe-app
 
 - **테마**: 라이트 + 따뜻한 브라운/크림 톤
 - **분위기**: 미니멀 + 모던
-- **카드 스타일**: Glass morphism
+- **카드 스타일**: Solid 카드 (배경 `--color-surface` + `--shadow-md`). ~~Glass morphism~~은 2026-07-07에 걷어냄 — 반투명/블러 대신 또렷한 대비로 정돈된 느낌을 우선함
+- **카테고리 포인트 컬러**: 메뉴 카드는 `cat-${categoryId}` 클래스로 카테고리별 강조색(왼쪽 보더 + 라벨 색)을 가짐. 커피/티/에이드/디저트마다 다른 색이라 사진 없이도 카드가 다 똑같아 보이지 않음
 - **레이아웃**: 반응형 (모바일/데스크톱)
 
 ## 📐 코로케이션 원칙
@@ -221,7 +222,9 @@ cafe-app
 
 ### 주요 CSS 변수 (`css/variables.css`)
 
-색상 `--color-*`(`accent`, `text`, `text-muted`, `surface`, `border`, `success`, `danger` 등), 타이포 `--font-size-{xs,sm,base,lg,xl,2xl}`, 간격 `--spacing-{xs,sm,md,lg,xl,2xl}`, 반경 `--radius-{sm,md,lg,full}`, 글래스 `--glass-bg`, `--glass-border`, `--blur-glass`, `--shadow-glass`, 트랜지션 `--transition-{fast,base}`. 새 변수가 필요하면 `variables.css`에 추가하고 여기 이름도 갱신.
+색상 `--color-*`(`accent`, `text`, `text-muted`, `surface`, `border`, `success`, `danger` 등), 카테고리 포인트 컬러 `--color-cat-{coffee,tea,ade,dessert}`, 타이포 `--font-size-{xs,sm,base,lg,xl,2xl}`, 간격 `--spacing-{xs,sm,md,lg,xl,2xl}`, 반경 `--radius-{sm,md,lg,full}`, 그림자 `--shadow-{sm,md}`, 트랜지션 `--transition-{fast,base}`. 새 변수가 필요하면 `variables.css`에 추가하고 여기 이름도 갱신.
+
+> **디자인 리뉴얼 (2026-07-07)**: 글래스모피즘(`--glass-bg`/`--glass-border`/`--blur-glass`/`--shadow-glass`) 전부 제거하고 solid 카드(`--color-surface` + `--shadow-md`)로 교체. `.glass-card` 유틸리티 클래스 이름은 기존 HTML/JS와의 호환을 위해 그대로 유지하되, 실제 스타일은 solid로 바뀜. 메뉴 카드에는 `cat-${categoryId}` 클래스(`variables.css`에 정의)로 카테고리별 포인트 컬러(왼쪽 보더 + 라벨 색)를 추가함.
 
 ### 7·8단계 결정사항 (전부 구현 완료)
 

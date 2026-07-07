@@ -44,7 +44,7 @@ function renderList() {
   listEl.innerHTML = filtered
     .map(
       (menu) => `
-    <div class="admin-menu-row glass-card" data-id="${menu.id}">
+    <div class="admin-menu-row glass-card cat-${menu.categoryId}" data-id="${menu.id}">
       <a class="row-main" href="detail.html?id=${menu.id}">
         <div class="row-name">${menu.name}</div>
         <div class="row-category">${getCategoryName(menu.categoryId)}</div>
