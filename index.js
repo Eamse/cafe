@@ -21,8 +21,9 @@ function getCategoryName(categoryId) {
 
 function menuCardHtml(menu) {
   return `
-    <div class="menu-card cat-${menu.categoryId}" data-menu-id="${menu.id}" role="button" tabindex="0">
+    <div class="menu-card cat-${menu.categoryId} ${menu.isSoldOut ? "is-soldout" : ""}" data-menu-id="${menu.id}" role="button" tabindex="0">
       <div class="menu-card-image" style="background-image: url('${menu.image}')"></div>
+      ${menu.isSoldOut ? `<div class="sold-out-tag">품절</div>` : ""}
       <div class="menu-card-body">
         <div class="menu-name">${escapeHtml(menu.name)}</div>
         <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
