@@ -1,1 +1,25 @@
-// 메인 페이지는 현재 별도 동적 로직 없이 정적으로 표시됩니다.
+import { getMenus, categories } from "./js/data.js";
+import { formatPrice } from "./js/utils.js";
+
+function getCategoryName(categoryId) {
+  const category = categories.find((c) => c.id === categoryId);
+  return category ? category.name : categoryId;
+}
+
+function renderMenuGrid() {
+  const grid = document.getElementById("menu-grid");
+
+  grid.innerHTML = getMenus()
+    .map(
+      (menu) => `
+    <a class="menu-card" href="menus/detail.html?id=${menu.id}">
+      <div class="menu-name">${menu.name}</div>
+      <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
+      <div class="menu-price">${formatPrice(menu.price)}</div>
+    </a>
+  `
+    )
+    .join("");
+}
+
+renderMenuGrid();
