@@ -4,24 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>메뉴 추가 - 카페 앱 관리자</title>
-  <link rel="stylesheet" href="../../css/variables.css" />
-  <link rel="stylesheet" href="../sidebar.css" />
-  <link rel="stylesheet" href="create.css" />
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/admin/sidebar.css" />
+  <link rel="stylesheet" href="/admin/menus/create.css" />
 </head>
 <body>
   <div class="admin-shell">
     <aside class="admin-sidebar">
       <h1>☕ 카페 앱 관리자</h1>
       <nav class="admin-sidebar-nav">
-        <a href="../index.html">대시보드</a>
-        <a href="list.html" class="active">메뉴 관리</a>
-        <a href="../orders/list.html">주문 관리</a>
+        <a href="/admin/index.html">대시보드</a>
+        <a href="/admin/menus/list.html" class="active">메뉴 관리</a>
+        <a href="/admin/orders/list.html">주문 관리</a>
       </nav>
     </aside>
 
     <div class="admin-main">
   <main class="admin-form-page">
-    <a class="back-link" href="list.html">← 목록으로</a>
+    <a class="back-link" href="/admin/menus/list.html">← 목록으로</a>
     <h2>메뉴 추가</h2>
 
     <form id="menu-form" class="menu-form glass-card">
@@ -52,13 +52,13 @@
 
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">저장</button>
-        <a class="btn btn-cancel" href="list.html">취소</a>
+        <a class="btn btn-cancel" href="/admin/menus/list.html">취소</a>
       </div>
     </form>
   </main>
     </div>
   </div>
 
-  <script type="module" src="create.js"></script>
+  <script type="module" src="/admin/menus/create.js"></script>
 </body>
 </html>
