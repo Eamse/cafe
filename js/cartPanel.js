@@ -69,6 +69,7 @@ function renderSummary(basketHref) {
 export function closeCartPanel() {
   if (!overlayEl) return;
   overlayEl.classList.remove("is-open");
+  document.body.classList.remove("cart-panel-open");
   document.removeEventListener("keydown", escHandler);
   bodyEl.innerHTML = "";
   renderedMenuIds.clear();
@@ -130,6 +131,7 @@ export function openCartPanel(menu, categoryName, basketHref = "basket/list.html
 
   renderSummary(basketHref);
   overlayEl.classList.add("is-open");
+  document.body.classList.add("cart-panel-open");
 
   escHandler = (e) => {
     if (e.key === "Escape") closeCartPanel();

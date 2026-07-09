@@ -1,6 +1,54 @@
 import { getMenus } from "../js/data.js";
 import { formatPrice, formatDate, escapeHtml, renderCartBadge, getOrders, addToCart } from "../js/utils.js";
 
+function renderRecentOrderWidget() {
+  const section = document.getElementById("home-recent-section");
+  const row = document.getElementById("recent-order-row");
+  const orders = getOrders();
+
+  if (orders.length === 0) {
+    section.hidden = true;
+    return;
+  }
+
+  const menus = getMenus();
+  const lastOrder = orders[orders.length - 1];
+  const items = lastOrder.items
+    .map((item) => ({ item, menu: menus.find((m) => m.id === item.menuId) }))
+    .filter(({ menu }) => menu);
+
+  if (items.length === 0) {
+    section.hidden = true;
+    return;
+  }
+
+  section.hidden = false;
+  row.innerHTML = items
+    .map(
+      ({ item, menu }) => `
+    <div class="recent-item">
+      <div class="recent-item-name">${escapeHtml(menu.name)}</div>
+      <div class="recent-item-price">${formatPrice(menu.price)}</div>
+      <button type="button" class="btn-reorder-mini" data-menu-id="${menu.id}" data-quantity="${item.quantity}">다시 담기</button>
+    </div>
+  `
+    )
+    .join("");
+
+  row.querySelectorAll(".btn-reorder-mini").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      addToCart(Number(btn.dataset.menuId), Number(btn.dataset.quantity));
+      renderCartBadge();
+      btn.textContent = "담았습니다 ✓";
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = "다시 담기";
+        btn.disabled = false;
+      }, 1200);
+    });
+  });
+}
+
 function reorder(order, button) {
   order.items.forEach((item) => addToCart(item.menuId, item.quantity));
   renderCartBadge();
@@ -52,4 +100,5 @@ function renderOrders() {
 }
 
 renderOrders();
+renderRecentOrderWidget();
 renderCartBadge();

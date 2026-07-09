@@ -1,0 +1,25 @@
+{
+  "name": "new-cafe",
+  "version": "1.0.0",
+  "description": "수정 테스트 111",
+  "main": "index.js",
+  "scripts": {
+    "start": "serve -l 3114",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eamse/cafe.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Eamse/cafe/issues"
+  },
+  "homepage": "https://github.com/Eamse/cafe#readme",
+  "dependencies": {
+    "serve": "^14.2.6"
+  }
+}

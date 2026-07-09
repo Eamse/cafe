@@ -1,5 +1,5 @@
 import { getMenus, categories } from "./js/data.js";
-import { formatPrice, escapeHtml, renderCartBadge, getOrders, addToCart } from "./js/utils.js";
+import { formatPrice, escapeHtml, renderCartBadge, getOrders } from "./js/utils.js";
 import { openCartPanel } from "./js/cartPanel.js";
 
 let activeCategory = "all";
@@ -83,13 +83,18 @@ function menuCardHtml(menu, popularIds, favorites) {
   const label = `${menu.name}, ${getCategoryName(menu.categoryId)}, ${formatPrice(menu.price)}${menu.isSoldOut ? ", 품절" : ""}`;
   return `
     <div class="menu-card cat-${menu.categoryId} ${menu.isSoldOut ? "is-soldout" : ""}" data-menu-id="${menu.id}" role="button" tabindex="0" aria-label="${escapeHtml(label)}">
-      <button type="button" class="favorite-btn ${isFavorite ? "is-active" : ""}" data-menu-id="${menu.id}" aria-pressed="${isFavorite ? "true" : "false"}" aria-label="즐겨찾기 ${isFavorite ? "해제" : "추가"}">♥</button>
-      <div class="menu-card-image" style="background-image: url('${escapeHtml(menu.image)}')"></div>
-      ${menu.isSoldOut ? `<div class="sold-out-tag">품절</div>` : isPopular ? `<div class="popular-tag">인기</div>` : ""}
+      <div class="menu-card-image-wrap">
+        <div class="menu-card-image" style="background-image: url('${escapeHtml(menu.image)}')"></div>
+        ${menu.isSoldOut ? `<div class="sold-out-tag">품절</div>` : isPopular ? `<div class="popular-tag">인기</div>` : ""}
+        <button type="button" class="favorite-btn ${isFavorite ? "is-active" : ""}" data-menu-id="${menu.id}" aria-pressed="${isFavorite ? "true" : "false"}" aria-label="즐겨찾기 ${isFavorite ? "해제" : "추가"}">♥</button>
+      </div>
       <div class="menu-card-body">
         <div class="menu-name">${escapeHtml(menu.name)}</div>
         <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
-        <div class="menu-price">${formatPrice(menu.price)}</div>
+        <div class="menu-card-footer">
+          <span class="menu-price">${formatPrice(menu.price)}</span>
+          <a href="menus/detail.html?id=${menu.id}" class="menu-detail-link" aria-label="${escapeHtml(menu.name)} 상세보기">🔍</a>
+        </div>
       </div>
     </div>
   `;
@@ -157,54 +162,6 @@ function renderRecentlyViewedWidget() {
   });
 }
 
-function renderRecentOrderWidget() {
-  const section = document.getElementById("home-recent-section");
-  const row = document.getElementById("recent-order-row");
-  const orders = getOrders();
-
-  if (orders.length === 0) {
-    section.hidden = true;
-    return;
-  }
-
-  const menus = getMenus();
-  const lastOrder = orders[orders.length - 1];
-  const items = lastOrder.items
-    .map((item) => ({ item, menu: menus.find((m) => m.id === item.menuId) }))
-    .filter(({ menu }) => menu);
-
-  if (items.length === 0) {
-    section.hidden = true;
-    return;
-  }
-
-  section.hidden = false;
-  row.innerHTML = items
-    .map(
-      ({ item, menu }) => `
-    <div class="recent-item">
-      <div class="recent-item-name">${escapeHtml(menu.name)}</div>
-      <div class="recent-item-price">${formatPrice(menu.price)}</div>
-      <button type="button" class="btn-reorder-mini" data-menu-id="${menu.id}" data-quantity="${item.quantity}">다시 담기</button>
-    </div>
-  `
-    )
-    .join("");
-
-  row.querySelectorAll(".btn-reorder-mini").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      addToCart(Number(btn.dataset.menuId), Number(btn.dataset.quantity));
-      renderCartBadge();
-      btn.textContent = "담았습니다 ✓";
-      btn.disabled = true;
-      setTimeout(() => {
-        btn.textContent = "다시 담기";
-        btn.disabled = false;
-      }, 1200);
-    });
-  });
-}
-
 function renderTabs() {
   const tabs = document.getElementById("category-tabs");
   const allTabs = [{ id: "all", name: "전체" }, ...categories];
@@ -262,6 +219,8 @@ document.addEventListener("click", (e) => {
     return;
   }
 
+  if (e.target.closest(".menu-detail-link")) return;
+
   const card = e.target.closest(".menu-card[data-menu-id]");
   if (card) openMenuCard(card);
 });
@@ -300,10 +259,16 @@ document.getElementById("menu-search").addEventListener("input", (event) => {
   renderMenuGrid();
 });
 
+document.getElementById("viewed-sidebar-toggle").addEventListener("click", () => {
+  const sidebar = document.getElementById("home-viewed-section");
+  const toggle = document.getElementById("viewed-sidebar-toggle");
+  const isOpen = sidebar.classList.toggle("is-open");
+  toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+});
+
 window.addEventListener("cart:updated", renderCartBadge);
 
 renderCartBadge();
-renderRecentOrderWidget();
 renderRecentlyViewedWidget();
 renderFeatured();
 renderTabs();
