@@ -1,18 +1,48 @@
+/* ==========================================================================
+   브루 앤 빈 (Dark Espresso x Gold) 테마 — 메인 페이지와 동일한 토큰 오버라이드
+   ========================================================================== */
+
+:root {
+  --color-bg: #150e0a;
+  --color-surface: #241a13;
+  --color-text: #f3e9dc;
+  --color-text-muted: #b9a793;
+  --color-border: rgba(243, 233, 220, 0.16);
+  --color-accent: #c8945c;
+  --color-accent-hover: #a97a45;
+  --color-warning: #c8945c;
+  --color-danger: #b0503f;
+  --color-dark: #0c0805;
+}
+
+body {
+  font-family:
+    -apple-system, 'Pretendard', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  background-color: var(--color-bg);
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(243, 233, 220, 0.07) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
+}
+
 .menu-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--spacing-md);
   padding: var(--spacing-md) var(--spacing-xl);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-md);
+  background: var(--color-dark);
 }
 
 .menu-header h1 {
   font-size: var(--font-size-lg);
-  color: var(--color-accent);
+  color: var(--color-cream-100);
 }
 
 .home-nav {
@@ -20,15 +50,22 @@
   align-items: center;
   gap: var(--spacing-lg);
   font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.home-nav a {
+  color: rgba(245, 240, 230, 0.7);
 }
 
 .home-nav a:hover {
-  color: var(--color-accent);
+  color: var(--color-cream-100);
 }
 
 .home-nav a.active {
   color: var(--color-accent);
+  border-bottom: 2px solid var(--color-accent);
   font-weight: 700;
 }
 
@@ -39,8 +76,13 @@
   font-size: var(--font-size-sm);
 }
 
+.header-actions .cart-link {
+  color: var(--color-cream-100);
+  font-weight: 700;
+}
+
 .hotline {
-  color: var(--color-text-muted);
+  color: rgba(245, 240, 230, 0.7);
   font-weight: 700;
   text-decoration: none;
 }

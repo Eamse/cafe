@@ -26,21 +26,22 @@
       </div>
     </header>
 
-    <section
-      class="home-hero"
-      style="
-        background-image:
-          linear-gradient(
-            115deg,
-            rgba(12, 8, 5, 0.95) 0%,
-            rgba(12, 8, 5, 0.75) 35%,
-            rgba(12, 8, 5, 0.25) 65%,
-            rgba(12, 8, 5, 0.1) 100%
-          ),
-          url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200&auto=format&fit=crop');
-      "
-    >
-      <div class="hero-arrow hero-arrow-left" aria-hidden="true">‹</div>
+    <section class="home-hero" id="home-hero">
+      <div class="hero-slide-track" id="hero-slide-track">
+        <div
+          class="hero-slide"
+          style="background-image: url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200&auto=format&fit=crop');"
+        ></div>
+        <div
+          class="hero-slide"
+          style="background-image: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&auto=format&fit=crop');"
+        ></div>
+        <div
+          class="hero-slide"
+          style="background-image: url('https://images.unsplash.com/photo-1509785307050-d4066910ec1e?w=1200&auto=format&fit=crop');"
+        ></div>
+      </div>
+      <button type="button" class="hero-arrow hero-arrow-left" id="hero-arrow-left" aria-label="이전 슬라이드">‹</button>
       <div class="hero-overlay">
         <p class="hero-eyebrow">Welcome</p>
         <h2>오늘도 좋은 하루,<br />커피 한 잔 어때요?</h2>
@@ -51,11 +52,11 @@
         </ul>
         <a href="menus/list.html" class="btn-hero">전체 메뉴 보기</a>
       </div>
-      <div class="hero-arrow hero-arrow-right" aria-hidden="true">›</div>
-      <div class="hero-dots" aria-hidden="true">
-        <span class="hero-dot active"></span>
-        <span class="hero-dot"></span>
-        <span class="hero-dot"></span>
+      <button type="button" class="hero-arrow hero-arrow-right" id="hero-arrow-right" aria-label="다음 슬라이드">›</button>
+      <div class="hero-dots" id="hero-dots">
+        <span class="hero-dot active" data-index="0"></span>
+        <span class="hero-dot" data-index="1"></span>
+        <span class="hero-dot" data-index="2"></span>
       </div>
     </section>
 
@@ -89,7 +90,12 @@
     </section>
 
     <aside class="viewed-sidebar" id="home-viewed-section" hidden>
-      <button type="button" class="viewed-sidebar-toggle" id="viewed-sidebar-toggle" aria-expanded="false">
+      <button
+        type="button"
+        class="viewed-sidebar-toggle"
+        id="viewed-sidebar-toggle"
+        aria-expanded="false"
+      >
         최근 본 메뉴 <span aria-hidden="true">›</span>
       </button>
       <div class="viewed-sidebar-panel">
@@ -288,7 +294,6 @@
         <h4>바로가기</h4>
         <a href="orders/list.html">주문 내역</a>
         <a href="my/index.html">마이페이지</a>
-        <a href="admin/index.html">관리자</a>
       </div>
       <div class="footer-sns">
         <h4>팔로우하기</h4>

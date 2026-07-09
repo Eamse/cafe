@@ -268,6 +268,65 @@ document.getElementById("viewed-sidebar-toggle").addEventListener("click", () =>
 
 window.addEventListener("cart:updated", renderCartBadge);
 
+function initHeroSlider() {
+  const track = document.getElementById("hero-slide-track");
+  const dots = document.querySelectorAll("#hero-dots .hero-dot");
+  const prevBtn = document.getElementById("hero-arrow-left");
+  const nextBtn = document.getElementById("hero-arrow-right");
+  if (!track || dots.length === 0) return;
+
+  const slideCount = dots.length;
+  let current = 0;
+  let timer = null;
+
+  function goTo(index) {
+    current = (index + slideCount) % slideCount;
+    track.style.transform = `translateX(-${current * 100}%)`;
+    dots.forEach((dot, i) => dot.classList.toggle("active", i === current));
+  }
+
+  function next() {
+    goTo(current + 1);
+  }
+
+  function prev() {
+    goTo(current - 1);
+  }
+
+  function startAutoplay() {
+    stopAutoplay();
+    timer = setInterval(next, 5000);
+  }
+
+  function stopAutoplay() {
+    if (timer) clearInterval(timer);
+  }
+
+  prevBtn.addEventListener("click", () => {
+    prev();
+    startAutoplay();
+  });
+
+  nextBtn.addEventListener("click", () => {
+    next();
+    startAutoplay();
+  });
+
+  dots.forEach((dot) => {
+    dot.addEventListener("click", () => {
+      goTo(Number(dot.dataset.index));
+      startAutoplay();
+    });
+  });
+
+  const hero = document.getElementById("home-hero");
+  hero.addEventListener("mouseenter", stopAutoplay);
+  hero.addEventListener("mouseleave", startAutoplay);
+
+  startAutoplay();
+}
+
+initHeroSlider();
 renderCartBadge();
 renderRecentlyViewedWidget();
 renderFeatured();
