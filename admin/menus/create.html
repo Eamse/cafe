@@ -5,13 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>메뉴 추가 - 카페 앱 관리자</title>
   <link rel="stylesheet" href="../../css/variables.css" />
+  <link rel="stylesheet" href="../sidebar.css" />
   <link rel="stylesheet" href="create.css" />
 </head>
 <body>
-  <header class="admin-header">
-    <h1>☕ 카페 앱 관리자</h1>
-  </header>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <h1>☕ 카페 앱 관리자</h1>
+      <nav class="admin-sidebar-nav">
+        <a href="../index.html">대시보드</a>
+        <a href="list.html" class="active">메뉴 관리</a>
+        <a href="../orders/list.html">주문 관리</a>
+      </nav>
+    </aside>
 
+    <div class="admin-main">
   <main class="admin-form-page">
     <a class="back-link" href="list.html">← 목록으로</a>
     <h2>메뉴 추가</h2>
@@ -48,6 +56,8 @@
       </div>
     </form>
   </main>
+    </div>
+  </div>
 
   <script type="module" src="create.js"></script>
 </body>

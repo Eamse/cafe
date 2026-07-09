@@ -1,0 +1,84 @@
+/* ==========================================================================
+   관리자 좌측 사이드바 레이아웃 — 모든 admin 페이지에서 공유
+   ========================================================================== */
+
+.admin-shell {
+  display: flex;
+  align-items: stretch;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  flex: 0 0 220px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+}
+
+.admin-sidebar h1 {
+  font-size: var(--font-size-lg);
+  color: var(--color-accent);
+}
+
+.admin-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.admin-sidebar-nav a {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  transition: var(--transition-fast);
+}
+
+.admin-sidebar-nav a:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.admin-sidebar-nav a.active {
+  background: var(--color-accent);
+  color: var(--color-cream-100);
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-main .back-link {
+  display: inline-block;
+  margin: var(--spacing-lg) var(--spacing-xl) 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.admin-main .back-link:hover {
+  color: var(--color-accent);
+}
+
+@media (max-width: 720px) {
+  .admin-shell {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    flex: none;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .admin-sidebar-nav {
+    flex-direction: row;
+  }
+}

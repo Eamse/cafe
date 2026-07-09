@@ -5,19 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>주문 상세 - 카페 앱 관리자</title>
   <link rel="stylesheet" href="../../css/variables.css" />
+  <link rel="stylesheet" href="../sidebar.css" />
   <link rel="stylesheet" href="detail.css" />
 </head>
 <body>
-  <header class="admin-header">
-    <h1>☕ 카페 앱 관리자</h1>
-    <a href="list.html" class="back-link">← 주문 관리로</a>
-  </header>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <h1>☕ 카페 앱 관리자</h1>
+      <nav class="admin-sidebar-nav">
+        <a href="../index.html">대시보드</a>
+        <a href="../menus/list.html">메뉴 관리</a>
+        <a href="list.html" class="active">주문 관리</a>
+      </nav>
+    </aside>
 
-  <main class="admin-detail-page">
-    <div id="order-detail">
-      <!-- detail.js가 주문 상세를 렌더링 -->
+    <div class="admin-main">
+      <main class="admin-detail-page">
+        <a class="back-link" href="list.html">← 주문 관리로</a>
+        <div id="order-detail">
+          <!-- detail.js가 주문 상세를 렌더링 -->
+        </div>
+      </main>
     </div>
-  </main>
+  </div>
 
   <script type="module" src="detail.js"></script>
 </body>
