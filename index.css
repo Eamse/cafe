@@ -1216,6 +1216,7 @@ body {
 
 .menu-card-image-wrap {
   position: relative;
+  overflow: hidden;
 }
 
 .favorite-btn {
@@ -1311,7 +1312,7 @@ body {
 
 .menu-card,
 .event-row {
-  animation: card-drop-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: card-drop-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
 .menu-grid .menu-card:nth-child(1),
@@ -1401,6 +1402,11 @@ body {
   background-position: center;
   background-color: var(--color-border);
   overflow: hidden;
+  transition: var(--transition-base);
+}
+
+.menu-card:hover .menu-card-image {
+  transform: scale(1.06);
 }
 
 .menu-card-body {
