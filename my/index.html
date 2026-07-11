@@ -4,21 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>마이페이지 - 카페 앱</title>
-  <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="index.css" />
+  <script>
+        document.documentElement.dataset.theme = localStorage.getItem("cafe_theme") || "dark";
+      </script>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/my/index.css" />
 </head>
 <body>
   <header class="my-header">
-    <h1><a href="../index.html">☕ 카페 앱</a></h1>
+    <h1><a href="/index.html">☕ 카페 앱</a></h1>
     <nav class="home-nav">
-      <a href="../index.html">홈</a>
-      <a href="../menus/list.html">메뉴</a>
-      <a href="../orders/list.html">주문내역</a>
-      <a href="index.html" class="active">마이페이지</a>
+      <a href="/index.html">홈</a>
+      <a href="/menus/list.html">메뉴</a>
+      <a href="/orders/list.html">주문내역</a>
+      <a href="/my/index.html" class="active">마이페이지</a>
     </nav>
     <div class="header-actions">
-      <a class="hotline" href="tel:0212345678">📞 02-1234-5678</a>
-      <a href="../basket/list.html" class="cart-link">
+            <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" aria-label="테마 전환"></button>
+<a class="hotline" href="tel:0212345678">📞 02-1234-5678</a>
+      <a href="/basket/list.html" class="cart-link">
         장바구니
         <span class="cart-badge" id="cart-badge" hidden>0</span>
       </a>
@@ -28,8 +32,18 @@
   <main class="my-page">
     <section class="profile-card glass-card">
       <div class="profile-avatar">☕</div>
-      <div class="profile-name">게스트님</div>
-      <div class="profile-sub">오늘도 좋은 하루 되세요</div>
+      <div class="profile-info">
+        <div class="profile-name-row">
+          <div class="profile-name" id="profile-name">게스트님</div>
+          <button type="button" class="profile-name-edit-btn" id="profile-name-edit-btn" aria-label="닉네임 수정">✎</button>
+        </div>
+        <form class="profile-name-form" id="profile-name-form" hidden>
+          <input type="text" id="profile-name-input" maxlength="12" placeholder="닉네임 입력" />
+          <button type="submit" class="btn-save-name">저장</button>
+          <button type="button" class="btn-cancel-name" id="profile-name-cancel">취소</button>
+        </form>
+        <div class="profile-sub">오늘도 좋은 하루 되세요</div>
+      </div>
     </section>
 
     <section class="summary-card glass-card">
@@ -50,7 +64,10 @@
     <section class="favorite-menus">
       <div class="section-heading">
         <h2>즐겨찾기한 메뉴</h2>
-        <a href="../menus/list.html">메뉴 보러가기 →</a>
+        <div class="section-heading-actions">
+          <button type="button" class="clear-all-btn" id="clear-favorites-btn" hidden>전체 삭제</button>
+          <a href="/menus/list.html">메뉴 보러가기 →</a>
+        </div>
       </div>
       <div class="favorite-menus-list" id="favorite-menus-list">
         <!-- index.js가 즐겨찾기 메뉴를 렌더링 -->
@@ -60,7 +77,7 @@
     <section class="recent-orders">
       <div class="section-heading">
         <h2>최근 주문</h2>
-        <a href="../orders/list.html">전체보기 →</a>
+        <a href="/orders/list.html">전체보기 →</a>
       </div>
       <div class="recent-orders-list" id="recent-orders-list">
         <!-- index.js가 최근 주문을 렌더링 -->
@@ -68,6 +85,6 @@
     </section>
   </main>
 
-  <script type="module" src="index.js"></script>
+  <script type="module" src="/my/index.js"></script>
 </body>
 </html>

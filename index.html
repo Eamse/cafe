@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>카페 앱</title>
+    <script>
+      document.documentElement.dataset.theme = localStorage.getItem("cafe_theme") || "dark";
+    </script>
     <link rel="stylesheet" href="css/variables.css" />
     <link rel="stylesheet" href="css/cart-panel.css" />
     <link rel="stylesheet" href="index.css" />
@@ -18,6 +21,7 @@
         <a href="my/index.html">마이페이지</a>
       </nav>
       <div class="header-actions">
+        <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" aria-label="테마 전환"></button>
         <a class="hotline" href="tel:0212345678">📞 02-1234-5678</a>
         <a href="basket/list.html" class="cart-link">
           장바구니
@@ -95,13 +99,11 @@
       </div>
     </section>
 
-    <section class="notice-bar">
+    <section class="notice-bar" id="notice-bar" hidden>
       <div class="notice-bar-text">
         <span class="notice-bar-label">Notice</span>
-        <span class="notice-bar-message"
-          >여름 시즌 메뉴가 새롭게 출시되었습니다</span
-        >
-        <span class="notice-bar-date">2026.06.15</span>
+        <span class="notice-bar-message" id="notice-bar-message"></span>
+        <span class="notice-bar-date" id="notice-bar-date"></span>
       </div>
       <a href="menus/list.html" class="notice-bar-cta">
         <span>Our Menu</span>
@@ -119,7 +121,10 @@
         최근 본 메뉴 <span aria-hidden="true">›</span>
       </button>
       <div class="viewed-sidebar-panel">
-        <div class="viewed-sidebar-heading">최근 본 메뉴</div>
+        <div class="viewed-sidebar-heading-row">
+          <div class="viewed-sidebar-heading">최근 본 메뉴</div>
+          <button type="button" class="clear-all-btn" id="clear-recently-viewed-btn">전체 삭제</button>
+        </div>
         <div class="viewed-sidebar-list" id="recent-viewed-row">
           <!-- index.js가 최근 조회한 메뉴를 렌더링 -->
         </div>
@@ -231,66 +236,10 @@
       <div class="section-heading section-heading-center">
         <h2>카페 앱 <span class="accent">이벤트</span></h2>
       </div>
-      <ul class="event-list">
-        <li class="event-row">
-          <div class="event-date">
-            <span class="event-day">01</span>
-            <span class="event-month">2026.07</span>
-          </div>
-          <div class="event-info">
-            <h3>여름맞이 시원한 이벤트</h3>
-            <p>
-              에이드 2잔 이상 주문 시 쿠키를 증정해드립니다. 무더운 여름, 시원한
-              한 잔과 함께 달콤한 쿠키까지 즐겨보세요.
-            </p>
-          </div>
-          <div
-            class="event-thumb"
-            style="
-              background-image: url('https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=500&auto=format&fit=crop');
-            "
-          ></div>
-        </li>
-        <li class="event-row">
-          <div class="event-date">
-            <span class="event-day">15</span>
-            <span class="event-month">2026.06</span>
-          </div>
-          <div class="event-info">
-            <h3>친구 초대 이벤트</h3>
-            <p>
-              친구를 초대하면 두 분 모두 아메리카노 한 잔이 무료로 제공됩니다.
-              지금 친구에게 카페 앱을 소개해보세요.
-            </p>
-          </div>
-          <div
-            class="event-thumb"
-            style="
-              background-image: url('https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500&auto=format&fit=crop');
-            "
-          ></div>
-        </li>
-        <li class="event-row">
-          <div class="event-date">
-            <span class="event-day">02</span>
-            <span class="event-month">2026.06</span>
-          </div>
-          <div class="event-info">
-            <h3>디저트 신메뉴 출시 기념</h3>
-            <p>
-              디저트 전 메뉴 1,000원 할인 이벤트를 진행합니다. 새로 나온
-              디저트도 함께 만나보세요.
-            </p>
-          </div>
-          <div
-            class="event-thumb"
-            style="
-              background-image: url('https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?w=500&auto=format&fit=crop');
-            "
-          ></div>
-        </li>
+      <ul class="event-list" id="home-event-list">
+        <!-- index.js가 최신 이벤트 3개를 렌더링 -->
       </ul>
-      <a href="#" class="event-more"
+      <a href="events/list.html" class="event-more"
         >소식 더보기 <span aria-hidden="true">→</span></a
       >
     </section>

@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>카테고리 관리 - 카페 앱 관리자</title>
+  <title>공지 관리 - 카페 앱 관리자</title>
   <link rel="stylesheet" href="/css/variables.css" />
   <link rel="stylesheet" href="/admin/sidebar.css" />
-  <link rel="stylesheet" href="/admin/categories/list.css" />
+  <link rel="stylesheet" href="/admin/notices/list.css" />
 </head>
 <body>
   <div class="admin-shell">
@@ -15,32 +15,34 @@
       <nav class="admin-sidebar-nav">
         <a href="/admin/index.html">대시보드</a>
         <a href="/admin/menus/list.html">메뉴 관리</a>
-        <a href="/admin/categories/list.html" class="active">카테고리 관리</a>
-        <a href="/admin/notices/list.html">공지 관리</a>
+        <a href="/admin/categories/list.html">카테고리 관리</a>
+        <a href="/admin/notices/list.html" class="active">공지 관리</a>
         <a href="/admin/events/list.html">이벤트 관리</a>
         <a href="/admin/orders/list.html">주문 관리</a>
       </nav>
     </aside>
 
     <div class="admin-main">
-      <main class="admin-categories-page">
+      <main class="admin-notices-page">
         <div class="page-heading">
-          <h2>카테고리 관리</h2>
+          <h2>공지 관리</h2>
+          <p class="page-heading-sub">홈 화면에는 노출로 선택한 공지가 하나씩 순서대로 돌아가며 표시됩니다. 최대 3개까지 노출할 수 있어요.</p>
         </div>
 
-        <form id="category-form" class="category-form">
-          <input type="text" id="new-category-name" placeholder="새 카테고리 이름 (예: 브런치)" required maxlength="20" />
+        <form id="notice-form" class="notice-form">
+          <input type="text" id="new-notice-message" placeholder="새 공지 내용" required maxlength="80" />
+          <input type="date" id="new-notice-date" required />
           <button type="submit" class="btn btn-primary">추가</button>
         </form>
         <p class="form-error" id="form-error" hidden></p>
 
-        <div class="category-list" id="category-list">
-          <!-- list.js가 카테고리 목록을 렌더링 -->
+        <div class="notice-list" id="notice-list">
+          <!-- list.js가 공지 목록을 렌더링 -->
         </div>
       </main>
     </div>
   </div>
 
-  <script type="module" src="/admin/categories/list.js"></script>
+  <script type="module" src="/admin/notices/list.js"></script>
 </body>
 </html>

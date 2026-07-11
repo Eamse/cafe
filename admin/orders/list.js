@@ -9,7 +9,29 @@ import {
 } from "../../js/utils.js";
 
 let activeStatus = "all";
+let searchQuery = "";
 const selectedIds = new Set();
+
+function getFilteredOrders() {
+  const orders = getOrders().slice().reverse();
+  let filtered = activeStatus === "all" ? orders : orders.filter((o) => o.status === activeStatus);
+
+  const query = searchQuery.trim().toLowerCase();
+  if (query) {
+    filtered = filtered.filter((order) => {
+      const haystack = [
+        String(order.id),
+        order.recipient?.name || "",
+        order.recipient?.phone || "",
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(query);
+    });
+  }
+
+  return filtered;
+}
 
 function renderTabs() {
   const tabs = document.getElementById("status-tabs");
@@ -68,8 +90,8 @@ function updateSelectAllCheckboxState(total) {
 
 function renderList() {
   const listEl = document.getElementById("admin-order-list");
-  const orders = getOrders().slice().reverse();
-  const filtered = activeStatus === "all" ? orders : orders.filter((o) => o.status === activeStatus);
+  const orders = getOrders();
+  const filtered = getFilteredOrders();
 
   // 필터를 바꿔서 화면에 없는 주문의 선택 상태는 정리한다.
   const visibleIds = new Set(filtered.map((o) => o.id));
@@ -78,7 +100,7 @@ function renderList() {
   });
 
   if (filtered.length === 0) {
-    listEl.innerHTML = `<p class="empty-state">주문이 없습니다.</p>`;
+    listEl.innerHTML = `<p class="empty-state">${searchQuery.trim() ? "검색 결과가 없습니다." : "주문이 없습니다."}</p>`;
     renderBulkBar(orders);
     updateSelectAllCheckboxState(0);
     return;
@@ -127,14 +149,17 @@ function renderList() {
 }
 
 document.getElementById("select-all-checkbox").addEventListener("change", (event) => {
-  const orders = getOrders().slice().reverse();
-  const filtered = activeStatus === "all" ? orders : orders.filter((o) => o.status === activeStatus);
-
+  const filtered = getFilteredOrders();
   if (event.target.checked) {
     filtered.forEach((o) => selectedIds.add(o.id));
   } else {
     filtered.forEach((o) => selectedIds.delete(o.id));
   }
+  renderList();
+});
+
+document.getElementById("order-search").addEventListener("input", (event) => {
+  searchQuery = event.target.value;
   renderList();
 });
 

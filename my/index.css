@@ -2,7 +2,8 @@
    브루 앤 빈 (Dark Espresso x Gold) 테마 — 메인 페이지와 동일한 토큰 오버라이드
    ========================================================================== */
 
-:root {
+:root,
+:root[data-theme="dark"] {
   --color-bg: #150e0a;
   --color-surface: #241a13;
   --color-text: #f3e9dc;
@@ -13,6 +14,21 @@
   --color-warning: #c8945c;
   --color-danger: #b0503f;
   --color-dark: #0c0805;
+  --dot-color: rgba(243, 233, 220, 0.07);
+}
+
+:root[data-theme="light"] {
+  --color-bg: #fdfaf6;
+  --color-surface: #ffffff;
+  --color-text: #3a2a20;
+  --color-text-muted: #8a7566;
+  --color-border: #e8d5c4;
+  --color-accent: #6f4e37;
+  --color-accent-hover: #3a2a20;
+  --color-warning: #c98a1c;
+  --color-danger: #b3532b;
+  --color-dark: #3a2a20;
+  --dot-color: rgba(58, 42, 32, 0.05);
 }
 
 body {
@@ -21,7 +37,7 @@ body {
   background-color: var(--color-bg);
   background-image: radial-gradient(
     circle at 1px 1px,
-    rgba(243, 233, 220, 0.07) 1px,
+    var(--dot-color) 1px,
     transparent 0
   );
   background-size: 24px 24px;
@@ -136,9 +152,70 @@ body {
   flex-shrink: 0;
 }
 
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
 .profile-name {
   font-size: var(--font-size-lg);
   font-weight: bold;
+}
+
+.profile-name-edit-btn {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+}
+
+.profile-name-edit-btn:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.profile-name-form {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.profile-name-form input {
+  padding: 2px var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  width: 120px;
+}
+
+.profile-name-form button {
+  font-size: var(--font-size-xs);
+  padding: 2px var(--spacing-sm);
+  border-radius: var(--radius-sm);
+}
+
+.btn-save-name {
+  background: var(--color-accent);
+  color: var(--color-cream-100);
+  font-weight: 700;
+}
+
+.btn-cancel-name {
+  color: var(--color-text-muted);
 }
 
 .profile-sub {
@@ -186,6 +263,18 @@ body {
 .section-heading a {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
+}
+
+.section-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.clear-all-btn {
+  font-size: var(--font-size-xs);
+  color: var(--color-danger);
+  text-decoration: underline;
 }
 
 .recent-orders-list {

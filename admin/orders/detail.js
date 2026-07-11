@@ -47,6 +47,16 @@ function render() {
           .join("")}
       </div>
 
+      ${
+        order.recipient
+          ? `<div class="order-note">
+              <span class="order-note-label">수령 정보</span>
+              <div>${escapeHtml(order.recipient.name)} · ${escapeHtml(order.recipient.phone)}</div>
+              <div>${escapeHtml(order.recipient.address)}</div>
+            </div>`
+          : ""
+      }
+
       ${order.note ? `<div class="order-note"><span class="order-note-label">고객 요청사항</span>${escapeHtml(order.note)}</div>` : ""}
 
       ${

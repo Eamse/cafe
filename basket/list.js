@@ -10,6 +10,9 @@ import {
   getOrders,
   saveOrders,
   estimatePickupMinutes,
+  getLastRecipientInfo,
+  saveLastRecipientInfo,
+  initThemeToggle,
 } from "../js/utils.js";
 
 function nextOrderId(orders) {
@@ -108,6 +111,28 @@ function renderBasket() {
   });
 }
 
+function showRecipientError(message) {
+  const warningEl = document.getElementById("basket-warning");
+  warningEl.hidden = false;
+  warningEl.textContent = message;
+}
+
+function readRecipientInfo() {
+  return {
+    name: document.getElementById("recipient-name").value.trim(),
+    phone: document.getElementById("recipient-phone").value.trim(),
+    address: document.getElementById("recipient-address").value.trim(),
+  };
+}
+
+function fillRecipientInfo() {
+  const saved = getLastRecipientInfo();
+  if (!saved) return;
+  document.getElementById("recipient-name").value = saved.name || "";
+  document.getElementById("recipient-phone").value = saved.phone || "";
+  document.getElementById("recipient-address").value = saved.address || "";
+}
+
 function handleCheckout() {
   const cart = getCart();
   if (cart.length === 0) return;
@@ -127,6 +152,12 @@ function handleCheckout() {
     return;
   }
 
+  const recipient = readRecipientInfo();
+  if (!recipient.name || !recipient.phone || !recipient.address) {
+    showRecipientError("수령자 이름, 연락처, 주소를 모두 입력해주세요.");
+    return;
+  }
+
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const note = document.getElementById("order-note").value.trim();
 
@@ -139,11 +170,15 @@ function handleCheckout() {
     total,
     status: "주문완료",
     note,
+    recipient,
   });
   saveOrders(orders);
+  saveLastRecipientInfo(recipient);
   clearCart();
-  window.location.href = `../orders/detail.html?id=${newOrderId}&new=1`;
+  window.location.href = `/orders/detail.html?id=${newOrderId}&new=1`;
 }
 
 document.getElementById("checkout-btn").addEventListener("click", handleCheckout);
+fillRecipientInfo();
 renderBasket();
+initThemeToggle();

@@ -11,6 +11,8 @@ import {
   getFavorites,
   toggleFavorite,
   lazyLoadBackgroundImages,
+  showToast,
+  initThemeToggle,
 } from "../js/utils.js";
 import { openCartPanel } from "../js/cartPanel.js";
 
@@ -131,6 +133,7 @@ function renderRecentOrderWidget() {
     btn.addEventListener("click", () => {
       addToCart(Number(btn.dataset.menuId), Number(btn.dataset.quantity));
       renderCartBadge();
+      showToast("장바구니에 담았습니다");
       btn.textContent = "담았습니다 ✓";
       btn.disabled = true;
       setTimeout(() => {
@@ -365,6 +368,7 @@ function applyInitialFilterState() {
 }
 
 applyInitialFilterState();
+initThemeToggle();
 renderCartBadge();
 renderRecentOrderWidget();
 renderRecentSearches();

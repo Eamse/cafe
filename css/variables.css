@@ -163,3 +163,85 @@ img {
 .cat-dessert {
   --cat-accent: var(--color-cat-dessert);
 }
+
+/* ==========================================================================
+   전역 토스트 알림 — js/utils.js의 showToast()가 사용. 모든 페이지가
+   variables.css를 불러오므로 여기 한 곳에만 스타일을 둔다.
+   ========================================================================== */
+
+.toast-container {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  align-items: center;
+  pointer-events: none;
+}
+
+.toast {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-full);
+  background: var(--color-dark, var(--color-brown-900));
+  color: var(--color-cream-100);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.toast-error {
+  background: var(--color-danger);
+}
+
+@media (max-width: 480px) {
+  .toast-container {
+    left: var(--spacing-md);
+    right: var(--spacing-md);
+    transform: none;
+    align-items: stretch;
+  }
+
+  .toast {
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+/* ==========================================================================
+   테마 토글 버튼 — 각 고객 페이지 헤더의 header-actions 안에 렌더링.
+   페이지마다 헤더 배경이 달라서(dark 헤더/light 헤더 등) 투명 배경 +
+   현재 글자색을 그대로 물려받는 방식으로 어디서나 자연스럽게 보이게 한다.
+   ========================================================================== */
+
+.theme-toggle-btn {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  border: 1px solid currentColor;
+  color: inherit;
+  opacity: 0.75;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+}
+
+.theme-toggle-btn:hover {
+  opacity: 1;
+}

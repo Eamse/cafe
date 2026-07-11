@@ -8,6 +8,8 @@ import {
   getFavorites,
   toggleFavorite,
   lazyLoadBackgroundImages,
+  showToast,
+  initThemeToggle,
 } from "../js/utils.js";
 import { openCartPanel } from "../js/cartPanel.js";
 
@@ -113,6 +115,7 @@ function renderMenuDetail() {
 
   container.innerHTML = `
     <div class="detail-card cat-${menu.categoryId}">
+      ${menu.image ? `<div class="detail-image" data-bg="${escapeHtml(menu.image)}"></div>` : ""}
       <button type="button" class="favorite-btn ${isFavorite ? "is-active" : ""}" id="detail-favorite-btn" aria-pressed="${isFavorite ? "true" : "false"}" aria-label="즐겨찾기 ${isFavorite ? "해제" : "추가"}">♥</button>
       <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
       <h2 class="menu-name">${escapeHtml(menu.name)}</h2>
@@ -133,6 +136,7 @@ function renderMenuDetail() {
     </div>
   `;
 
+  lazyLoadBackgroundImages(container);
   renderMoreMenus(menu);
 
   document.getElementById("detail-favorite-btn").addEventListener("click", () => {
@@ -159,6 +163,7 @@ function renderMenuDetail() {
   addBtn.addEventListener("click", () => {
     addToCart(menu.id, quantity);
     renderCartBadge();
+    showToast(`${menu.name} 담았습니다`);
     addBtn.textContent = "담았습니다 ✓";
     addBtn.disabled = true;
     setTimeout(() => {
@@ -172,3 +177,4 @@ window.addEventListener("cart:updated", renderCartBadge);
 
 renderMenuDetail();
 renderCartBadge();
+initThemeToggle();

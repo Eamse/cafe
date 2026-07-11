@@ -16,6 +16,8 @@
         <a href="/admin/index.html">대시보드</a>
         <a href="/admin/menus/list.html">메뉴 관리</a>
         <a href="/admin/categories/list.html">카테고리 관리</a>
+        <a href="/admin/notices/list.html">공지 관리</a>
+        <a href="/admin/events/list.html">이벤트 관리</a>
         <a href="/admin/orders/list.html" class="active">주문 관리</a>
       </nav>
     </aside>
@@ -23,6 +25,8 @@
     <div class="admin-main">
       <main class="admin-orders-page">
         <h2>주문 관리</h2>
+
+        <input type="search" class="order-search" id="order-search" placeholder="주문번호, 수령자 이름/연락처로 검색" />
 
         <div class="status-tabs" id="status-tabs">
           <!-- list.js가 상태 탭을 렌더링 -->

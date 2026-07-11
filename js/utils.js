@@ -72,6 +72,33 @@ export function qsa(selector, scope = document) {
   return Array.from(scope.querySelectorAll(selector));
 }
 
+// 화면 하단에 잠깐 떴다 사라지는 공용 알림. "담았습니다 ✓"처럼 버튼 텍스트를
+// 임시로 바꾸던 여러 곳의 피드백 방식을 하나로 통일한다.
+let toastTimer = null;
+
+export function showToast(message, { type = "success", duration = 2200 } = {}) {
+  let container = document.querySelector(".toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.className = "toast-container";
+    document.body.appendChild(container);
+  }
+
+  container.innerHTML = "";
+  const toast = document.createElement("div");
+  toast.className = `toast ${type === "error" ? "toast-error" : ""}`;
+  toast.textContent = message;
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => toast.classList.add("is-visible"));
+
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("is-visible");
+    setTimeout(() => toast.remove(), 250);
+  }, duration);
+}
+
 // 카드 이미지를 즉시 다 불러오지 않고, 화면에 가까워질 때만 background-image를
 // 채워 넣는다. 카드 HTML은 style 대신 data-bg="URL"로 렌더링하고, 렌더링 직후
 // 이 함수를 호출하면 된다.
@@ -219,6 +246,39 @@ export function cancelOrderWithReason(orderId, reason) {
   return orders;
 }
 
+/* ---------- 수령자 정보 ---------- */
+
+const RECIPIENT_KEY = "cafe_recipient_info";
+
+// 마지막으로 입력한 수령자 정보를 기억해서, 다음 주문 때 자동으로 채워준다
+// (매번 이름/연락처/주소를 새로 입력하지 않도록).
+export function getLastRecipientInfo() {
+  try {
+    return JSON.parse(localStorage.getItem(RECIPIENT_KEY)) || null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveLastRecipientInfo(info) {
+  localStorage.setItem(RECIPIENT_KEY, JSON.stringify(info));
+}
+
+/* ---------- 닉네임 ---------- */
+
+const NICKNAME_KEY = "cafe_nickname";
+
+export function getNickname() {
+  return localStorage.getItem(NICKNAME_KEY) || "";
+}
+
+export function saveNickname(name) {
+  const trimmed = name.trim();
+  if (trimmed) localStorage.setItem(NICKNAME_KEY, trimmed);
+  else localStorage.removeItem(NICKNAME_KEY);
+  return trimmed;
+}
+
 // 담긴/주문된 메뉴 총 수량 기준 예상 준비 시간(분) 범위. 카운트다운 계산에도 재사용.
 export function getPickupEstimateRange(totalQuantity) {
   const min = 5 + totalQuantity * 1;
@@ -291,6 +351,44 @@ export function toggleFavorite(menuId) {
   else favorites.add(menuId);
   localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favorites]));
   return favorites;
+}
+
+export function clearFavorites() {
+  localStorage.removeItem(FAVORITES_KEY);
+}
+
+/* ---------- 다크/라이트 테마 토글 ---------- */
+
+const THEME_KEY = "cafe_theme";
+
+export function getTheme() {
+  return localStorage.getItem(THEME_KEY) || "dark";
+}
+
+export function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem(THEME_KEY, theme);
+}
+
+// 헤더의 테마 토글 버튼을 초기화한다. 각 페이지 <head>에 이미
+// `document.documentElement.dataset.theme = localStorage.getItem("cafe_theme") || "dark"`
+// 를 넣어둔 인라인 스크립트가 있어서(깜빡임 방지), 여기서는 버튼 라벨/이벤트만 연결한다.
+export function initThemeToggle(buttonId = "theme-toggle-btn") {
+  const btn = document.getElementById(buttonId);
+  if (!btn) return;
+
+  const updateLabel = (theme) => {
+    btn.textContent = theme === "dark" ? "☀️" : "🌙";
+    btn.setAttribute("aria-label", theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환");
+  };
+
+  updateLabel(getTheme());
+
+  btn.addEventListener("click", () => {
+    const next = getTheme() === "dark" ? "light" : "dark";
+    applyTheme(next);
+    updateLabel(next);
+  });
 }
 
 /* ---------- 최근 검색어 ---------- */

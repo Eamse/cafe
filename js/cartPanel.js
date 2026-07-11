@@ -4,7 +4,7 @@
    ========================================================================== */
 
 import { getMenus } from "./data.js";
-import { formatPrice, escapeHtml, addToCart, getCart, getFrequentlyBoughtWith } from "./utils.js";
+import { formatPrice, escapeHtml, addToCart, getCart, getFrequentlyBoughtWith, showToast } from "./utils.js";
 
 const RECOMMEND_COUNT = 2;
 
@@ -77,6 +77,7 @@ function addAllPending(basketHrefOverride) {
   const basketHref =
     basketHrefOverride || bulkBarEl.querySelector(".cart-panel-bulk-btn").dataset.basketHref || "basket/list.html";
 
+  const count = pendingItems.size;
   pendingItems.forEach((entry, menuId) => {
     addToCart(menuId, entry.quantity);
     markAsAdded(entry);
@@ -86,6 +87,7 @@ function addAllPending(basketHrefOverride) {
   window.dispatchEvent(new CustomEvent("cart:updated"));
   updateBulkBar(basketHref);
   renderSummary(basketHref);
+  showToast(`${count}개 메뉴를 장바구니에 담았습니다`);
 }
 
 function renderRecommendationHtml(menu, allMenus) {
@@ -217,6 +219,7 @@ export function openCartPanel(menu, categoryName, basketHref = "basket/list.html
         window.dispatchEvent(new CustomEvent("cart:updated"));
         updateBulkBar(basketHref);
         renderSummary(basketHref);
+        showToast(`${menu.name} 담았습니다`);
       });
 
       itemEl.querySelectorAll(".cart-panel-recommend-add").forEach((recBtn) => {
@@ -224,6 +227,7 @@ export function openCartPanel(menu, categoryName, basketHref = "basket/list.html
           addToCart(Number(recBtn.dataset.menuId), 1);
           recBtn.textContent = "담음 ✓";
           recBtn.disabled = true;
+          showToast("장바구니에 담았습니다");
           window.dispatchEvent(new CustomEvent("cart:updated"));
           renderSummary(basketHref);
         });

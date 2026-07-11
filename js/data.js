@@ -200,3 +200,109 @@ export function toggleFeaturedMenu(menuId) {
   saveFeaturedMenuIds(next);
   return next;
 }
+
+/* ==========================================================================
+   공지사항 저장소 — 관리자(admin/notices)가 등록한 공지 전체 목록과,
+   그중 실제로 홈 화면에 노출할 최대 3개를 고른 id 목록을 따로 둔다.
+   (메뉴의 "오늘의 추천"과 동일한 전체 목록 + 노출 선택 패턴)
+   ========================================================================== */
+
+const NOTICES_STORAGE_KEY = "cafe_notices";
+const ACTIVE_NOTICE_IDS_KEY = "cafe_active_notice_ids";
+export const MAX_ACTIVE_NOTICES = 3;
+
+const noticesSeed = [
+  { id: "notice-1", message: "여름 시즌 메뉴가 새롭게 출시되었습니다", date: "2026-06-15" },
+];
+
+export function getNotices() {
+  try {
+    const raw = localStorage.getItem(NOTICES_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {
+    /* 저장된 값이 손상된 경우 시드 데이터로 복구 */
+  }
+  saveNotices(noticesSeed);
+  return noticesSeed.slice();
+}
+
+export function saveNotices(list) {
+  localStorage.setItem(NOTICES_STORAGE_KEY, JSON.stringify(list));
+}
+
+export function getActiveNoticeIds() {
+  try {
+    return JSON.parse(localStorage.getItem(ACTIVE_NOTICE_IDS_KEY)) || noticesSeed.map((n) => n.id);
+  } catch {
+    return [];
+  }
+}
+
+export function saveActiveNoticeIds(ids) {
+  localStorage.setItem(ACTIVE_NOTICE_IDS_KEY, JSON.stringify(ids.slice(0, MAX_ACTIVE_NOTICES)));
+}
+
+export function toggleActiveNotice(noticeId) {
+  const ids = getActiveNoticeIds();
+  if (ids.includes(noticeId)) {
+    const next = ids.filter((id) => id !== noticeId);
+    saveActiveNoticeIds(next);
+    return next;
+  }
+  if (ids.length >= MAX_ACTIVE_NOTICES) return ids;
+  const next = [...ids, noticeId];
+  saveActiveNoticeIds(next);
+  return next;
+}
+
+/* ==========================================================================
+   이벤트 저장소 — 관리자(admin/events)가 등록/종료 처리하는 카페 앱 이벤트.
+   ========================================================================== */
+
+const EVENTS_STORAGE_KEY = "cafe_events";
+
+const eventsSeed = [
+  {
+    id: "event-1",
+    title: "여름맞이 시원한 이벤트",
+    description: "에이드 2잔 이상 주문 시 쿠키를 증정해드립니다. 무더운 여름, 시원한 한 잔과 함께 달콤한 쿠키까지 즐겨보세요.",
+    date: "2026-07-01",
+    image: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=500&auto=format&fit=crop",
+    isEnded: false,
+  },
+  {
+    id: "event-2",
+    title: "친구 초대 이벤트",
+    description: "친구를 초대하면 두 분 모두 아메리카노 한 잔이 무료로 제공됩니다. 지금 친구에게 카페 앱을 소개해보세요.",
+    date: "2026-06-15",
+    image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500&auto=format&fit=crop",
+    isEnded: false,
+  },
+  {
+    id: "event-3",
+    title: "디저트 신메뉴 출시 기념",
+    description: "디저트 전 메뉴 1,000원 할인 이벤트를 진행합니다. 새로 나온 디저트도 함께 만나보세요.",
+    date: "2026-06-02",
+    image: "https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?w=500&auto=format&fit=crop",
+    isEnded: true,
+  },
+];
+
+export function getEvents() {
+  try {
+    const raw = localStorage.getItem(EVENTS_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {
+    /* 저장된 값이 손상된 경우 시드 데이터로 복구 */
+  }
+  saveEvents(eventsSeed);
+  return eventsSeed.slice();
+}
+
+export function saveEvents(list) {
+  localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(list));
+}
+
+export function getEventById(eventId) {
+  return getEvents().find((event) => event.id === eventId) || null;
+}

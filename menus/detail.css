@@ -2,7 +2,8 @@
    브루 앤 빈 (Dark Espresso x Gold) 테마 — 메인 페이지와 동일한 토큰 오버라이드
    ========================================================================== */
 
-:root {
+:root,
+:root[data-theme="dark"] {
   --color-bg: #150e0a;
   --color-surface: #241a13;
   --color-text: #f3e9dc;
@@ -13,6 +14,21 @@
   --color-warning: #c8945c;
   --color-danger: #b0503f;
   --color-dark: #0c0805;
+  --dot-color: rgba(243, 233, 220, 0.07);
+}
+
+:root[data-theme="light"] {
+  --color-bg: #fdfaf6;
+  --color-surface: #ffffff;
+  --color-text: #3a2a20;
+  --color-text-muted: #8a7566;
+  --color-border: #e8d5c4;
+  --color-accent: #6f4e37;
+  --color-accent-hover: #3a2a20;
+  --color-warning: #c98a1c;
+  --color-danger: #b3532b;
+  --color-dark: #3a2a20;
+  --dot-color: rgba(58, 42, 32, 0.05);
 }
 
 body {
@@ -21,7 +37,7 @@ body {
   background-color: var(--color-bg);
   background-image: radial-gradient(
     circle at 1px 1px,
-    rgba(243, 233, 220, 0.07) 1px,
+    var(--dot-color) 1px,
     transparent 0
   );
   background-size: 24px 24px;
@@ -85,6 +101,16 @@ body {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
   padding: var(--spacing-xl);
+}
+
+.detail-image {
+  height: 260px;
+  margin: calc(var(--spacing-xl) * -1) calc(var(--spacing-xl) * -1) var(--spacing-lg);
+  width: calc(100% + var(--spacing-xl) * 2);
+  background-color: var(--color-border);
+  background-size: cover;
+  background-position: center;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
 }
 
 .favorite-btn {

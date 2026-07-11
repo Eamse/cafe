@@ -4,21 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>장바구니 - 카페 앱</title>
-  <link rel="stylesheet" href="../css/variables.css" />
-  <link rel="stylesheet" href="list.css" />
+  <script>
+        document.documentElement.dataset.theme = localStorage.getItem("cafe_theme") || "dark";
+      </script>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/basket/list.css" />
 </head>
 <body>
   <header class="basket-header">
-    <h1><a href="../index.html">☕ 카페 앱</a></h1>
+    <h1><a href="/index.html">☕ 카페 앱</a></h1>
     <nav class="home-nav">
-      <a href="../index.html">홈</a>
-      <a href="../menus/list.html">메뉴</a>
-      <a href="../orders/list.html">주문내역</a>
-      <a href="../my/index.html">마이페이지</a>
+      <a href="/index.html">홈</a>
+      <a href="/menus/list.html">메뉴</a>
+      <a href="/orders/list.html">주문내역</a>
+      <a href="/my/index.html">마이페이지</a>
     </nav>
     <div class="header-actions">
-      <a class="hotline" href="tel:0212345678">📞 02-1234-5678</a>
-      <a href="list.html" class="cart-link active">
+            <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" aria-label="테마 전환"></button>
+<a class="hotline" href="tel:0212345678">📞 02-1234-5678</a>
+      <a href="/basket/list.html" class="cart-link active">
         장바구니
         <span class="cart-badge" id="cart-badge" hidden>0</span>
       </a>
@@ -31,6 +35,23 @@
       <!-- localStorage 카트 데이터를 list.js가 여기에 렌더링 -->
     </div>
     <p class="pickup-estimate" id="pickup-estimate" hidden></p>
+
+    <fieldset class="recipient-fields">
+      <legend>수령 정보</legend>
+      <label class="form-field">
+        <span>수령자 이름 *</span>
+        <input type="text" id="recipient-name" required maxlength="20" placeholder="홍길동" />
+      </label>
+      <label class="form-field">
+        <span>연락처 *</span>
+        <input type="tel" id="recipient-phone" required maxlength="20" placeholder="010-1234-5678" />
+      </label>
+      <label class="form-field">
+        <span>주소 *</span>
+        <input type="text" id="recipient-address" required maxlength="100" placeholder="배송/픽업 받으실 주소" />
+      </label>
+    </fieldset>
+
     <label class="order-note-field">
       <span>요청사항 (선택)</span>
       <textarea id="order-note" rows="2" maxlength="200" placeholder="예: 얼음 적게 주세요, 빨대는 빼주세요"></textarea>
@@ -41,6 +62,6 @@
     <button type="button" class="checkout-btn" id="checkout-btn">주문하기</button>
   </main>
 
-  <script type="module" src="list.js"></script>
+  <script type="module" src="/basket/list.js"></script>
 </body>
 </html>

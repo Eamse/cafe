@@ -9,6 +9,8 @@ import {
   addToCart,
   renderStatusSteps,
   getPickupEstimateRange,
+  showToast,
+  initThemeToggle,
 } from "../js/utils.js";
 
 const params = new URLSearchParams(window.location.search);
@@ -57,6 +59,7 @@ function reorder(order, button) {
   renderCartBadge();
 
   const skipped = order.items.length - addableItems.length;
+  showToast(skipped > 0 ? "일부 품절 메뉴는 제외하고 담았습니다" : "장바구니에 담았습니다");
   button.textContent = skipped > 0 ? "일부 품절 제외하고 담았습니다 ✓" : "담았습니다 ✓";
   button.disabled = true;
   setTimeout(() => {
@@ -135,6 +138,16 @@ function renderDetail() {
           .join("")}
       </div>
 
+      ${
+        order.recipient
+          ? `<div class="order-recipient">
+              <span class="order-note-label">수령 정보</span>
+              <div>${escapeHtml(order.recipient.name)} · ${escapeHtml(order.recipient.phone)}</div>
+              <div>${escapeHtml(order.recipient.address)}</div>
+            </div>`
+          : ""
+      }
+
       ${order.note ? `<div class="order-note"><span class="order-note-label">요청사항</span>${escapeHtml(order.note)}</div>` : ""}
 
       ${
@@ -184,6 +197,7 @@ function renderDetail() {
 
 renderDetail();
 renderCartBadge();
+initThemeToggle();
 
 // 새로고침하면 배너가 다시 뜨지 않도록, 한 번 보여준 뒤 주소에서 new=1을 지운다.
 if (isJustOrdered) {

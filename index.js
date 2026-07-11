@@ -1,4 +1,4 @@
-import { getMenus, getCategories, getFeaturedMenuIds } from "./js/data.js";
+import { getMenus, getCategories, getFeaturedMenuIds, getNotices, getActiveNoticeIds, getEvents } from "./js/data.js";
 import {
   formatPrice,
   escapeHtml,
@@ -10,6 +10,7 @@ import {
   addRecentSearch,
   removeRecentSearch,
   lazyLoadBackgroundImages,
+  initThemeToggle,
 } from "./js/utils.js";
 import { openCartPanel } from "./js/cartPanel.js";
 
@@ -52,6 +53,10 @@ function addRecentlyViewed(menuId) {
   const ids = getRecentlyViewed().filter((id) => id !== menuId);
   ids.unshift(menuId);
   localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(ids.slice(0, RECENTLY_VIEWED_MAX)));
+}
+
+function clearRecentlyViewed() {
+  localStorage.removeItem(RECENTLY_VIEWED_KEY);
 }
 
 function sortMenus(menus) {
@@ -460,6 +465,72 @@ function initHeroSlider() {
   startAutoplay();
 }
 
+let noticeRotationTimer = null;
+
+function renderNoticeBar() {
+  const section = document.getElementById("notice-bar");
+  const activeIds = getActiveNoticeIds();
+  const notices = getNotices().filter((notice) => activeIds.includes(notice.id));
+
+  clearInterval(noticeRotationTimer);
+
+  if (notices.length === 0) {
+    section.hidden = true;
+    return;
+  }
+
+  section.hidden = false;
+  const messageEl = document.getElementById("notice-bar-message");
+  const dateEl = document.getElementById("notice-bar-date");
+
+  let current = 0;
+  function show(index) {
+    current = index;
+    const notice = notices[current];
+    messageEl.textContent = notice.message;
+    dateEl.textContent = notice.date.replace(/-/g, ".");
+  }
+
+  show(0);
+  if (notices.length > 1) {
+    noticeRotationTimer = setInterval(() => show((current + 1) % notices.length), 4000);
+  }
+}
+
+function renderHomeEvents() {
+  const listEl = document.getElementById("home-event-list");
+  const events = getEvents()
+    .slice()
+    .sort((a, b) => (a.date < b.date ? 1 : -1))
+    .slice(0, 3);
+
+  if (events.length === 0) {
+    listEl.innerHTML = `<p class="empty-state">등록된 이벤트가 없습니다.</p>`;
+    return;
+  }
+
+  listEl.innerHTML = events
+    .map((event) => {
+      const [year, month, day] = event.date.split("-");
+      return `
+    <li class="event-row ${event.isEnded ? "is-ended" : ""}">
+      <div class="event-date">
+        <span class="event-day">${day}</span>
+        <span class="event-month">${year}.${month}</span>
+      </div>
+      <div class="event-info">
+        <h3>${escapeHtml(event.title)}${event.isEnded ? `<span class="event-ended-tag">종료된 이벤트입니다</span>` : ""}</h3>
+        <p>${escapeHtml(event.description)}</p>
+      </div>
+      <div class="event-thumb" style="${event.image ? `background-image: url('${event.image}')` : ""}">
+        ${event.isEnded ? `<span class="event-ended-watermark">종료된 이벤트입니다</span>` : ""}
+      </div>
+    </li>
+  `;
+    })
+    .join("");
+}
+
 function applyInitialFilterState() {
   document.getElementById("menu-search").value = searchQuery;
   document.getElementById("sort-select").value = activeSort;
@@ -469,11 +540,20 @@ function applyInitialFilterState() {
   favBtn.setAttribute("aria-pressed", String(favoritesOnly));
 }
 
+document.getElementById("clear-recently-viewed-btn").addEventListener("click", () => {
+  if (!confirm("최근 본 메뉴를 전부 삭제하시겠습니까?")) return;
+  clearRecentlyViewed();
+  renderRecentlyViewedWidget();
+});
+
 applyInitialFilterState();
 initHeroSlider();
+initThemeToggle();
 renderCartBadge();
 renderRecentlyViewedWidget();
 renderRecentSearches();
 renderFeatured();
 renderTabs();
 renderMenuGrid();
+renderNoticeBar();
+renderHomeEvents();

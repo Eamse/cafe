@@ -3,7 +3,8 @@
    variables.css의 공용 토큰을 index.html 문서 안에서만 덮어씀(다른 페이지엔 영향 없음)
    ========================================================================== */
 
-:root {
+:root,
+:root[data-theme="dark"] {
   --color-bg: #150e0a;
   --color-surface: #241a13;
   --color-text: #f3e9dc;
@@ -14,6 +15,21 @@
   --color-warning: #c8945c;
   --color-danger: #b0503f;
   --color-dark: #0c0805;
+  --dot-color: rgba(243, 233, 220, 0.07);
+}
+
+:root[data-theme="light"] {
+  --color-bg: #fdfaf6;
+  --color-surface: #ffffff;
+  --color-text: #3a2a20;
+  --color-text-muted: #8a7566;
+  --color-border: #e8d5c4;
+  --color-accent: #6f4e37;
+  --color-accent-hover: #3a2a20;
+  --color-warning: #c98a1c;
+  --color-danger: #b3532b;
+  --color-dark: #3a2a20;
+  --dot-color: rgba(58, 42, 32, 0.05);
 }
 
 body {
@@ -22,7 +38,7 @@ body {
   background-color: var(--color-bg);
   background-image: radial-gradient(
     circle at 1px 1px,
-    rgba(243, 233, 220, 0.07) 1px,
+    var(--dot-color) 1px,
     transparent 0
   );
   background-size: 24px 24px;
@@ -603,11 +619,44 @@ body {
 }
 
 .event-thumb {
+  position: relative;
   flex: 0 0 200px;
   height: 120px;
   border-radius: var(--radius-sm);
   background-size: cover;
   background-position: center;
+}
+
+.event-row.is-ended .event-info h3,
+.event-row.is-ended .event-info p {
+  opacity: 0.6;
+}
+
+.event-ended-tag {
+  display: inline-block;
+  margin-left: var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-full);
+  padding: 2px var(--spacing-sm);
+  vertical-align: middle;
+}
+
+.event-ended-watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: var(--radius-sm);
 }
 
 .event-more {
@@ -855,10 +904,24 @@ body {
   box-shadow: var(--shadow-md);
 }
 
+.viewed-sidebar-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
 .viewed-sidebar-heading {
   font-size: var(--font-size-sm);
   font-weight: 700;
-  margin-bottom: var(--spacing-sm);
+  white-space: nowrap;
+}
+
+.clear-all-btn {
+  font-size: 0.68rem;
+  color: var(--color-danger);
+  text-decoration: underline;
   white-space: nowrap;
 }
 

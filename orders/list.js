@@ -7,6 +7,8 @@ import {
   getOrders,
   addToCart,
   estimatePickupMinutes,
+  showToast,
+  initThemeToggle,
 } from "../js/utils.js";
 
 function renderRecentOrderWidget() {
@@ -49,6 +51,7 @@ function renderRecentOrderWidget() {
     btn.addEventListener("click", () => {
       addToCart(Number(btn.dataset.menuId), Number(btn.dataset.quantity));
       renderCartBadge();
+      showToast("장바구니에 담았습니다");
       btn.textContent = "담았습니다 ✓";
       btn.disabled = true;
       setTimeout(() => {
@@ -76,6 +79,7 @@ function reorder(order, button) {
   renderCartBadge();
 
   const skipped = order.items.length - addableItems.length;
+  showToast(skipped > 0 ? "일부 품절 메뉴는 제외하고 담았습니다" : "장바구니에 담았습니다");
   button.textContent = skipped > 0 ? `일부 품절 제외하고 담았습니다 ✓` : "담았습니다 ✓";
   button.disabled = true;
   setTimeout(() => {
@@ -133,3 +137,4 @@ function renderOrders() {
 renderOrders();
 renderRecentOrderWidget();
 renderCartBadge();
+initThemeToggle();

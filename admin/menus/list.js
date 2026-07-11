@@ -4,6 +4,8 @@ import { formatPrice, escapeHtml } from "../../js/utils.js";
 const FEATURED_MAX = 6;
 
 let activeCategory = "all";
+let searchQuery = "";
+const selectedIds = new Set();
 
 function getCategoryName(categoryId) {
   const category = getCategories().find((c) => c.id === categoryId);
@@ -27,20 +29,53 @@ function renderTabs() {
   tabs.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       activeCategory = btn.dataset.category;
+      selectedIds.clear();
       renderTabs();
       renderList();
     });
   });
 }
 
+function renderBulkBar() {
+  const bar = document.getElementById("bulk-action-bar");
+  const countEl = document.getElementById("bulk-count");
+
+  if (selectedIds.size === 0) {
+    bar.hidden = true;
+    return;
+  }
+  bar.hidden = false;
+  countEl.textContent = `${selectedIds.size}개 선택됨`;
+}
+
+function updateSelectAllCheckboxState(total) {
+  const selectAll = document.getElementById("select-all-checkbox");
+  selectAll.checked = total > 0 && selectedIds.size === total;
+  selectAll.indeterminate = selectedIds.size > 0 && selectedIds.size < total;
+}
+
+function getFilteredMenus() {
+  const menus = getMenus();
+  const query = searchQuery.trim().toLowerCase();
+  let filtered = activeCategory === "all" ? menus : menus.filter((m) => m.categoryId === activeCategory);
+  if (query) filtered = filtered.filter((m) => m.name.toLowerCase().includes(query));
+  return filtered;
+}
+
 function renderList() {
   const listEl = document.getElementById("admin-menu-list");
-  const menus = getMenus();
-  const filtered = activeCategory === "all" ? menus : menus.filter((m) => m.categoryId === activeCategory);
+  const filtered = getFilteredMenus();
   const featuredIds = getFeaturedMenuIds();
 
+  const visibleIds = new Set(filtered.map((m) => m.id));
+  selectedIds.forEach((id) => {
+    if (!visibleIds.has(id)) selectedIds.delete(id);
+  });
+
   if (filtered.length === 0) {
-    listEl.innerHTML = `<p class="empty-state">등록된 메뉴가 없습니다.</p>`;
+    listEl.innerHTML = `<p class="empty-state">${searchQuery.trim() ? "검색 결과가 없습니다." : "등록된 메뉴가 없습니다."}</p>`;
+    renderBulkBar();
+    updateSelectAllCheckboxState(0);
     return;
   }
 
@@ -48,7 +83,10 @@ function renderList() {
     .map((menu) => {
       const isFeatured = featuredIds.includes(menu.id);
       return `
-    <div class="admin-menu-row glass-card cat-${menu.categoryId}" data-id="${menu.id}">
+    <div class="admin-menu-row glass-card cat-${menu.categoryId} ${selectedIds.has(menu.id) ? "is-selected" : ""}" data-id="${menu.id}">
+      <label class="row-checkbox">
+        <input type="checkbox" data-select-id="${menu.id}" ${selectedIds.has(menu.id) ? "checked" : ""} />
+      </label>
       <a class="row-main" href="detail.html?id=${menu.id}">
         <div class="row-thumb" style="${menu.image ? `background-image: url('${escapeHtml(menu.image)}')` : ""}"></div>
         <div class="row-name">${escapeHtml(menu.name)}</div>
@@ -81,6 +119,18 @@ function renderList() {
   listEl.querySelectorAll('[data-action="feature"]').forEach((btn) => {
     btn.addEventListener("click", () => toggleFeatured(Number(btn.dataset.id)));
   });
+
+  listEl.querySelectorAll("[data-select-id]").forEach((checkbox) => {
+    checkbox.addEventListener("change", () => {
+      const id = Number(checkbox.dataset.selectId);
+      if (checkbox.checked) selectedIds.add(id);
+      else selectedIds.delete(id);
+      renderList();
+    });
+  });
+
+  renderBulkBar();
+  updateSelectAllCheckboxState(filtered.length);
 }
 
 function toggleFeatured(menuId) {
@@ -108,6 +158,47 @@ function deleteMenu(menuId) {
   saveMenus(menus);
   renderList();
 }
+
+function handleBulkAction(action) {
+  if (selectedIds.size === 0) return;
+
+  if (action === "delete") {
+    if (!confirm(`선택한 ${selectedIds.size}개 메뉴를 삭제하시겠습니까?`)) return;
+    const menus = getMenus().filter((m) => !selectedIds.has(m.id));
+    saveMenus(menus);
+  } else {
+    const menus = getMenus();
+    menus.forEach((menu) => {
+      if (!selectedIds.has(menu.id)) return;
+      menu.isSoldOut = action === "soldout";
+    });
+    saveMenus(menus);
+  }
+
+  selectedIds.clear();
+  renderList();
+}
+
+document.getElementById("select-all-checkbox").addEventListener("change", (event) => {
+  const filtered = getFilteredMenus();
+  if (event.target.checked) filtered.forEach((m) => selectedIds.add(m.id));
+  else filtered.forEach((m) => selectedIds.delete(m.id));
+  renderList();
+});
+
+document.getElementById("bulk-clear-btn").addEventListener("click", () => {
+  selectedIds.clear();
+  renderList();
+});
+
+document.querySelectorAll("[data-bulk-action]").forEach((btn) => {
+  btn.addEventListener("click", () => handleBulkAction(btn.dataset.bulkAction));
+});
+
+document.getElementById("menu-name-search").addEventListener("input", (event) => {
+  searchQuery = event.target.value;
+  renderList();
+});
 
 renderTabs();
 renderList();
