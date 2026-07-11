@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>카테고리 관리 - 카페 앱 관리자</title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/admin/sidebar.css" />
+  <link rel="stylesheet" href="/admin/categories/list.css" />
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <h1>☕ 카페 앱 관리자</h1>
+      <nav class="admin-sidebar-nav">
+        <a href="/admin/index.html">대시보드</a>
+        <a href="/admin/menus/list.html">메뉴 관리</a>
+        <a href="/admin/categories/list.html" class="active">카테고리 관리</a>
+        <a href="/admin/orders/list.html">주문 관리</a>
+      </nav>
+    </aside>
+
+    <div class="admin-main">
+      <main class="admin-categories-page">
+        <div class="page-heading">
+          <h2>카테고리 관리</h2>
+        </div>
+
+        <form id="category-form" class="category-form">
+          <input type="text" id="new-category-name" placeholder="새 카테고리 이름 (예: 브런치)" required maxlength="20" />
+          <button type="submit" class="btn btn-primary">추가</button>
+        </form>
+        <p class="form-error" id="form-error" hidden></p>
+
+        <div class="category-list" id="category-list">
+          <!-- list.js가 카테고리 목록을 렌더링 -->
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="/admin/categories/list.js"></script>
+</body>
+</html>

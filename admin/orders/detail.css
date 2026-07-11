@@ -48,6 +48,103 @@
   font-size: var(--font-size-sm);
 }
 
+.status-steps {
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+  margin: 0 0 var(--spacing-xl);
+  padding: 0;
+}
+
+.status-steps li {
+  position: relative;
+  flex: 1;
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  padding-top: var(--spacing-lg);
+}
+
+.status-steps li::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  z-index: 1;
+}
+
+.status-steps li::after {
+  content: "";
+  position: absolute;
+  top: 9px;
+  left: -50%;
+  width: 100%;
+  height: 2px;
+  background: var(--color-border);
+}
+
+.status-steps li:first-child::after {
+  display: none;
+}
+
+.status-steps li.done,
+.status-steps li.active {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.status-steps li.done::before,
+.status-steps li.active::before {
+  background: var(--color-accent);
+}
+
+.status-steps li.done::after {
+  background: var(--color-accent);
+}
+
+.status-steps li.active::before {
+  width: 16px;
+  height: 16px;
+  top: 2px;
+  box-shadow: 0 0 0 4px rgba(111, 78, 55, 0.2);
+}
+
+.status-cancelled-banner {
+  text-align: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  border-radius: var(--radius-sm);
+  background: rgba(179, 69, 44, 0.1);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+}
+
+.order-note {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  border: 1px dashed var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.order-note-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
 .order-items {
   display: flex;
   flex-direction: column;

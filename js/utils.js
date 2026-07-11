@@ -30,6 +30,38 @@ export function generateId(prefix = "id") {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/* ---------- 이미지 업로드 ---------- */
+
+// 관리자가 업로드한 사진 파일을 localStorage에 저장 가능한 data URL로 변환한다.
+// 원본 사진(특히 폰 카메라 사진)은 몇 MB씩 되는 경우가 많아 그대로 저장하면
+// localStorage 용량(브라우저당 5~10MB)을 몇 개만 등록해도 넘길 수 있으므로,
+// 캔버스로 한 변의 최대 길이를 제한하고 JPEG로 재인코딩해 용량을 크게 줄인다.
+export function readImageFileAsDataUrl(file, maxDimension = 800, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error || new Error("파일을 읽을 수 없어요"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("이미지를 불러올 수 없어요"));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDimension || height > maxDimension) {
+          const scale = maxDimension / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 /* ---------- DOM 헬퍼 ---------- */
 
 export function qs(selector, scope = document) {
@@ -38,6 +70,37 @@ export function qs(selector, scope = document) {
 
 export function qsa(selector, scope = document) {
   return Array.from(scope.querySelectorAll(selector));
+}
+
+// 카드 이미지를 즉시 다 불러오지 않고, 화면에 가까워질 때만 background-image를
+// 채워 넣는다. 카드 HTML은 style 대신 data-bg="URL"로 렌더링하고, 렌더링 직후
+// 이 함수를 호출하면 된다.
+export function lazyLoadBackgroundImages(root = document) {
+  const targets = qsa("[data-bg]:not([data-bg-loaded])", root);
+  if (targets.length === 0) return;
+
+  const load = (el) => {
+    if (el.dataset.bg) el.style.backgroundImage = `url('${el.dataset.bg}')`;
+    el.dataset.bgLoaded = "true";
+  };
+
+  if (!("IntersectionObserver" in window)) {
+    targets.forEach(load);
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries, obs) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        load(entry.target);
+        obs.unobserve(entry.target);
+      });
+    },
+    { rootMargin: "200px" }
+  );
+
+  targets.forEach((el) => observer.observe(el));
 }
 
 /* ---------- 장바구니 ---------- */
@@ -109,6 +172,15 @@ const ORDERS_STORAGE_KEY = "cafe_orders";
 
 export const ORDER_STATUSES = ["주문완료", "조리중", "수령완료", "취소"];
 
+// 관리자가 주문을 "수락"(주문완료 → 조리중 이상으로 진행)하면 더 이상 취소를
+// 선택할 수 없도록, 현재 상태 기준으로 고를 수 있는 상태 목록만 반환한다.
+export function getAvailableStatuses(currentStatus) {
+  const allowed =
+    currentStatus === "주문완료" ? ORDER_STATUSES : ORDER_STATUSES.filter((status) => status !== "취소");
+  if (!allowed.includes(currentStatus)) allowed.push(currentStatus);
+  return allowed;
+}
+
 export function getOrders() {
   try {
     const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
@@ -132,4 +204,121 @@ export function updateOrderStatus(orderId, status) {
   if (target) target.status = status;
   saveOrders(orders);
   return orders;
+}
+
+// 고객이 직접 취소할 때 사유를 함께 남긴다. 관리자 쪽 상태 변경(updateOrderStatus)과는
+// 별도 경로 — 취소는 항상 사유가 있어야 하므로 한 함수로 묶어 누락을 방지한다.
+export function cancelOrderWithReason(orderId, reason) {
+  const orders = getOrders();
+  const target = orders.find((order) => order.id === orderId);
+  if (target) {
+    target.status = "취소";
+    target.cancelReason = reason;
+  }
+  saveOrders(orders);
+  return orders;
+}
+
+// 담긴/주문된 메뉴 총 수량 기준 예상 준비 시간(분) 범위. 카운트다운 계산에도 재사용.
+export function getPickupEstimateRange(totalQuantity) {
+  const min = 5 + totalQuantity * 1;
+  const max = min + 5;
+  return { min, max };
+}
+
+// 예상 준비 시간 문구. basket(체크아웃 전)과 orders(체크아웃 후 확인)가
+// 공용으로 사용해 문구·계산식을 하나로 유지한다.
+export function estimatePickupMinutes(totalQuantity) {
+  const { min, max } = getPickupEstimateRange(totalQuantity);
+  return `예상 준비 시간: 약 ${min}~${max}분`;
+}
+
+// 특정 메뉴와 실제로 함께 주문된 적 있는 다른 메뉴 id를 빈도순으로 반환.
+// menus/detail.js(상세 추천), js/cartPanel.js(담기 패널 미니 추천)가 공용으로 사용.
+export function getFrequentlyBoughtWith(menuId, limit = 4) {
+  const counts = {};
+  getOrders().forEach((order) => {
+    const menuIds = order.items.map((item) => item.menuId);
+    if (!menuIds.includes(menuId)) return;
+    menuIds.forEach((id) => {
+      if (id === menuId) return;
+      counts[id] = (counts[id] || 0) + 1;
+    });
+  });
+
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([id]) => Number(id));
+}
+
+const ORDER_PROGRESS_STEPS = ["주문완료", "조리중", "수령완료"];
+
+// 주문 상태를 진행 단계 표시줄(HTML)로 렌더링. 취소된 주문은 단계 대신 배너로 보여줌.
+// 고객(orders/detail.js)과 관리자(admin/orders/detail.js) 양쪽에서 공용으로 사용.
+export function renderStatusSteps(status) {
+  if (status === "취소") {
+    return `<div class="status-cancelled-banner">이 주문은 취소되었습니다</div>`;
+  }
+
+  const currentIndex = ORDER_PROGRESS_STEPS.indexOf(status);
+
+  return `
+    <ol class="status-steps">
+      ${ORDER_PROGRESS_STEPS.map((step, index) => {
+        const state = index < currentIndex ? "done" : index === currentIndex ? "active" : "";
+        return `<li class="${state}">${step}</li>`;
+      }).join("")}
+    </ol>
+  `;
+}
+
+/* ---------- 즐겨찾기 ---------- */
+
+const FAVORITES_KEY = "cafe_favorites";
+
+export function getFavorites() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY)) || []);
+  } catch {
+    return new Set();
+  }
+}
+
+export function toggleFavorite(menuId) {
+  const favorites = getFavorites();
+  if (favorites.has(menuId)) favorites.delete(menuId);
+  else favorites.add(menuId);
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favorites]));
+  return favorites;
+}
+
+/* ---------- 최근 검색어 ---------- */
+
+const RECENT_SEARCHES_KEY = "cafe_recent_searches";
+const RECENT_SEARCHES_MAX = 6;
+
+export function getRecentSearches() {
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+export function addRecentSearch(term) {
+  const trimmed = term.trim();
+  if (!trimmed) return getRecentSearches();
+
+  const list = getRecentSearches().filter((t) => t !== trimmed);
+  list.unshift(trimmed);
+  const sliced = list.slice(0, RECENT_SEARCHES_MAX);
+  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(sliced));
+  return sliced;
+}
+
+export function removeRecentSearch(term) {
+  const list = getRecentSearches().filter((t) => t !== term);
+  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(list));
+  return list;
 }

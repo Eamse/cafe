@@ -110,7 +110,7 @@ body {
 /* ---------- 차별점 ---------- */
 
 .home-usp {
-  max-width: 960px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-md) 0;
   display: grid;
@@ -137,7 +137,7 @@ body {
 /* ---------- 다시 담아보세요 ---------- */
 
 .home-recent {
-  max-width: 960px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-md) 0;
 }
@@ -192,7 +192,7 @@ body {
 }
 
 .menu-list-page {
-  max-width: 960px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-md);
 }
@@ -223,6 +223,10 @@ body {
   flex-wrap: wrap;
 }
 
+.search-wrap {
+  position: relative;
+}
+
 .menu-search {
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
@@ -233,6 +237,43 @@ body {
   width: 160px;
 }
 
+.search-suggestions {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  width: max(240px, 100%);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.search-suggestion-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.search-suggestion-item:hover {
+  background: var(--color-bg);
+}
+
+.search-suggestion-item + .search-suggestion-item {
+  border-top: 1px solid var(--color-border);
+}
+
+.search-suggestion-price {
+  color: var(--color-accent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .sort-select,
 .price-filter {
   padding: var(--spacing-xs) var(--spacing-sm);
@@ -241,6 +282,47 @@ body {
   background: var(--color-surface);
   color: var(--color-text);
   font-size: var(--font-size-sm);
+}
+
+.recent-searches {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.recent-searches-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.recent-search-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  transition: var(--transition-fast);
+}
+
+.recent-search-chip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.recent-search-remove {
+  color: var(--color-text-muted);
+  font-size: 0.65rem;
+}
+
+.recent-search-remove:hover {
+  color: var(--color-danger);
 }
 
 .category-tabs {
@@ -268,24 +350,107 @@ body {
 
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: var(--spacing-lg);
 }
 
 .menu-card {
+  position: relative;
   display: block;
   cursor: pointer;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-left: 4px solid var(--cat-accent, var(--color-border));
   border-radius: var(--radius-md);
+  overflow: hidden;
   box-shadow: var(--shadow-md);
-  padding: var(--spacing-lg);
+  text-align: center;
   transition: var(--transition-base);
+}
+
+.menu-card-image-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-card-image {
+  width: 100%;
+  height: 180px;
+  background-color: var(--color-border);
+  background-size: cover;
+  background-position: center;
+  border-bottom: 3px solid var(--cat-accent, var(--color-border));
+  transition: var(--transition-base);
+}
+
+.menu-card:hover .menu-card-image {
+  transform: scale(1.06);
+}
+
+.menu-card-body {
+  padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
+}
+
+.favorites-toggle {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  transition: var(--transition-fast);
+}
+
+.favorites-toggle.active {
+  background: var(--color-accent);
+  color: var(--color-cream-100);
+  border-color: var(--color-accent);
+}
+
+.favorite-btn {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  z-index: 1;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-border);
+  font-size: var(--font-size-xs);
+  line-height: 1;
+  transition: var(--transition-fast);
+}
+
+.favorite-btn.is-active {
+  background: var(--color-accent);
+  color: var(--color-cream-100);
+  border-color: var(--color-accent);
+  animation: heart-pop 0.3s ease;
+}
+
+@keyframes heart-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .favorite-btn.is-active {
+    animation: none;
+  }
 }
 
 .menu-card:hover {
   transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(200, 148, 92, 0.2);
 }
 
 .menu-card.is-soldout {
@@ -298,12 +463,15 @@ body {
 
 .sold-out-tag,
 .popular-tag {
+  position: absolute;
+  top: var(--spacing-sm);
+  left: var(--spacing-sm);
+  z-index: 1;
   display: inline-block;
-  padding: 2px 8px;
+  padding: 2px 10px;
   border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
   font-weight: bold;
-  margin-bottom: var(--spacing-xs);
 }
 
 .sold-out-tag {
@@ -318,17 +486,19 @@ body {
 
 .menu-card .menu-name {
   font-size: var(--font-size-lg);
-  margin-bottom: var(--spacing-xs);
+  font-weight: 700;
+  margin-bottom: 2px;
 }
 
 .menu-card .menu-category {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
+  font-style: italic;
   color: var(--cat-accent, var(--color-text-muted));
-  font-weight: 600;
   margin-bottom: var(--spacing-sm);
 }
 
 .menu-card .menu-price {
+  font-family: "Courier New", monospace;
   font-size: var(--font-size-base);
   color: var(--color-accent);
   font-weight: bold;

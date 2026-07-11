@@ -1,8 +1,8 @@
-import { categories, getMenus, saveMenus } from "../../js/data.js";
+import { getCategories, getMenus, saveMenus } from "../../js/data.js";
 import { formatPrice, escapeHtml } from "../../js/utils.js";
 
 function getCategoryName(categoryId) {
-  const category = categories.find((c) => c.id === categoryId);
+  const category = getCategories().find((c) => c.id === categoryId);
   return category ? category.name : categoryId;
 }
 
@@ -20,6 +20,7 @@ function renderDetail() {
 
   container.innerHTML = `
     <div class="detail-card glass-card cat-${menu.categoryId}">
+      ${menu.image ? `<div class="menu-image" style="background-image: url('${escapeHtml(menu.image)}')"></div>` : ""}
       <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
       <h2 class="menu-name">${escapeHtml(menu.name)}</h2>
       <div class="menu-price">${formatPrice(menu.price)}</div>

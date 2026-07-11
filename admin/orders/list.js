@@ -1,6 +1,15 @@
-import { formatPrice, formatDate, escapeHtml, getOrders, updateOrderStatus, ORDER_STATUSES } from "../../js/utils.js";
+import {
+  formatPrice,
+  formatDate,
+  escapeHtml,
+  getOrders,
+  updateOrderStatus,
+  ORDER_STATUSES,
+  getAvailableStatuses,
+} from "../../js/utils.js";
 
 let activeStatus = "all";
+const selectedIds = new Set();
 
 function renderTabs() {
   const tabs = document.getElementById("status-tabs");
@@ -19,10 +28,42 @@ function renderTabs() {
   tabs.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       activeStatus = btn.dataset.status;
+      selectedIds.clear();
       renderTabs();
       renderList();
     });
   });
+}
+
+// 선택된 주문들 중 하나라도 이미 "주문완료"를 벗어났으면 일괄 옵션에서 취소를 뺀다.
+// (개별 셀렉트의 getAvailableStatuses와 동일한 규칙을 여러 건에 함께 적용)
+function getBulkAvailableStatuses(selectedOrders) {
+  const allStillPending = selectedOrders.every((order) => order.status === "주문완료");
+  return allStillPending ? ORDER_STATUSES : ORDER_STATUSES.filter((status) => status !== "취소");
+}
+
+function renderBulkBar(orders) {
+  const bar = document.getElementById("bulk-action-bar");
+  const countEl = document.getElementById("bulk-count");
+  const statusSelect = document.getElementById("bulk-status-select");
+
+  if (selectedIds.size === 0) {
+    bar.hidden = true;
+    return;
+  }
+
+  const selectedOrders = orders.filter((o) => selectedIds.has(o.id));
+  bar.hidden = false;
+  countEl.textContent = `${selectedIds.size}건 선택됨`;
+  statusSelect.innerHTML = getBulkAvailableStatuses(selectedOrders)
+    .map((status) => `<option value="${status}">${status}</option>`)
+    .join("");
+}
+
+function updateSelectAllCheckboxState(total) {
+  const selectAll = document.getElementById("select-all-checkbox");
+  selectAll.checked = total > 0 && selectedIds.size === total;
+  selectAll.indeterminate = selectedIds.size > 0 && selectedIds.size < total;
 }
 
 function renderList() {
@@ -30,24 +71,35 @@ function renderList() {
   const orders = getOrders().slice().reverse();
   const filtered = activeStatus === "all" ? orders : orders.filter((o) => o.status === activeStatus);
 
+  // 필터를 바꿔서 화면에 없는 주문의 선택 상태는 정리한다.
+  const visibleIds = new Set(filtered.map((o) => o.id));
+  selectedIds.forEach((id) => {
+    if (!visibleIds.has(id)) selectedIds.delete(id);
+  });
+
   if (filtered.length === 0) {
     listEl.innerHTML = `<p class="empty-state">주문이 없습니다.</p>`;
+    renderBulkBar(orders);
+    updateSelectAllCheckboxState(0);
     return;
   }
 
   listEl.innerHTML = filtered
     .map(
       (order) => `
-    <div class="admin-order-row glass-card">
+    <div class="admin-order-row glass-card ${selectedIds.has(order.id) ? "is-selected" : ""}">
+      <label class="row-checkbox">
+        <input type="checkbox" data-select-id="${order.id}" ${selectedIds.has(order.id) ? "checked" : ""} />
+      </label>
       <a class="row-main" href="detail.html?id=${order.id}">
         <div class="row-date">${formatDate(order.createdAt)}</div>
         <div class="row-summary">${escapeHtml(order.items[0].name)}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
         <div class="row-total">${formatPrice(order.total)}</div>
       </a>
       <select class="status-select" data-id="${order.id}">
-        ${ORDER_STATUSES.map(
-          (status) => `<option value="${status}" ${status === order.status ? "selected" : ""}>${status}</option>`
-        ).join("")}
+        ${getAvailableStatuses(order.status)
+          .map((status) => `<option value="${status}" ${status === order.status ? "selected" : ""}>${status}</option>`)
+          .join("")}
       </select>
     </div>
   `
@@ -60,7 +112,46 @@ function renderList() {
       renderList();
     });
   });
+
+  listEl.querySelectorAll("[data-select-id]").forEach((checkbox) => {
+    checkbox.addEventListener("change", () => {
+      const id = Number(checkbox.dataset.selectId);
+      if (checkbox.checked) selectedIds.add(id);
+      else selectedIds.delete(id);
+      renderList();
+    });
+  });
+
+  renderBulkBar(orders);
+  updateSelectAllCheckboxState(filtered.length);
 }
+
+document.getElementById("select-all-checkbox").addEventListener("change", (event) => {
+  const orders = getOrders().slice().reverse();
+  const filtered = activeStatus === "all" ? orders : orders.filter((o) => o.status === activeStatus);
+
+  if (event.target.checked) {
+    filtered.forEach((o) => selectedIds.add(o.id));
+  } else {
+    filtered.forEach((o) => selectedIds.delete(o.id));
+  }
+  renderList();
+});
+
+document.getElementById("bulk-clear-btn").addEventListener("click", () => {
+  selectedIds.clear();
+  renderList();
+});
+
+document.getElementById("bulk-apply-btn").addEventListener("click", () => {
+  if (selectedIds.size === 0) return;
+  const status = document.getElementById("bulk-status-select").value;
+  if (!confirm(`선택한 ${selectedIds.size}건을 "${status}" 상태로 한 번에 변경할까요?`)) return;
+
+  selectedIds.forEach((id) => updateOrderStatus(id, status));
+  selectedIds.clear();
+  renderList();
+});
 
 renderTabs();
 renderList();

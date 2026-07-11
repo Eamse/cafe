@@ -15,6 +15,7 @@
       <nav class="admin-sidebar-nav">
         <a href="/admin/index.html">대시보드</a>
         <a href="/admin/menus/list.html" class="active">메뉴 관리</a>
+        <a href="/admin/categories/list.html">카테고리 관리</a>
         <a href="/admin/orders/list.html">주문 관리</a>
       </nav>
     </aside>
@@ -45,10 +46,25 @@
         <textarea id="description" rows="3"></textarea>
       </label>
 
+      <label class="form-field">
+        <span>이미지</span>
+        <input type="file" id="image-file" accept="image/*" />
+      </label>
+
+      <div class="image-preview-row">
+        <div class="image-preview" id="image-preview">미리보기</div>
+        <div class="image-preview-info">
+          <p class="image-preview-hint">사진을 선택하면 여기에 미리보기가 표시됩니다. 선택하지 않으면 기본 이미지 없이 등록돼요.</p>
+          <button type="button" class="image-remove-btn" id="image-remove-btn" hidden>사진 제거</button>
+        </div>
+      </div>
+
       <label class="form-field-checkbox">
         <input type="checkbox" id="isSoldOut" />
         <span>품절 상태로 등록</span>
       </label>
+
+      <p class="form-error" id="form-error" hidden></p>
 
       <div class="form-actions">
         <button type="submit" class="btn btn-primary">저장</button>

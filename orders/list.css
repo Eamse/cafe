@@ -231,9 +231,21 @@ body {
   font-size: var(--font-size-base);
 }
 
+.order-status-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .order-status {
   font-size: var(--font-size-xs);
   color: var(--color-success);
+}
+
+.order-pickup-hint {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
 .order-total {

@@ -1,32 +1,85 @@
-import { getMenus, categories } from "../js/data.js";
-import { formatPrice, addToCart, escapeHtml, renderCartBadge } from "../js/utils.js";
+import { getMenus, getCategories } from "../js/data.js";
+import {
+  formatPrice,
+  addToCart,
+  escapeHtml,
+  renderCartBadge,
+  getFrequentlyBoughtWith,
+  getFavorites,
+  toggleFavorite,
+  lazyLoadBackgroundImages,
+} from "../js/utils.js";
 import { openCartPanel } from "../js/cartPanel.js";
 
+const RECOMMEND_COUNT = 4;
+
 function getCategoryName(categoryId) {
-  const category = categories.find((c) => c.id === categoryId);
+  const category = getCategories().find((c) => c.id === categoryId);
   return category ? category.name : categoryId;
+}
+
+// 실제 주문 데이터를 기준으로 "이 메뉴와 함께 주문된 메뉴"를 우선 추천한다.
+// 주문 데이터가 부족하면 같은 카테고리 → 나머지 메뉴 순으로 채운다.
+function getRecommendedMenus(currentMenu, allMenus) {
+  const byCoOccurrence = getFrequentlyBoughtWith(currentMenu.id, allMenus.length);
+  const isBasedOnOrders = byCoOccurrence.length > 0;
+  const picked = [];
+  const usedIds = new Set([currentMenu.id]);
+
+  const addCandidates = (ids) => {
+    ids.forEach((id) => {
+      if (picked.length >= RECOMMEND_COUNT || usedIds.has(id)) return;
+      const menu = allMenus.find((m) => m.id === id && !m.isSoldOut);
+      if (!menu) return;
+      picked.push(menu);
+      usedIds.add(id);
+    });
+  };
+
+  addCandidates(byCoOccurrence);
+
+  const sameCategoryIds = allMenus
+    .filter((m) => m.categoryId === currentMenu.categoryId && m.id !== currentMenu.id)
+    .map((m) => m.id);
+  addCandidates(sameCategoryIds);
+
+  const restIds = allMenus.filter((m) => m.id !== currentMenu.id).map((m) => m.id);
+  addCandidates(restIds);
+
+  return { menus: picked, isBasedOnOrders };
 }
 
 function renderMoreMenus(currentMenu) {
   const grid = document.getElementById("more-menu-grid");
-  const others = getMenus().filter((m) => m.id !== currentMenu.id);
+  const heading = document.getElementById("more-menu-heading");
+  const allMenus = getMenus();
+  const { menus: recommended, isBasedOnOrders } = getRecommendedMenus(currentMenu, allMenus);
 
-  if (others.length === 0) {
+  heading.textContent = isBasedOnOrders ? "함께 주문하면 좋은 메뉴" : "다른 메뉴도 담아보세요";
+
+  if (recommended.length === 0) {
     grid.innerHTML = "";
     return;
   }
 
-  grid.innerHTML = others
+  grid.innerHTML = recommended
     .map(
       (menu) => `
     <div class="menu-card cat-${menu.categoryId}" data-menu-id="${menu.id}" role="button" tabindex="0">
-      <div class="menu-name">${escapeHtml(menu.name)}</div>
-      <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
-      <div class="menu-price">${formatPrice(menu.price)}</div>
+      <div class="menu-card-image-wrap">
+        <div class="menu-card-image" data-bg="${escapeHtml(menu.image || "")}"></div>
+      </div>
+      <div class="menu-card-body">
+        <div class="menu-name">${escapeHtml(menu.name)}</div>
+        <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
+        <div class="menu-price">${formatPrice(menu.price)}</div>
+      </div>
     </div>
   `
     )
     .join("");
+
+  lazyLoadBackgroundImages(grid);
 
   grid.querySelectorAll(".menu-card[data-menu-id]").forEach((card) => {
     card.addEventListener("click", () => openOtherMenu(card));
@@ -56,8 +109,11 @@ function renderMenuDetail() {
     return;
   }
 
+  const isFavorite = getFavorites().has(menu.id);
+
   container.innerHTML = `
     <div class="detail-card cat-${menu.categoryId}">
+      <button type="button" class="favorite-btn ${isFavorite ? "is-active" : ""}" id="detail-favorite-btn" aria-pressed="${isFavorite ? "true" : "false"}" aria-label="즐겨찾기 ${isFavorite ? "해제" : "추가"}">♥</button>
       <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
       <h2 class="menu-name">${escapeHtml(menu.name)}</h2>
       <div class="menu-price">${formatPrice(menu.price)}</div>
@@ -78,6 +134,11 @@ function renderMenuDetail() {
   `;
 
   renderMoreMenus(menu);
+
+  document.getElementById("detail-favorite-btn").addEventListener("click", () => {
+    toggleFavorite(menu.id);
+    renderMenuDetail();
+  });
 
   if (menu.isSoldOut) return;
 

@@ -79,6 +79,43 @@
   color: var(--color-text-muted);
 }
 
+.featured-menus {
+  margin-bottom: var(--spacing-xl);
+}
+
+.featured-menus-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.featured-menu-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1px solid var(--color-warning);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.featured-menu-chip:hover {
+  background: var(--color-warning);
+  color: var(--color-cream-100);
+}
+
+.featured-menu-chip.is-soldout {
+  opacity: 0.6;
+}
+
+.featured-menu-soldout {
+  font-size: var(--font-size-xs);
+  color: var(--color-danger);
+}
+
 .recent-orders-list {
   display: flex;
   flex-direction: column;

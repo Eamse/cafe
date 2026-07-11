@@ -1,4 +1,4 @@
-import { getMenus } from "../js/data.js";
+import { getMenus, getFeaturedMenuIds } from "../js/data.js";
 import { formatPrice, formatDate, escapeHtml, getOrders } from "../js/utils.js";
 
 const RECENT_COUNT = 5;
@@ -31,6 +31,30 @@ function renderStats() {
     .join("");
 }
 
+function renderFeaturedMenus() {
+  const listEl = document.getElementById("featured-menus-list");
+  const featuredIds = getFeaturedMenuIds();
+
+  if (featuredIds.length === 0) {
+    listEl.innerHTML = `<p class="empty-state">아직 고른 추천 메뉴가 없어요. 자동으로 카테고리별 대표 메뉴가 노출됩니다.</p>`;
+    return;
+  }
+
+  const menus = getMenus();
+  const featured = featuredIds.map((id) => menus.find((m) => m.id === id)).filter(Boolean);
+
+  listEl.innerHTML = featured
+    .map(
+      (menu) => `
+    <a class="featured-menu-chip ${menu.isSoldOut ? "is-soldout" : ""}" href="menus/detail.html?id=${menu.id}">
+      ${escapeHtml(menu.name)}
+      ${menu.isSoldOut ? `<span class="featured-menu-soldout">품절중</span>` : ""}
+    </a>
+  `
+    )
+    .join("");
+}
+
 function renderRecentOrders() {
   const orders = getOrders().slice().reverse().slice(0, RECENT_COUNT);
   const listEl = document.getElementById("recent-orders-list");
@@ -55,4 +79,5 @@ function renderRecentOrders() {
 }
 
 renderStats();
+renderFeaturedMenus();
 renderRecentOrders();

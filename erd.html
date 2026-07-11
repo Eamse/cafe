@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>카페 앱 ERD (Crow's Foot 표기법)</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    background: #0d0d10;
+    color: #f2f2f2;
+    padding: 40px 24px 80px;
+  }
+
+  h1 { text-align: center; font-size: 1.7rem; margin-bottom: 6px; }
+
+  .subtitle {
+    text-align: center;
+    color: #9aa0a6;
+    font-size: 0.9rem;
+    max-width: 760px;
+    margin: 0 auto 28px;
+    line-height: 1.6;
+  }
+
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+    font-size: 0.8rem;
+    color: #9aa0a6;
+    align-items: center;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .legend-svg { flex-shrink: 0; }
+
+  .canvas-scroll { overflow-x: auto; padding-bottom: 12px; }
+
+  .canvas {
+    position: relative;
+    width: 1560px;
+    height: 720px;
+    margin: 0 auto;
+  }
+
+  svg.lines { position: absolute; top: 0; left: 0; z-index: 1; overflow: visible; }
+
+  /* ---------- 엔티티 테이블 박스 ---------- */
+  .table-box {
+    position: absolute;
+    border: 1.5px solid #6fcf6f;
+    border-radius: 6px;
+    background: #131318;
+    overflow: hidden;
+    z-index: 3;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  }
+
+  .table-box .th {
+    background: rgba(111,207,111,0.15);
+    color: #d7ffd7;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 7px 12px;
+    border-bottom: 1.5px solid #6fcf6f;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .table-box .th .en { font-size: 0.65rem; font-weight: 400; color: #9fcf9f; }
+
+  .table-box.junction .th {
+    background: rgba(224,195,65,0.15);
+    border-bottom-color: #e0c341;
+    color: #fff2c2;
+  }
+  .table-box.junction { border-color: #e0c341; }
+  .table-box.junction .en { color: #d9c27a; }
+
+  .table-box .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 12px;
+    font-size: 0.74rem;
+    border-bottom: 1px solid #24242c;
+    color: #cfd3d8;
+  }
+  .table-box .row:last-child { border-bottom: none; }
+  .table-box .row .col-name.pk { color: #ffd166; font-weight: 700; text-decoration: underline; }
+  .table-box .row .col-name.fk { color: #7fa8c9; font-style: italic; }
+  .table-box .row .col-type { color: #6b7280; flex-shrink: 0; }
+
+  .note {
+    max-width: 1000px;
+    margin: 32px auto 0;
+    background: #16161b;
+    border: 1px solid #26262e;
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 0.85rem;
+    color: #b7bcc4;
+    line-height: 1.8;
+  }
+  .note strong { color: #f2f2f2; }
+  footer { text-align: center; color: #6b7280; font-size: 0.75rem; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+  <h1>☕ 카페 앱 ERD (Crow's Foot 표기법)</h1>
+  <p class="subtitle">
+    엔티티는 실제 테이블처럼 컬럼 목록을 가진 사각형으로, 관계는 선 끝의 기호로 표현합니다.
+    <span style="color:#ffd166;">PK</span>는 밑줄, <span style="color:#7fa8c9;">FK</span>는 기울임입니다.
+  </p>
+
+  <div class="legend">
+    <div class="legend-item">
+      <svg class="legend-svg" width="70" height="20"><line x1="0" y1="10" x2="70" y2="10" stroke="#8aa4b8" stroke-width="1.5"/><line x1="18" y1="3" x2="18" y2="17" stroke="#8aa4b8" stroke-width="1.5"/><line x1="24" y1="3" x2="24" y2="17" stroke="#8aa4b8" stroke-width="1.5"/></svg>
+      1 (하나, 필수)
+    </div>
+    <div class="legend-item">
+      <svg class="legend-svg" width="70" height="20"><line x1="0" y1="10" x2="70" y2="10" stroke="#8aa4b8" stroke-width="1.5"/><line x1="52" y1="0" x2="70" y2="10" stroke="#8aa4b8" stroke-width="1.5"/><line x1="52" y1="10" x2="70" y2="10" stroke="#8aa4b8" stroke-width="1.5"/><line x1="52" y1="20" x2="70" y2="10" stroke="#8aa4b8" stroke-width="1.5"/></svg>
+      N (여러 개, 까마귀발)
+    </div>
+    <div class="legend-item"><span style="width:26px;height:16px;border:1.5px solid #6fcf6f;border-radius:3px;display:inline-block;"></span> 일반 엔티티</div>
+    <div class="legend-item"><span style="width:26px;height:16px;border:1.5px solid #e0c341;border-radius:3px;display:inline-block;"></span> 연결(N:M) 테이블</div>
+  </div>
+
+  <div class="canvas-scroll">
+    <div class="canvas">
+
+      <svg class="lines" width="1560" height="720">
+        <!-- ============ 선 (관계) ============ -->
+        <!-- 관리자 - 메뉴 -->
+        <line x1="260" y1="155" x2="1250" y2="160" stroke="#8aa4b8" stroke-width="1.5"/>
+        <!-- 회원 - 주문 -->
+        <line x1="260" y1="380" x2="430" y2="315" stroke="#8aa4b8" stroke-width="1.5"/>
+        <!-- 회원 - 장바구니 -->
+        <line x1="260" y1="390" x2="430" y2="605" stroke="#8aa4b8" stroke-width="1.5"/>
+        <!-- 주문 - 주문상세 -->
+        <line x1="640" y1="315" x2="760" y2="280" stroke="#8aa4b8" stroke-width="1.5"/>
+        <!-- 주문상세 - 메뉴 -->
+        <line x1="980" y1="280" x2="1250" y2="280" stroke="#8aa4b8" stroke-width="1.5"/>
+        <!-- 장바구니 - 장바구니상세 -->
+        <line x1="630" y1="605" x2="760" y2="610" stroke="#8aa4b8" stroke-width="1.5"/>
+        <!-- 장바구니상세 - 메뉴 -->
+        <line x1="980" y1="610" x2="1250" y2="380" stroke="#8aa4b8" stroke-width="1.5"/>
+
+        <!-- ============ 마커: 1(tick) / N(crow's foot) ============ -->
+        <!-- #1 관리자(1) --- 메뉴(N) -->
+        <line x1="280" y1="147" x2="280" y2="163" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="286" y1="147" x2="286" y2="163" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="1250" y1="160" x2="1232" y2="150" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="1250" y1="160" x2="1232" y2="160" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="1250" y1="160" x2="1232" y2="170" stroke="#8aa4b8" stroke-width="1.5"/>
+
+        <!-- #2 회원(1) --- 주문(N) -->
+        <line x1="278" y1="373" x2="284" y2="386" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="284" y1="371" x2="290" y2="384" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="430" y1="315" x2="412" y2="305" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="430" y1="315" x2="412" y2="315" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="430" y1="315" x2="412" y2="325" stroke="#8aa4b8" stroke-width="1.5"/>
+
+        <!-- #3 회원(1) --- 장바구니(1) -->
+        <line x1="278" y1="397" x2="284" y2="384" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="284" y1="399" x2="290" y2="386" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="410" y1="597" x2="416" y2="611" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="416" y1="595" x2="422" y2="609" stroke="#8aa4b8" stroke-width="1.5"/>
+
+        <!-- #4 주문(1) --- 주문상세(N) -->
+        <line x1="622" y1="307" x2="622" y2="323" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="628" y1="305" x2="628" y2="321" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="760" y1="280" x2="742" y2="270" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="760" y1="280" x2="742" y2="280" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="760" y1="280" x2="742" y2="290" stroke="#8aa4b8" stroke-width="1.5"/>
+
+        <!-- #5 주문상세(N) --- 메뉴(1) -->
+        <line x1="980" y1="280" x2="998" y2="270" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="980" y1="280" x2="998" y2="280" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="980" y1="280" x2="998" y2="290" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="1238" y1="272" x2="1238" y2="288" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="1244" y1="272" x2="1244" y2="288" stroke="#8aa4b8" stroke-width="1.5"/>
+
+        <!-- #6 장바구니(1) --- 장바구니상세(N) -->
+        <line x1="618" y1="597" x2="618" y2="613" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="624" y1="597" x2="624" y2="613" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="760" y1="610" x2="742" y2="600" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="760" y1="610" x2="742" y2="610" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="760" y1="610" x2="742" y2="620" stroke="#8aa4b8" stroke-width="1.5"/>
+
+        <!-- #7 장바구니상세(N) --- 메뉴(1) -->
+        <line x1="980" y1="610" x2="998" y2="600" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="980" y1="610" x2="998" y2="610" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="980" y1="610" x2="998" y2="620" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="1238" y1="372" x2="1238" y2="388" stroke="#8aa4b8" stroke-width="1.5"/>
+        <line x1="1244" y1="372" x2="1244" y2="388" stroke="#8aa4b8" stroke-width="1.5"/>
+      </svg>
+
+      <!-- ===================== 관리자 ===================== -->
+      <div class="table-box" style="left:60px; top:110px; width:200px;">
+        <div class="th">관리자 <span class="en">Admin</span></div>
+        <div class="row"><span class="col-name pk">admin_id</span><span class="col-type">PK</span></div>
+        <div class="row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+      </div>
+
+      <!-- ===================== 회원 ===================== -->
+      <div class="table-box" style="left:60px; top:330px; width:200px;">
+        <div class="th">회원 <span class="en">Member</span></div>
+        <div class="row"><span class="col-name pk">member_id</span><span class="col-type">PK</span></div>
+        <div class="row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+        <div class="row"><span class="col-name">phone</span><span class="col-type">varchar</span></div>
+      </div>
+
+      <!-- ===================== 주문 ===================== -->
+      <div class="table-box" style="left:430px; top:250px; width:210px;">
+        <div class="th">주문 <span class="en">Order</span></div>
+        <div class="row"><span class="col-name pk">order_id</span><span class="col-type">PK</span></div>
+        <div class="row"><span class="col-name fk">member_id</span><span class="col-type">FK</span></div>
+        <div class="row"><span class="col-name">created_at</span><span class="col-type">datetime</span></div>
+        <div class="row"><span class="col-name">status</span><span class="col-type">varchar</span></div>
+        <div class="row"><span class="col-name">total</span><span class="col-type">int</span></div>
+      </div>
+
+      <!-- ===================== 주문상세 (연결테이블) ===================== -->
+      <div class="table-box junction" style="left:760px; top:195px; width:220px;">
+        <div class="th">주문상세 <span class="en">OrderItem</span></div>
+        <div class="row"><span class="col-name pk">order_item_id</span><span class="col-type">PK</span></div>
+        <div class="row"><span class="col-name fk">order_id</span><span class="col-type">FK</span></div>
+        <div class="row"><span class="col-name fk">menu_id</span><span class="col-type">FK</span></div>
+        <div class="row"><span class="col-name">quantity</span><span class="col-type">int</span></div>
+        <div class="row"><span class="col-name">unit_price</span><span class="col-type">int</span></div>
+        <div class="row"><span class="col-name">menu_name</span><span class="col-type">varchar</span></div>
+      </div>
+
+      <!-- ===================== 장바구니 ===================== -->
+      <div class="table-box" style="left:430px; top:560px; width:200px;">
+        <div class="th">장바구니 <span class="en">Cart</span></div>
+        <div class="row"><span class="col-name pk">cart_id</span><span class="col-type">PK</span></div>
+        <div class="row"><span class="col-name fk">member_id</span><span class="col-type">FK, UQ</span></div>
+      </div>
+
+      <!-- ===================== 장바구니상세 (연결테이블) ===================== -->
+      <div class="table-box junction" style="left:760px; top:545px; width:220px;">
+        <div class="th">장바구니상세 <span class="en">CartItem</span></div>
+        <div class="row"><span class="col-name pk">cart_item_id</span><span class="col-type">PK</span></div>
+        <div class="row"><span class="col-name fk">cart_id</span><span class="col-type">FK</span></div>
+        <div class="row"><span class="col-name fk">menu_id</span><span class="col-type">FK</span></div>
+        <div class="row"><span class="col-name">quantity</span><span class="col-type">int</span></div>
+      </div>
+
+      <!-- ===================== 메뉴 ===================== -->
+      <div class="table-box" style="left:1250px; top:140px; width:230px;">
+        <div class="th">메뉴 <span class="en">Menu</span></div>
+        <div class="row"><span class="col-name pk">menu_id</span><span class="col-type">PK</span></div>
+        <div class="row"><span class="col-name fk">admin_id</span><span class="col-type">FK</span></div>
+        <div class="row"><span class="col-name">name</span><span class="col-type">varchar</span></div>
+        <div class="row"><span class="col-name">price</span><span class="col-type">int</span></div>
+        <div class="row"><span class="col-name">category</span><span class="col-type">varchar</span></div>
+        <div class="row"><span class="col-name">is_sold_out</span><span class="col-type">boolean</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>관계 요약</strong><br/>
+    · 관리자 (1) — (N) 메뉴 : 관리자 한 명이 메뉴를 여러 개 등록<br/>
+    · 회원 (1) — (N) 주문 : 회원 한 명이 주문을 여러 번 생성<br/>
+    · 회원 (1) — (1) 장바구니 : 회원당 장바구니 하나<br/>
+    · 주문 (1) — (N) 주문상세 (N) — (1) 메뉴 : 주문-메뉴 N:M을 주문상세 테이블로 해소<br/>
+    · 장바구니 (1) — (N) 장바구니상세 (N) — (1) 메뉴 : 장바구니-메뉴 N:M을 장바구니상세 테이블로 해소<br/>
+    · 주문상세의 unit_price/menu_name은 주문 시점 스냅샷 — 이후 메뉴 정보가 바뀌어도 과거 주문 내역은 유지됨
+  </div>
+
+  <footer>cafe app · ERD (Crow's Foot Notation)</footer>
+
+</body>
+</html>

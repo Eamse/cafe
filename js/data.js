@@ -102,8 +102,36 @@ export const menus = [
   },
 ];
 
+/* ==========================================================================
+   카테고리 저장소 — 관리자(admin/categories)와 고객 화면이 함께 사용하는
+   단일 소스. 패턴은 아래 메뉴 저장소와 동일(시드 → localStorage 캐시 →
+   버전 비교 재시드).
+   ========================================================================== */
+
+const CATEGORIES_STORAGE_KEY = "cafe_admin_categories";
+const CATEGORIES_VERSION_KEY = "cafe_admin_categories_version";
+const CATEGORIES_SEED_VERSION = "1";
+
+export function getCategories() {
+  try {
+    const raw = localStorage.getItem(CATEGORIES_STORAGE_KEY);
+    if (raw && localStorage.getItem(CATEGORIES_VERSION_KEY) === CATEGORIES_SEED_VERSION) {
+      return JSON.parse(raw);
+    }
+  } catch {
+    /* 저장된 값이 손상된 경우 시드 데이터로 복구 */
+  }
+  saveCategories(categories);
+  return categories.slice();
+}
+
+export function saveCategories(list) {
+  localStorage.setItem(CATEGORIES_STORAGE_KEY, JSON.stringify(list));
+  localStorage.setItem(CATEGORIES_VERSION_KEY, CATEGORIES_SEED_VERSION);
+}
+
 export function getCategoryById(categoryId) {
-  return categories.find((category) => category.id === categoryId) || null;
+  return getCategories().find((category) => category.id === categoryId) || null;
 }
 
 /* ==========================================================================
@@ -144,4 +172,31 @@ export function getMenusByCategory(categoryId) {
   const list = getMenus();
   if (!categoryId || categoryId === "all") return list;
   return list.filter((menu) => menu.categoryId === categoryId);
+}
+
+/* ==========================================================================
+   오늘의 추천 — 관리자(admin/menus)가 직접 고른 메뉴 id 목록.
+   비어있으면(관리자가 아직 하나도 안 골랐으면) index.js가 카테고리별 자동
+   추천으로 대체한다.
+   ========================================================================== */
+
+const FEATURED_STORAGE_KEY = "cafe_featured_menus";
+
+export function getFeaturedMenuIds() {
+  try {
+    return JSON.parse(localStorage.getItem(FEATURED_STORAGE_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveFeaturedMenuIds(ids) {
+  localStorage.setItem(FEATURED_STORAGE_KEY, JSON.stringify(ids));
+}
+
+export function toggleFeaturedMenu(menuId) {
+  const ids = getFeaturedMenuIds();
+  const next = ids.includes(menuId) ? ids.filter((id) => id !== menuId) : [...ids, menuId];
+  saveFeaturedMenuIds(next);
+  return next;
 }

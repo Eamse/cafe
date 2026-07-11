@@ -1,4 +1,35 @@
 /* ==========================================================================
+   브루 앤 빈 (Dark Espresso x Gold) 테마 — 고객 페이지와 톤 통일.
+   모든 admin 페이지가 이 파일을 먼저 불러오므로, 여기서 :root를 덮어쓰면
+   각 페이지 CSS는 손대지 않고도 전체가 다크 테마로 바뀐다.
+   ========================================================================== */
+
+:root {
+  --color-bg: #150e0a;
+  --color-surface: #241a13;
+  --color-text: #f3e9dc;
+  --color-text-muted: #b9a793;
+  --color-border: rgba(243, 233, 220, 0.16);
+  --color-accent: #c8945c;
+  --color-accent-hover: #a97a45;
+  --color-warning: #c8945c;
+  --color-danger: #b0503f;
+  --color-dark: #0c0805;
+}
+
+body {
+  font-family:
+    -apple-system, "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  background-color: var(--color-bg);
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(243, 233, 220, 0.07) 1px,
+    transparent 0
+  );
+  background-size: 24px 24px;
+}
+
+/* ==========================================================================
    관리자 좌측 사이드바 레이아웃 — 모든 admin 페이지에서 공유
    ========================================================================== */
 

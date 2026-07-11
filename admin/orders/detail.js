@@ -1,4 +1,12 @@
-import { formatPrice, formatDate, escapeHtml, getOrderById, updateOrderStatus, ORDER_STATUSES } from "../../js/utils.js";
+import {
+  formatPrice,
+  formatDate,
+  escapeHtml,
+  getOrderById,
+  updateOrderStatus,
+  getAvailableStatuses,
+  renderStatusSteps,
+} from "../../js/utils.js";
 
 const params = new URLSearchParams(window.location.search);
 const orderId = Number(params.get("id"));
@@ -17,11 +25,13 @@ function render() {
       <div class="order-meta">
         <div class="order-date">${formatDate(order.createdAt)}</div>
         <select class="status-select" id="status-select">
-          ${ORDER_STATUSES.map(
-            (status) => `<option value="${status}" ${status === order.status ? "selected" : ""}>${status}</option>`
-          ).join("")}
+          ${getAvailableStatuses(order.status)
+            .map((status) => `<option value="${status}" ${status === order.status ? "selected" : ""}>${status}</option>`)
+            .join("")}
         </select>
       </div>
+
+      ${renderStatusSteps(order.status)}
 
       <div class="order-items">
         ${order.items
@@ -37,12 +47,21 @@ function render() {
           .join("")}
       </div>
 
+      ${order.note ? `<div class="order-note"><span class="order-note-label">고객 요청사항</span>${escapeHtml(order.note)}</div>` : ""}
+
+      ${
+        order.status === "취소" && order.cancelReason
+          ? `<div class="order-note"><span class="order-note-label">고객 취소 사유</span>${escapeHtml(order.cancelReason)}</div>`
+          : ""
+      }
+
       <div class="order-total">총 금액: ${formatPrice(order.total)}</div>
     </div>
   `;
 
   document.getElementById("status-select").addEventListener("change", (event) => {
     updateOrderStatus(orderId, event.target.value);
+    render();
   });
 }
 

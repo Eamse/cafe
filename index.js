@@ -1,16 +1,44 @@
-import { getMenus, categories } from "./js/data.js";
-import { formatPrice, escapeHtml, renderCartBadge, getOrders } from "./js/utils.js";
+import { getMenus, getCategories, getFeaturedMenuIds } from "./js/data.js";
+import {
+  formatPrice,
+  escapeHtml,
+  renderCartBadge,
+  getOrders,
+  getFavorites,
+  toggleFavorite,
+  getRecentSearches,
+  addRecentSearch,
+  removeRecentSearch,
+  lazyLoadBackgroundImages,
+} from "./js/utils.js";
 import { openCartPanel } from "./js/cartPanel.js";
 
-let activeCategory = "all";
-let activeSort = "default";
-let activePriceRange = "all";
-let searchQuery = "";
-let favoritesOnly = false;
+const initialParams = new URLSearchParams(window.location.search);
+
+let activeCategory = initialParams.get("category") || "all";
+let activeSort = initialParams.get("sort") || "default";
+let activePriceRange = initialParams.get("price") || "all";
+let searchQuery = initialParams.get("q") || "";
+let favoritesOnly = initialParams.get("favorites") === "1";
+
+// 필터/정렬/검색 상태를 주소창에 반영해, 새로고침·뒤로가기·링크 공유 시에도
+// 같은 화면을 다시 볼 수 있게 한다. 방문 기록이 지저분해지지 않도록 push가
+// 아닌 replace만 사용.
+function syncUrlParams() {
+  const params = new URLSearchParams();
+  if (activeCategory !== "all") params.set("category", activeCategory);
+  if (activeSort !== "default") params.set("sort", activeSort);
+  if (activePriceRange !== "all") params.set("price", activePriceRange);
+  if (searchQuery.trim()) params.set("q", searchQuery.trim());
+  if (favoritesOnly) params.set("favorites", "1");
+
+  const query = params.toString();
+  const newUrl = `${window.location.pathname}${query ? `?${query}` : ""}`;
+  window.history.replaceState(null, "", newUrl);
+}
 
 const RECENTLY_VIEWED_KEY = "cafe_recently_viewed";
-const RECENTLY_VIEWED_MAX = 6;
-const FAVORITES_KEY = "cafe_favorites";
+const RECENTLY_VIEWED_MAX = 10;
 
 function getRecentlyViewed() {
   try {
@@ -24,21 +52,6 @@ function addRecentlyViewed(menuId) {
   const ids = getRecentlyViewed().filter((id) => id !== menuId);
   ids.unshift(menuId);
   localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(ids.slice(0, RECENTLY_VIEWED_MAX)));
-}
-
-function getFavorites() {
-  try {
-    return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY)) || []);
-  } catch {
-    return new Set();
-  }
-}
-
-function toggleFavorite(menuId) {
-  const favorites = getFavorites();
-  if (favorites.has(menuId)) favorites.delete(menuId);
-  else favorites.add(menuId);
-  localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favorites]));
 }
 
 function sortMenus(menus) {
@@ -73,7 +86,7 @@ function getPopularMenuIds() {
 }
 
 function getCategoryName(categoryId) {
-  const category = categories.find((c) => c.id === categoryId);
+  const category = getCategories().find((c) => c.id === categoryId);
   return category ? category.name : categoryId;
 }
 
@@ -84,7 +97,7 @@ function menuCardHtml(menu, popularIds, favorites) {
   return `
     <div class="menu-card cat-${menu.categoryId} ${menu.isSoldOut ? "is-soldout" : ""}" data-menu-id="${menu.id}" role="button" tabindex="0" aria-label="${escapeHtml(label)}">
       <div class="menu-card-image-wrap">
-        <div class="menu-card-image" style="background-image: url('${escapeHtml(menu.image)}')"></div>
+        <div class="menu-card-image" data-bg="${escapeHtml(menu.image)}"></div>
         ${menu.isSoldOut ? `<div class="sold-out-tag">품절</div>` : isPopular ? `<div class="popular-tag">인기</div>` : ""}
         <button type="button" class="favorite-btn ${isFavorite ? "is-active" : ""}" data-menu-id="${menu.id}" aria-pressed="${isFavorite ? "true" : "false"}" aria-label="즐겨찾기 ${isFavorite ? "해제" : "추가"}">♥</button>
       </div>
@@ -113,12 +126,19 @@ function renderFeatured() {
   const row = document.getElementById("featured-row");
   const menus = getMenus();
   const favorites = getFavorites();
+  const featuredIds = getFeaturedMenuIds();
 
-  const featured = categories
-    .map((category) => menus.find((menu) => menu.categoryId === category.id && !menu.isSoldOut))
-    .filter(Boolean);
+  // 관리자가 "오늘의 추천"으로 직접 고른 메뉴가 있으면 그걸 우선 사용하고,
+  // 하나도 안 골랐으면 기존처럼 카테고리별 대표 메뉴로 자동 채운다.
+  const featured =
+    featuredIds.length > 0
+      ? featuredIds.map((id) => menus.find((menu) => menu.id === id && !menu.isSoldOut)).filter(Boolean)
+      : getCategories()
+          .map((category) => menus.find((menu) => menu.categoryId === category.id && !menu.isSoldOut))
+          .filter(Boolean);
 
   row.innerHTML = featured.map((menu) => menuCardHtml(menu, null, favorites)).join("");
+  lazyLoadBackgroundImages(row);
 }
 
 function renderRecentlyViewedWidget() {
@@ -164,7 +184,7 @@ function renderRecentlyViewedWidget() {
 
 function renderTabs() {
   const tabs = document.getElementById("category-tabs");
-  const allTabs = [{ id: "all", name: "전체" }, ...categories];
+  const allTabs = [{ id: "all", name: "전체" }, ...getCategories()];
 
   tabs.innerHTML = allTabs
     .map(
@@ -181,6 +201,7 @@ function renderTabs() {
       activeCategory = btn.dataset.category;
       renderTabs();
       renderMenuGrid();
+      syncUrlParams();
     });
   });
 }
@@ -207,6 +228,7 @@ function renderMenuGrid() {
 
   const popularIds = getPopularMenuIds();
   grid.innerHTML = filtered.map((menu) => menuCardHtml(menu, popularIds, favorites)).join("");
+  lazyLoadBackgroundImages(grid);
 }
 
 document.addEventListener("click", (e) => {
@@ -242,21 +264,131 @@ document.getElementById("favorites-toggle").addEventListener("click", () => {
   btn.classList.toggle("active", favoritesOnly);
   btn.setAttribute("aria-pressed", String(favoritesOnly));
   renderMenuGrid();
+  syncUrlParams();
 });
 
 document.getElementById("sort-select").addEventListener("change", (event) => {
   activeSort = event.target.value;
   renderMenuGrid();
+  syncUrlParams();
 });
 
 document.getElementById("price-filter").addEventListener("change", (event) => {
   activePriceRange = event.target.value;
   renderMenuGrid();
+  syncUrlParams();
 });
 
-document.getElementById("menu-search").addEventListener("input", (event) => {
+function renderRecentSearches() {
+  const container = document.getElementById("recent-searches");
+  const terms = getRecentSearches();
+
+  if (terms.length === 0) {
+    container.hidden = true;
+    return;
+  }
+
+  container.hidden = false;
+  container.innerHTML = `
+    <span class="recent-searches-label">최근 검색어</span>
+    ${terms
+      .map(
+        (term) => `
+      <button type="button" class="recent-search-chip" data-term="${escapeHtml(term)}">
+        ${escapeHtml(term)}
+        <span class="recent-search-remove" data-remove-term="${escapeHtml(term)}">✕</span>
+      </button>
+    `
+      )
+      .join("")}
+  `;
+
+  container.querySelectorAll(".recent-search-remove").forEach((removeBtn) => {
+    removeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      removeRecentSearch(removeBtn.dataset.removeTerm);
+      renderRecentSearches();
+    });
+  });
+
+  container.querySelectorAll(".recent-search-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const term = chip.dataset.term;
+      const input = document.getElementById("menu-search");
+      input.value = term;
+      searchQuery = term;
+      renderMenuGrid();
+    });
+  });
+}
+
+const SUGGESTION_COUNT = 5;
+
+function renderSearchSuggestions(query) {
+  const container = document.getElementById("search-suggestions");
+  const trimmed = query.trim();
+
+  if (!trimmed) {
+    container.hidden = true;
+    return;
+  }
+
+  const matches = getMenus()
+    .filter((menu) => menu.name.toLowerCase().includes(trimmed.toLowerCase()))
+    .slice(0, SUGGESTION_COUNT);
+
+  if (matches.length === 0) {
+    container.hidden = true;
+    return;
+  }
+
+  container.hidden = false;
+  container.innerHTML = matches
+    .map(
+      (menu) => `
+    <a class="search-suggestion-item" href="menus/detail.html?id=${menu.id}">
+      <span class="search-suggestion-name">${escapeHtml(menu.name)}</span>
+      <span class="search-suggestion-price">${formatPrice(menu.price)}</span>
+    </a>
+  `
+    )
+    .join("");
+}
+
+function hideSearchSuggestions() {
+  document.getElementById("search-suggestions").hidden = true;
+}
+
+const menuSearchInput = document.getElementById("menu-search");
+
+menuSearchInput.addEventListener("input", (event) => {
   searchQuery = event.target.value;
   renderMenuGrid();
+  renderSearchSuggestions(event.target.value);
+  syncUrlParams();
+});
+
+menuSearchInput.addEventListener("focus", (event) => {
+  renderSearchSuggestions(event.target.value);
+});
+
+menuSearchInput.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    hideSearchSuggestions();
+    return;
+  }
+  if (event.key !== "Enter") return;
+  addRecentSearch(event.target.value);
+  renderRecentSearches();
+  hideSearchSuggestions();
+});
+
+menuSearchInput.addEventListener("blur", (event) => {
+  // 제안 목록 클릭이 blur보다 먼저 처리되도록 살짝 지연 후 닫는다.
+  setTimeout(hideSearchSuggestions, 150);
+  if (!event.target.value.trim()) return;
+  addRecentSearch(event.target.value);
+  renderRecentSearches();
 });
 
 document.getElementById("viewed-sidebar-toggle").addEventListener("click", () => {
@@ -270,6 +402,7 @@ window.addEventListener("cart:updated", renderCartBadge);
 
 function initHeroSlider() {
   const track = document.getElementById("hero-slide-track");
+  const slides = track ? track.querySelectorAll(".hero-slide") : [];
   const dots = document.querySelectorAll("#hero-dots .hero-dot");
   const prevBtn = document.getElementById("hero-arrow-left");
   const nextBtn = document.getElementById("hero-arrow-right");
@@ -281,7 +414,7 @@ function initHeroSlider() {
 
   function goTo(index) {
     current = (index + slideCount) % slideCount;
-    track.style.transform = `translateX(-${current * 100}%)`;
+    slides.forEach((slide, i) => slide.classList.toggle("is-active", i === current));
     dots.forEach((dot, i) => dot.classList.toggle("active", i === current));
   }
 
@@ -323,12 +456,24 @@ function initHeroSlider() {
   hero.addEventListener("mouseenter", stopAutoplay);
   hero.addEventListener("mouseleave", startAutoplay);
 
+  goTo(0);
   startAutoplay();
 }
 
+function applyInitialFilterState() {
+  document.getElementById("menu-search").value = searchQuery;
+  document.getElementById("sort-select").value = activeSort;
+  document.getElementById("price-filter").value = activePriceRange;
+  const favBtn = document.getElementById("favorites-toggle");
+  favBtn.classList.toggle("active", favoritesOnly);
+  favBtn.setAttribute("aria-pressed", String(favoritesOnly));
+}
+
+applyInitialFilterState();
 initHeroSlider();
 renderCartBadge();
 renderRecentlyViewedWidget();
+renderRecentSearches();
 renderFeatured();
 renderTabs();
 renderMenuGrid();

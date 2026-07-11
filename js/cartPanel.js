@@ -4,13 +4,28 @@
    ========================================================================== */
 
 import { getMenus } from "./data.js";
-import { formatPrice, escapeHtml, addToCart, getCart } from "./utils.js";
+import { formatPrice, escapeHtml, addToCart, getCart, getFrequentlyBoughtWith } from "./utils.js";
+
+const RECOMMEND_COUNT = 2;
 
 let overlayEl;
 let bodyEl;
 let summaryEl;
+let bulkBarEl;
 let escHandler;
+let trapHandler;
+let lastFocusedEl;
 const renderedMenuIds = new Set();
+
+function getFocusableEls() {
+  return Array.from(
+    overlayEl.querySelectorAll('button:not([disabled]), a[href], input, [tabindex]:not([tabindex="-1"])')
+  ).filter((el) => el.offsetParent !== null);
+}
+
+// menuId -> { quantity, itemEl, addBtn, qtyValueEl } — 아직 "장바구니 담기"를
+// 누르지 않은, 패널에 떠 있는 항목들. "전체 담기"가 이 목록을 한 번에 처리한다.
+const pendingItems = new Map();
 
 function ensurePanel() {
   if (overlayEl) return;
@@ -21,6 +36,10 @@ function ensurePanel() {
     <aside class="cart-panel" role="dialog" aria-modal="true" aria-label="메뉴 담기">
       <button type="button" class="cart-panel-close" aria-label="닫기">✕</button>
       <p class="cart-panel-hint">다른 메뉴도 계속 눌러서 담을 수 있어요.</p>
+      <div class="cart-panel-bulk-bar" hidden>
+        <span class="cart-panel-bulk-count"></span>
+        <button type="button" class="cart-panel-bulk-btn">전체 한번에 담기</button>
+      </div>
       <div class="cart-panel-body"></div>
       <div class="cart-panel-summary"></div>
     </aside>
@@ -29,8 +48,73 @@ function ensurePanel() {
 
   bodyEl = overlayEl.querySelector(".cart-panel-body");
   summaryEl = overlayEl.querySelector(".cart-panel-summary");
+  bulkBarEl = overlayEl.querySelector(".cart-panel-bulk-bar");
 
   overlayEl.querySelector(".cart-panel-close").addEventListener("click", closeCartPanel);
+  overlayEl.querySelector(".cart-panel-bulk-btn").addEventListener("click", () => addAllPending());
+}
+
+function updateBulkBar(basketHref) {
+  const count = pendingItems.size;
+  if (count === 0) {
+    bulkBarEl.hidden = true;
+    return;
+  }
+  bulkBarEl.hidden = false;
+  bulkBarEl.querySelector(".cart-panel-bulk-count").textContent = `담을 메뉴 ${count}개`;
+  bulkBarEl.querySelector(".cart-panel-bulk-btn").dataset.basketHref = basketHref;
+}
+
+function markAsAdded({ itemEl, addBtn }) {
+  addBtn.textContent = "담았습니다 ✓";
+  addBtn.disabled = true;
+  itemEl.querySelector(".cart-panel-qty")?.classList.add("is-locked");
+}
+
+function addAllPending(basketHrefOverride) {
+  if (pendingItems.size === 0) return;
+
+  const basketHref =
+    basketHrefOverride || bulkBarEl.querySelector(".cart-panel-bulk-btn").dataset.basketHref || "basket/list.html";
+
+  pendingItems.forEach((entry, menuId) => {
+    addToCart(menuId, entry.quantity);
+    markAsAdded(entry);
+  });
+  pendingItems.clear();
+
+  window.dispatchEvent(new CustomEvent("cart:updated"));
+  updateBulkBar(basketHref);
+  renderSummary(basketHref);
+}
+
+function renderRecommendationHtml(menu, allMenus) {
+  const ids = getFrequentlyBoughtWith(menu.id, RECOMMEND_COUNT * 3);
+  const candidates = ids
+    .map((id) => allMenus.find((m) => m.id === id && !m.isSoldOut))
+    .filter(Boolean)
+    .slice(0, RECOMMEND_COUNT);
+
+  if (candidates.length === 0) return "";
+
+  return `
+    <div class="cart-panel-recommend">
+      <p class="cart-panel-recommend-title">함께 담으면 좋아요</p>
+      <div class="cart-panel-recommend-list">
+        ${candidates
+          .map(
+            (rec) => `
+          <div class="cart-panel-recommend-item">
+            <span class="cart-panel-recommend-name">${escapeHtml(rec.name)}</span>
+            <span class="cart-panel-recommend-price">${formatPrice(rec.price)}</span>
+            <button type="button" class="cart-panel-recommend-add" data-menu-id="${rec.id}">+ 담기</button>
+          </div>
+        `
+          )
+          .join("")}
+      </div>
+    </div>
+  `;
 }
 
 function renderSummary(basketHref) {
@@ -71,8 +155,12 @@ export function closeCartPanel() {
   overlayEl.classList.remove("is-open");
   document.body.classList.remove("cart-panel-open");
   document.removeEventListener("keydown", escHandler);
+  document.removeEventListener("keydown", trapHandler);
   bodyEl.innerHTML = "";
   renderedMenuIds.clear();
+  pendingItems.clear();
+  bulkBarEl.hidden = true;
+  if (lastFocusedEl) lastFocusedEl.focus();
 }
 
 export function openCartPanel(menu, categoryName, basketHref = "basket/list.html") {
@@ -81,6 +169,7 @@ export function openCartPanel(menu, categoryName, basketHref = "basket/list.html
   if (!renderedMenuIds.has(menu.id)) {
     renderedMenuIds.add(menu.id);
 
+    const allMenus = getMenus();
     const itemEl = document.createElement("div");
     itemEl.className = `cart-panel-content cat-${menu.categoryId}`;
     itemEl.innerHTML = `
@@ -99,42 +188,85 @@ export function openCartPanel(menu, categoryName, basketHref = "basket/list.html
         <button type="button" class="qty-increase" aria-label="수량 증가">+</button>
       </div>
       <button type="button" class="cart-panel-add-btn">장바구니 담기</button>
+      ${renderRecommendationHtml(menu, allMenus)}
       `
       }
     `;
     bodyEl.prepend(itemEl);
 
     if (!menu.isSoldOut) {
-      let quantity = 1;
       const qtyValueEl = itemEl.querySelector(".qty-value");
       const addBtn = itemEl.querySelector(".cart-panel-add-btn");
+      const entry = { quantity: 1, itemEl, addBtn, qtyValueEl };
+      pendingItems.set(menu.id, entry);
 
       itemEl.querySelector(".qty-decrease").addEventListener("click", () => {
-        quantity = Math.max(1, quantity - 1);
-        qtyValueEl.textContent = quantity;
+        entry.quantity = Math.max(1, entry.quantity - 1);
+        qtyValueEl.textContent = entry.quantity;
       });
 
       itemEl.querySelector(".qty-increase").addEventListener("click", () => {
-        quantity += 1;
-        qtyValueEl.textContent = quantity;
+        entry.quantity += 1;
+        qtyValueEl.textContent = entry.quantity;
       });
 
       addBtn.addEventListener("click", () => {
-        addToCart(menu.id, quantity);
+        addToCart(menu.id, entry.quantity);
+        pendingItems.delete(menu.id);
+        markAsAdded(entry);
         window.dispatchEvent(new CustomEvent("cart:updated"));
+        updateBulkBar(basketHref);
         renderSummary(basketHref);
-        addBtn.textContent = "담았습니다 ✓";
-        addBtn.disabled = true;
+      });
+
+      itemEl.querySelectorAll(".cart-panel-recommend-add").forEach((recBtn) => {
+        recBtn.addEventListener("click", () => {
+          addToCart(Number(recBtn.dataset.menuId), 1);
+          recBtn.textContent = "담음 ✓";
+          recBtn.disabled = true;
+          window.dispatchEvent(new CustomEvent("cart:updated"));
+          renderSummary(basketHref);
+        });
       });
     }
   }
 
+  updateBulkBar(basketHref);
   renderSummary(basketHref);
+
+  const wasOpen = overlayEl.classList.contains("is-open");
   overlayEl.classList.add("is-open");
   document.body.classList.add("cart-panel-open");
+
+  if (!wasOpen) {
+    lastFocusedEl = document.activeElement;
+    const closeBtn = overlayEl.querySelector(".cart-panel-close");
+    closeBtn.focus();
+  }
+
+  document.removeEventListener("keydown", escHandler);
+  document.removeEventListener("keydown", trapHandler);
 
   escHandler = (e) => {
     if (e.key === "Escape") closeCartPanel();
   };
+
+  trapHandler = (e) => {
+    if (e.key !== "Tab") return;
+    const focusable = getFocusableEls();
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
   document.addEventListener("keydown", escHandler);
+  document.addEventListener("keydown", trapHandler);
 }

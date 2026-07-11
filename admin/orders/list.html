@@ -15,6 +15,7 @@
       <nav class="admin-sidebar-nav">
         <a href="/admin/index.html">대시보드</a>
         <a href="/admin/menus/list.html">메뉴 관리</a>
+        <a href="/admin/categories/list.html">카테고리 관리</a>
         <a href="/admin/orders/list.html" class="active">주문 관리</a>
       </nav>
     </aside>
@@ -25,6 +26,20 @@
 
         <div class="status-tabs" id="status-tabs">
           <!-- list.js가 상태 탭을 렌더링 -->
+        </div>
+
+        <div class="order-select-bar">
+          <label class="select-all-field">
+            <input type="checkbox" id="select-all-checkbox" />
+            <span>전체 선택</span>
+          </label>
+        </div>
+
+        <div class="bulk-action-bar" id="bulk-action-bar" hidden>
+          <span class="bulk-count" id="bulk-count"></span>
+          <select class="status-select" id="bulk-status-select"></select>
+          <button type="button" class="btn-bulk-apply" id="bulk-apply-btn">일괄 변경</button>
+          <button type="button" class="btn-bulk-clear" id="bulk-clear-btn">선택 해제</button>
         </div>
 
         <div class="admin-order-list" id="admin-order-list">

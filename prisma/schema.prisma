@@ -1,0 +1,119 @@
+datasource db {
+  provider = "sqlite" // 배포 환경에 맞게 mysql/postgresql 등으로 교체
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Category {
+  categoryId String @id @map("category_id")
+  name       String
+
+  menus Menu[]
+
+  @@map("category")
+}
+
+model Menu {
+  menuId      Int      @id @default(autoincrement()) @map("menu_id")
+  categoryId  String   @map("category_id")
+  category    Category @relation(fields: [categoryId], references: [categoryId])
+  name        String
+  price       Int
+  description String?
+  imageUrl    String?  @map("image_url")
+  isSoldOut   Boolean  @default(false) @map("is_sold_out")
+
+  orderItems     OrderItem[]
+  cartItems      CartItem[]
+  favorites      Favorite[]
+  recentlyViewed RecentlyViewed[]
+
+  @@map("menu")
+}
+
+model Customer {
+  customerId Int       @id @default(autoincrement()) @map("customer_id")
+  name       String?
+  phone      String?
+  joinedAt   DateTime? @map("joined_at")
+
+  orders         Order[]
+  cart           Cart?
+  favorites      Favorite[]
+  recentlyViewed RecentlyViewed[]
+
+  @@map("customer")
+}
+
+model Order {
+  orderId    Int       @id @default(autoincrement()) @map("order_id")
+  customerId Int?      @map("customer_id")
+  customer   Customer? @relation(fields: [customerId], references: [customerId])
+  createdAt  DateTime  @map("created_at")
+  status     String
+  total      Int
+
+  items OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  orderItemId Int    @id @default(autoincrement()) @map("order_item_id")
+  orderId     Int    @map("order_id")
+  order       Order  @relation(fields: [orderId], references: [orderId])
+  menuId      Int    @map("menu_id")
+  menu        Menu   @relation(fields: [menuId], references: [menuId])
+  quantity    Int
+  unitPrice   Int    @map("unit_price") // 주문 시점 가격 스냅샷
+  menuName    String @map("menu_name") // 주문 시점 메뉴명 스냅샷
+
+  @@map("order_item")
+}
+
+model Cart {
+  cartId     Int      @id @default(autoincrement()) @map("cart_id")
+  customerId Int      @unique @map("customer_id")
+  customer   Customer @relation(fields: [customerId], references: [customerId])
+
+  items CartItem[]
+
+  @@map("cart")
+}
+
+model CartItem {
+  cartItemId Int  @id @default(autoincrement()) @map("cart_item_id")
+  cartId     Int  @map("cart_id")
+  cart       Cart @relation(fields: [cartId], references: [cartId])
+  menuId     Int  @map("menu_id")
+  menu       Menu @relation(fields: [menuId], references: [menuId])
+  quantity   Int
+
+  @@unique([cartId, menuId])
+  @@map("cart_item")
+}
+
+model Favorite {
+  customerId Int      @map("customer_id")
+  customer   Customer @relation(fields: [customerId], references: [customerId])
+  menuId     Int      @map("menu_id")
+  menu       Menu     @relation(fields: [menuId], references: [menuId])
+  createdAt  DateTime @map("created_at")
+
+  @@id([customerId, menuId])
+  @@map("favorite")
+}
+
+model RecentlyViewed {
+  customerId Int      @map("customer_id")
+  customer   Customer @relation(fields: [customerId], references: [customerId])
+  menuId     Int      @map("menu_id")
+  menu       Menu     @relation(fields: [menuId], references: [menuId])
+  viewedAt   DateTime @map("viewed_at")
+
+  @@id([customerId, menuId])
+  @@map("recently_viewed")
+}

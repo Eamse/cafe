@@ -30,18 +30,31 @@
       <div class="hero-slide-track" id="hero-slide-track">
         <div
           class="hero-slide"
-          style="background-image: url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200&auto=format&fit=crop');"
+          style="
+            background-image: url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200&auto=format&fit=crop');
+          "
         ></div>
         <div
           class="hero-slide"
-          style="background-image: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&auto=format&fit=crop');"
+          style="
+            background-image: url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&auto=format&fit=crop');
+          "
         ></div>
         <div
           class="hero-slide"
-          style="background-image: url('https://images.unsplash.com/photo-1509785307050-d4066910ec1e?w=1200&auto=format&fit=crop');"
+          style="
+            background-image: url('https://images.unsplash.com/photo-1509785307050-d4066910ec1e?w=1200&auto=format&fit=crop');
+          "
         ></div>
       </div>
-      <button type="button" class="hero-arrow hero-arrow-left" id="hero-arrow-left" aria-label="이전 슬라이드">‹</button>
+      <button
+        type="button"
+        class="hero-arrow hero-arrow-left"
+        id="hero-arrow-left"
+        aria-label="이전 슬라이드"
+      >
+        ‹
+      </button>
       <div class="hero-overlay">
         <p class="hero-eyebrow">Welcome</p>
         <h2>오늘도 좋은 하루,<br />커피 한 잔 어때요?</h2>
@@ -52,7 +65,14 @@
         </ul>
         <a href="menus/list.html" class="btn-hero">전체 메뉴 보기</a>
       </div>
-      <button type="button" class="hero-arrow hero-arrow-right" id="hero-arrow-right" aria-label="다음 슬라이드">›</button>
+      <button
+        type="button"
+        class="hero-arrow hero-arrow-right"
+        id="hero-arrow-right"
+        aria-label="다음 슬라이드"
+      >
+        ›
+      </button>
       <div class="hero-dots" id="hero-dots">
         <span class="hero-dot active" data-index="0"></span>
         <span class="hero-dot" data-index="1"></span>
@@ -121,13 +141,17 @@
       <div class="section-heading">
         <h2>전체 메뉴 <span class="menu-count" id="menu-count"></span></h2>
         <div class="menu-controls">
-          <input
-            type="search"
-            id="menu-search"
-            class="menu-search"
-            placeholder="메뉴 검색"
-            aria-label="메뉴 검색"
-          />
+          <div class="search-wrap">
+            <input
+              type="search"
+              id="menu-search"
+              class="menu-search"
+              placeholder="메뉴 검색"
+              aria-label="메뉴 검색"
+              autocomplete="off"
+            />
+            <div class="search-suggestions" id="search-suggestions" hidden></div>
+          </div>
           <button
             type="button"
             id="favorites-toggle"
@@ -153,6 +177,10 @@
             <option value="name">이름순</option>
           </select>
         </div>
+      </div>
+
+      <div class="recent-searches" id="recent-searches" hidden>
+        <!-- index.js가 최근 검색어 칩을 렌더링 -->
       </div>
 
       <div class="category-tabs" id="category-tabs">

@@ -93,3 +93,84 @@
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);
 }
+
+.image-preview-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.image-preview {
+  position: relative;
+  flex: 0 0 96px;
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-sm);
+  border: 1px dashed var(--color-border);
+  background-color: var(--color-bg);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.image-preview.has-image {
+  border-style: solid;
+}
+
+.image-preview.is-broken::after {
+  content: "이미지를 불러올 수 없어요";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6);
+  padding: var(--spacing-xs);
+  text-align: center;
+}
+
+.image-preview-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.image-preview-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.image-remove-btn {
+  align-self: flex-start;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  transition: var(--transition-fast);
+}
+
+.image-remove-btn:hover {
+  background: var(--color-danger);
+  color: var(--color-cream-100);
+}
+
+.form-error {
+  margin: 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  background: rgba(176, 80, 63, 0.12);
+  border: 1px solid var(--color-danger);
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+}

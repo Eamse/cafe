@@ -30,6 +30,13 @@
     <div class="basket-list" id="basket-list">
       <!-- localStorage 카트 데이터를 list.js가 여기에 렌더링 -->
     </div>
+    <p class="pickup-estimate" id="pickup-estimate" hidden></p>
+    <label class="order-note-field">
+      <span>요청사항 (선택)</span>
+      <textarea id="order-note" rows="2" maxlength="200" placeholder="예: 얼음 적게 주세요, 빨대는 빼주세요"></textarea>
+    </label>
+
+    <p class="basket-warning" id="basket-warning" hidden></p>
     <div class="basket-total" id="basket-total"></div>
     <button type="button" class="checkout-btn" id="checkout-btn">주문하기</button>
   </main>

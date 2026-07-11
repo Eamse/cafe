@@ -9,6 +9,7 @@ import {
   renderCartBadge,
   getOrders,
   saveOrders,
+  estimatePickupMinutes,
 } from "../js/utils.js";
 
 function nextOrderId(orders) {
@@ -19,6 +20,8 @@ function renderBasket() {
   const cart = getCart();
   const listEl = document.getElementById("basket-list");
   const totalEl = document.getElementById("basket-total");
+  const warningEl = document.getElementById("basket-warning");
+  const pickupEl = document.getElementById("pickup-estimate");
   const checkoutBtn = document.getElementById("checkout-btn");
 
   renderCartBadge();
@@ -26,12 +29,16 @@ function renderBasket() {
   if (cart.length === 0) {
     listEl.innerHTML = `<p class="basket-empty">장바구니가 비어있습니다.</p>`;
     totalEl.textContent = "";
+    warningEl.hidden = true;
+    pickupEl.hidden = true;
     checkoutBtn.disabled = true;
     return;
   }
 
   const menus = getMenus();
   let total = 0;
+  let totalQuantity = 0;
+  let hasSoldOutItem = false;
 
   listEl.innerHTML = cart
     .map((item) => {
@@ -40,15 +47,20 @@ function renderBasket() {
 
       const subtotal = menu.price * item.quantity;
       total += subtotal;
+      if (!menu.isSoldOut) totalQuantity += item.quantity;
+      if (menu.isSoldOut) hasSoldOutItem = true;
 
       return `
-        <div class="basket-item" data-menu-id="${menu.id}">
+        <div class="basket-item ${menu.isSoldOut ? "is-soldout" : ""}" data-menu-id="${menu.id}">
           <div>
-            <div class="item-name">${escapeHtml(menu.name)}</div>
+            <div class="item-name">
+              ${escapeHtml(menu.name)}
+              ${menu.isSoldOut ? `<span class="item-soldout-tag">품절</span>` : ""}
+            </div>
             <div class="item-qty-control">
-              <button type="button" data-action="decrease" data-id="${menu.id}" aria-label="수량 감소">-</button>
+              <button type="button" data-action="decrease" data-id="${menu.id}" aria-label="수량 감소" ${menu.isSoldOut ? "disabled" : ""}>-</button>
               <span>${item.quantity}</span>
-              <button type="button" data-action="increase" data-id="${menu.id}" aria-label="수량 증가">+</button>
+              <button type="button" data-action="increase" data-id="${menu.id}" aria-label="수량 증가" ${menu.isSoldOut ? "disabled" : ""}>+</button>
             </div>
           </div>
           <div class="item-price">${formatPrice(subtotal)}</div>
@@ -59,7 +71,22 @@ function renderBasket() {
     .join("");
 
   totalEl.textContent = `총 금액: ${formatPrice(total)}`;
-  checkoutBtn.disabled = false;
+
+  if (totalQuantity > 0) {
+    pickupEl.hidden = false;
+    pickupEl.textContent = estimatePickupMinutes(totalQuantity);
+  } else {
+    pickupEl.hidden = true;
+  }
+
+  if (hasSoldOutItem) {
+    warningEl.hidden = false;
+    warningEl.textContent = "품절된 메뉴가 있어 주문할 수 없어요. 삭제 후 다시 시도해주세요.";
+    checkoutBtn.disabled = true;
+  } else {
+    warningEl.hidden = true;
+    checkoutBtn.disabled = false;
+  }
 
   listEl.querySelectorAll("button[data-action='remove']").forEach((button) => {
     button.addEventListener("click", () => {
@@ -90,23 +117,32 @@ function handleCheckout() {
     .map((item) => {
       const menu = menus.find((m) => m.id === item.menuId);
       if (!menu) return null;
-      return { menuId: menu.id, name: menu.name, price: menu.price, quantity: item.quantity };
+      return { menuId: menu.id, name: menu.name, price: menu.price, quantity: item.quantity, isSoldOut: menu.isSoldOut };
     })
     .filter(Boolean);
 
+  // 안전장치: 버튼이 비활성화돼 있어도 혹시 모를 경합 상태(다른 탭에서 방금 품절 처리 등)를 대비해 한 번 더 막는다.
+  if (items.some((item) => item.isSoldOut)) {
+    renderBasket();
+    return;
+  }
+
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const note = document.getElementById("order-note").value.trim();
 
   const orders = getOrders();
+  const newOrderId = nextOrderId(orders);
   orders.push({
-    id: nextOrderId(orders),
+    id: newOrderId,
     createdAt: new Date().toISOString(),
-    items,
+    items: items.map(({ menuId, name, price, quantity }) => ({ menuId, name, price, quantity })),
     total,
     status: "주문완료",
+    note,
   });
   saveOrders(orders);
   clearCart();
-  window.location.href = "../orders/list.html";
+  window.location.href = `../orders/detail.html?id=${newOrderId}&new=1`;
 }
 
 document.getElementById("checkout-btn").addEventListener("click", handleCheckout);

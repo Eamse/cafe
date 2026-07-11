@@ -54,7 +54,13 @@
     <div class="section-heading">
       <h2>메뉴 <span class="menu-count" id="menu-count"></span></h2>
       <div class="menu-controls">
-        <input type="search" id="menu-search" class="menu-search" placeholder="메뉴 검색" />
+        <div class="search-wrap">
+          <input type="search" id="menu-search" class="menu-search" placeholder="메뉴 검색" autocomplete="off" />
+          <div class="search-suggestions" id="search-suggestions" hidden></div>
+        </div>
+        <button type="button" id="favorites-toggle" class="favorites-toggle" aria-pressed="false">
+          ♥ 즐겨찾기만
+        </button>
         <select class="price-filter" id="price-filter">
           <option value="all">전체 가격</option>
           <option value="under5000">5,000원 이하</option>
@@ -68,6 +74,9 @@
           <option value="name">이름순</option>
         </select>
       </div>
+    </div>
+    <div class="recent-searches" id="recent-searches" hidden>
+      <!-- list.js가 최근 검색어 칩을 렌더링 -->
     </div>
     <div class="category-tabs" id="category-tabs">
       <!-- list.js가 카테고리 탭을 렌더링 -->
