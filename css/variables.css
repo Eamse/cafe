@@ -245,3 +245,27 @@ img {
 .theme-toggle-btn:hover {
   opacity: 1;
 }
+
+/* ==========================================================================
+   Skip link — 키보드 사용자가 반복되는 헤더/사이드바 내비게이션을 건너뛰고
+   바로 본문(#main-content)으로 이동할 수 있게 하는 접근성 링크. 평소엔
+   화면 밖에 숨겨두고, 키보드 포커스를 받으면 화면 좌상단에 나타난다.
+   ========================================================================== */
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--spacing-md);
+  z-index: 3000;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--color-accent);
+  color: var(--color-cream-100);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: var(--spacing-md);
+}
