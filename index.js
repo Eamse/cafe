@@ -461,7 +461,10 @@ function initHeroSlider() {
   hero.addEventListener("mouseenter", stopAutoplay);
   hero.addEventListener("mouseleave", startAutoplay);
 
-  goTo(0);
+  dots[0].classList.add("active");
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => goTo(0));
+  });
   startAutoplay();
 }
 
