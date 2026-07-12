@@ -140,6 +140,20 @@ body {
   margin-bottom: var(--spacing-xs);
 }
 
+.basket-item .item-options {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-xs);
+}
+
+.basket-item .item-discount-tag {
+  display: inline-block;
+  font-size: var(--font-size-xs);
+  color: var(--color-accent);
+  font-weight: 700;
+  margin-bottom: var(--spacing-xs);
+}
+
 .basket-item .item-qty-control {
   display: flex;
   align-items: center;
@@ -284,6 +298,14 @@ body {
   font-weight: bold;
   color: var(--color-accent);
   margin-bottom: var(--spacing-lg);
+}
+
+.basket-discount-line {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-danger);
+  margin-bottom: 2px;
 }
 
 .checkout-btn {

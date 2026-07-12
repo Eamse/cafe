@@ -115,6 +115,47 @@ body.cart-panel-open {
   margin-bottom: var(--spacing-lg);
 }
 
+.cart-panel-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.cart-panel-option-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.cart-panel-option-label {
+  flex: 0 0 44px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.cart-panel-option-buttons {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.cart-panel-option-btn {
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  transition: var(--transition-fast);
+}
+
+.cart-panel-option-btn.is-selected {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-cream-100);
+  font-weight: 700;
+}
+
 .cart-panel-qty {
   display: flex;
   align-items: center;

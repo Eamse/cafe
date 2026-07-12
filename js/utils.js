@@ -145,34 +145,89 @@ export function saveCart(items) {
   localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
 }
 
-export function addToCart(menuId, quantity = 1) {
+// 같은 메뉴라도 온도/사이즈 옵션이 다르면 서로 다른 장바구니 줄(line)로 취급해야
+// 해서, menuId만으로는 항목을 특정할 수 없다. temp/size까지 합쳐 하나의 키로 본다.
+export function getCartLineKey(menuId, temp, size) {
+  return `${menuId}::${temp || ""}::${size || ""}`;
+}
+
+export function addToCart(menuId, quantity = 1, options = {}) {
+  const { temp = null, size = null } = options;
   const items = getCart();
-  const existing = items.find((item) => item.menuId === menuId);
+  const key = getCartLineKey(menuId, temp, size);
+  const existing = items.find((item) => getCartLineKey(item.menuId, item.temp, item.size) === key);
   if (existing) {
     existing.quantity += quantity;
   } else {
-    items.push({ menuId, quantity });
+    items.push({ menuId, quantity, temp, size });
   }
   saveCart(items);
   return items;
 }
 
-export function updateCartQuantity(menuId, quantity) {
+export function updateCartQuantity(menuId, quantity, options = {}) {
+  const { temp = null, size = null } = options;
+  const key = getCartLineKey(menuId, temp, size);
   let items = getCart();
   if (quantity <= 0) {
-    items = items.filter((item) => item.menuId !== menuId);
+    items = items.filter((item) => getCartLineKey(item.menuId, item.temp, item.size) !== key);
   } else {
-    const target = items.find((item) => item.menuId === menuId);
+    const target = items.find((item) => getCartLineKey(item.menuId, item.temp, item.size) === key);
     if (target) target.quantity = quantity;
   }
   saveCart(items);
   return items;
 }
 
-export function removeFromCart(menuId) {
-  const items = getCart().filter((item) => item.menuId !== menuId);
+export function removeFromCart(menuId, options = {}) {
+  const { temp = null, size = null } = options;
+  const key = getCartLineKey(menuId, temp, size);
+  const items = getCart().filter((item) => getCartLineKey(item.menuId, item.temp, item.size) !== key);
   saveCart(items);
   return items;
+}
+
+// 사이즈 업차지까지 반영한 실제 단가.
+export function getMenuUnitPrice(menu, options = {}) {
+  const upcharge = options.size === "LARGE" ? Number(menu.sizeUpcharge) || 0 : 0;
+  return menu.price + upcharge;
+}
+
+export const DESSERT_DRINK_DISCOUNT = 500;
+
+// "디저트 + 음료를 같은 장바구니에 담으면 디저트를 500원 할인" 규칙의 판정 기준.
+// 카테고리 체계가 coffee/tea/ade/dessert 뿐이라 "dessert가 아니면 음료"로 본다
+// (어드민이 새 카테고리를 추가해도 디저트로 지정하지 않는 한 음료 취급).
+export function isDessertMenu(menu) {
+  return menu.categoryId === "dessert";
+}
+
+export function cartHasDrink(cart, menus) {
+  return cart.some((item) => {
+    const menu = menus.find((m) => m.id === item.menuId);
+    return menu && !isDessertMenu(menu);
+  });
+}
+
+const TEMP_OPTION_LABEL = { ICE: "아이스", HOT: "핫" };
+const SIZE_OPTION_LABEL = { REGULAR: "레귤러", LARGE: "라지" };
+
+// 장바구니/주문 항목에 저장된 temp/size를 "아이스 · 라지" 같은 표시용 문자열로.
+export function formatItemOptions(item) {
+  const parts = [];
+  if (item.temp) parts.push(TEMP_OPTION_LABEL[item.temp] || item.temp);
+  if (item.size) parts.push(SIZE_OPTION_LABEL[item.size] || item.size);
+  return parts.join(" · ");
+}
+
+// 장바구니 한 줄(cart item)의 실제 결제 단가 — 사이즈 업차지 반영 후,
+// 디저트+음료 동시 주문 할인까지 뺀 값(0원 밑으로는 내려가지 않음).
+export function getEffectiveUnitPrice(menu, item, hasDrinkInCart) {
+  const unitPrice = getMenuUnitPrice(menu, item);
+  if (isDessertMenu(menu) && hasDrinkInCart) {
+    return Math.max(0, unitPrice - DESSERT_DRINK_DISCOUNT);
+  }
+  return unitPrice;
 }
 
 export function clearCart() {

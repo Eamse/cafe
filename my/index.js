@@ -84,7 +84,7 @@ function renderFavoriteMenus() {
   listEl.innerHTML = menus
     .map(
       (menu) => `
-    <a class="favorite-menu-card ${menu.isSoldOut ? "is-soldout" : ""}" href="/menus/detail.html?id=${menu.id}">
+    <a class="favorite-menu-card ${menu.isSoldOut ? "is-soldout" : ""}" href="/menus/detail?id=${menu.id}">
       <div class="favorite-menu-image" data-bg="${escapeHtml(menu.image || "")}"></div>
       <div class="favorite-menu-name">${escapeHtml(menu.name)}</div>
       <div class="favorite-menu-price">${formatPrice(menu.price)}</div>
@@ -111,7 +111,7 @@ function renderRecentOrders(orders) {
   listEl.innerHTML = recent
     .map(
       (order) => `
-    <a class="recent-order-card ${order.status === "취소" ? "is-cancelled" : ""}" href="/orders/detail.html?id=${order.id}">
+    <a class="recent-order-card ${order.status === "취소" ? "is-cancelled" : ""}" href="/orders/detail?id=${order.id}">
       <div class="order-date">${formatDate(order.createdAt)}</div>
       <div class="order-summary">${escapeHtml(order.items[0].name)}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
       <div class="order-status">${order.status}</div>

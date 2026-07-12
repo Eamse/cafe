@@ -4,9 +4,53 @@
    ========================================================================== */
 
 import { getMenus } from "./data.js";
-import { formatPrice, escapeHtml, addToCart, getCart, getFrequentlyBoughtWith, showToast } from "./utils.js";
+import {
+  formatPrice,
+  escapeHtml,
+  addToCart,
+  getCart,
+  getFrequentlyBoughtWith,
+  showToast,
+  getMenuUnitPrice,
+  getEffectiveUnitPrice,
+  cartHasDrink,
+} from "./utils.js";
 
 const RECOMMEND_COUNT = 2;
+
+function renderOptionPickerHtml(menu) {
+  if (!menu.hasTempOption && !menu.hasSizeOption) return "";
+  const upcharge = Number(menu.sizeUpcharge) || 0;
+
+  return `
+    <div class="cart-panel-options">
+      ${
+        menu.hasTempOption
+          ? `
+      <div class="cart-panel-option-group" data-option="temp">
+        <span class="cart-panel-option-label">온도</span>
+        <div class="cart-panel-option-buttons">
+          <button type="button" class="cart-panel-option-btn is-selected" data-value="ICE">아이스</button>
+          <button type="button" class="cart-panel-option-btn" data-value="HOT">핫</button>
+        </div>
+      </div>`
+          : ""
+      }
+      ${
+        menu.hasSizeOption
+          ? `
+      <div class="cart-panel-option-group" data-option="size">
+        <span class="cart-panel-option-label">사이즈</span>
+        <div class="cart-panel-option-buttons">
+          <button type="button" class="cart-panel-option-btn is-selected" data-value="REGULAR">레귤러</button>
+          <button type="button" class="cart-panel-option-btn" data-value="LARGE">라지${upcharge > 0 ? ` (+${formatPrice(upcharge)})` : ""}</button>
+        </div>
+      </div>`
+          : ""
+      }
+    </div>
+  `;
+}
 
 let overlayEl;
 let bodyEl;
@@ -79,7 +123,7 @@ function addAllPending(basketHrefOverride) {
 
   const count = pendingItems.size;
   pendingItems.forEach((entry, menuId) => {
-    addToCart(menuId, entry.quantity);
+    addToCart(menuId, entry.quantity, { temp: entry.temp, size: entry.size });
     markAsAdded(entry);
   });
   pendingItems.clear();
@@ -128,17 +172,19 @@ function renderSummary(basketHref) {
   }
 
   const menus = getMenus();
+  const hasDrink = cartHasDrink(cart, menus);
   let total = 0;
 
   const rows = cart
     .map((item) => {
       const menu = menus.find((m) => m.id === item.menuId);
       if (!menu) return "";
-      total += menu.price * item.quantity;
+      const unitPrice = getEffectiveUnitPrice(menu, item, hasDrink);
+      total += unitPrice * item.quantity;
       return `
         <li>
           <span class="cart-panel-summary-name">${escapeHtml(menu.name)} × ${item.quantity}</span>
-          <span class="cart-panel-summary-price">${formatPrice(menu.price * item.quantity)}</span>
+          <span class="cart-panel-summary-price">${formatPrice(unitPrice * item.quantity)}</span>
         </li>
       `;
     })
@@ -184,6 +230,7 @@ export function openCartPanel(menu, categoryName, basketHref = "basket/list.html
         menu.isSoldOut
           ? `<div class="cart-panel-sold-out">품절된 메뉴입니다</div>`
           : `
+      ${renderOptionPickerHtml(menu)}
       <div class="cart-panel-qty">
         <button type="button" class="qty-decrease" aria-label="수량 감소">-</button>
         <span class="qty-value">1</span>
@@ -198,9 +245,33 @@ export function openCartPanel(menu, categoryName, basketHref = "basket/list.html
 
     if (!menu.isSoldOut) {
       const qtyValueEl = itemEl.querySelector(".qty-value");
+      const priceEl = itemEl.querySelector(".cart-panel-price");
       const addBtn = itemEl.querySelector(".cart-panel-add-btn");
-      const entry = { quantity: 1, itemEl, addBtn, qtyValueEl };
+      const entry = {
+        quantity: 1,
+        itemEl,
+        addBtn,
+        qtyValueEl,
+        temp: menu.hasTempOption ? "ICE" : null,
+        size: menu.hasSizeOption ? "REGULAR" : null,
+      };
       pendingItems.set(menu.id, entry);
+
+      const updatePriceDisplay = () => {
+        priceEl.textContent = formatPrice(getMenuUnitPrice(menu, entry));
+      };
+
+      itemEl.querySelectorAll(".cart-panel-option-group").forEach((group) => {
+        const optionKey = group.dataset.option;
+        group.querySelectorAll(".cart-panel-option-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            group.querySelectorAll(".cart-panel-option-btn").forEach((b) => b.classList.remove("is-selected"));
+            btn.classList.add("is-selected");
+            entry[optionKey] = btn.dataset.value;
+            updatePriceDisplay();
+          });
+        });
+      });
 
       itemEl.querySelector(".qty-decrease").addEventListener("click", () => {
         entry.quantity = Math.max(1, entry.quantity - 1);
@@ -213,7 +284,7 @@ export function openCartPanel(menu, categoryName, basketHref = "basket/list.html
       });
 
       addBtn.addEventListener("click", () => {
-        addToCart(menu.id, entry.quantity);
+        addToCart(menu.id, entry.quantity, { temp: entry.temp, size: entry.size });
         pendingItems.delete(menu.id);
         markAsAdded(entry);
         window.dispatchEvent(new CustomEvent("cart:updated"));
@@ -224,7 +295,12 @@ export function openCartPanel(menu, categoryName, basketHref = "basket/list.html
 
       itemEl.querySelectorAll(".cart-panel-recommend-add").forEach((recBtn) => {
         recBtn.addEventListener("click", () => {
-          addToCart(Number(recBtn.dataset.menuId), 1);
+          const recMenu = allMenus.find((m) => m.id === Number(recBtn.dataset.menuId));
+          const recOptions = {
+            temp: recMenu?.hasTempOption ? "ICE" : null,
+            size: recMenu?.hasSizeOption ? "REGULAR" : null,
+          };
+          addToCart(Number(recBtn.dataset.menuId), 1, recOptions);
           recBtn.textContent = "담음 ✓";
           recBtn.disabled = true;
           showToast("장바구니에 담았습니다");

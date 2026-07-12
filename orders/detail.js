@@ -11,6 +11,7 @@ import {
   getPickupEstimateRange,
   showToast,
   initThemeToggle,
+  formatItemOptions,
 } from "../js/utils.js";
 
 const params = new URLSearchParams(window.location.search);
@@ -55,7 +56,7 @@ function reorder(order, button) {
     return;
   }
 
-  addableItems.forEach((item) => addToCart(item.menuId, item.quantity));
+  addableItems.forEach((item) => addToCart(item.menuId, item.quantity, { temp: item.temp || null, size: item.size || null }));
   renderCartBadge();
 
   const skipped = order.items.length - addableItems.length;
@@ -129,7 +130,7 @@ function renderDetail() {
           .map(
             (item) => `
           <div class="order-item">
-            <div class="item-name">${escapeHtml(item.name)}</div>
+            <div class="item-name">${escapeHtml(item.name)}${formatItemOptions(item) ? ` <span class="item-options">(${escapeHtml(formatItemOptions(item))})</span>` : ""}</div>
             <div class="item-quantity">수량: ${item.quantity}</div>
             <div class="item-price">${formatPrice(item.price * item.quantity)}</div>
           </div>

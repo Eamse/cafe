@@ -324,6 +324,12 @@ body {
   font-size: var(--font-size-base);
 }
 
+.order-item .item-options {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
 .order-item .item-quantity {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);

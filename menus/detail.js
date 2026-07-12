@@ -10,10 +10,45 @@ import {
   lazyLoadBackgroundImages,
   showToast,
   initThemeToggle,
+  getMenuUnitPrice,
 } from "../js/utils.js";
 import { openCartPanel } from "../js/cartPanel.js";
 
 const RECOMMEND_COUNT = 4;
+
+function renderOptionPickerHtml(menu) {
+  if (!menu.hasTempOption && !menu.hasSizeOption) return "";
+  const upcharge = Number(menu.sizeUpcharge) || 0;
+
+  return `
+    <div class="cart-panel-options">
+      ${
+        menu.hasTempOption
+          ? `
+      <div class="cart-panel-option-group" data-option="temp">
+        <span class="cart-panel-option-label">온도</span>
+        <div class="cart-panel-option-buttons">
+          <button type="button" class="cart-panel-option-btn is-selected" data-value="ICE">아이스</button>
+          <button type="button" class="cart-panel-option-btn" data-value="HOT">핫</button>
+        </div>
+      </div>`
+          : ""
+      }
+      ${
+        menu.hasSizeOption
+          ? `
+      <div class="cart-panel-option-group" data-option="size">
+        <span class="cart-panel-option-label">사이즈</span>
+        <div class="cart-panel-option-buttons">
+          <button type="button" class="cart-panel-option-btn is-selected" data-value="REGULAR">레귤러</button>
+          <button type="button" class="cart-panel-option-btn" data-value="LARGE">라지${upcharge > 0 ? ` (+${formatPrice(upcharge)})` : ""}</button>
+        </div>
+      </div>`
+          : ""
+      }
+    </div>
+  `;
+}
 
 function getCategoryName(categoryId) {
   const category = getCategories().find((c) => c.id === categoryId);
@@ -125,6 +160,7 @@ function renderMenuDetail() {
         menu.isSoldOut
           ? `<div class="sold-out-badge">품절된 메뉴입니다</div>`
           : `
+      ${renderOptionPickerHtml(menu)}
       <div class="quantity-control">
         <button type="button" id="qty-decrease" aria-label="수량 감소">-</button>
         <span id="qty-value">1</span>
@@ -147,8 +183,24 @@ function renderMenuDetail() {
   if (menu.isSoldOut) return;
 
   let quantity = 1;
+  let selectedTemp = menu.hasTempOption ? "ICE" : null;
+  let selectedSize = menu.hasSizeOption ? "REGULAR" : null;
   const qtyValueEl = document.getElementById("qty-value");
+  const priceEl = container.querySelector(".menu-price");
   const addBtn = document.getElementById("add-to-cart-btn");
+
+  container.querySelectorAll(".cart-panel-option-group").forEach((group) => {
+    const optionKey = group.dataset.option;
+    group.querySelectorAll(".cart-panel-option-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        group.querySelectorAll(".cart-panel-option-btn").forEach((b) => b.classList.remove("is-selected"));
+        btn.classList.add("is-selected");
+        if (optionKey === "temp") selectedTemp = btn.dataset.value;
+        else selectedSize = btn.dataset.value;
+        priceEl.textContent = formatPrice(getMenuUnitPrice(menu, { size: selectedSize }));
+      });
+    });
+  });
 
   document.getElementById("qty-decrease").addEventListener("click", () => {
     quantity = Math.max(1, quantity - 1);
@@ -161,7 +213,7 @@ function renderMenuDetail() {
   });
 
   addBtn.addEventListener("click", () => {
-    addToCart(menu.id, quantity);
+    addToCart(menu.id, quantity, { temp: selectedTemp, size: selectedSize });
     renderCartBadge();
     showToast(`${menu.name} 담았습니다`);
     addBtn.textContent = "담았습니다 ✓";

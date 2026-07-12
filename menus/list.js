@@ -121,7 +121,7 @@ function renderRecentOrderWidget() {
     <div class="recent-item">
       <div class="recent-item-name">${escapeHtml(menu.name)}</div>
       <div class="recent-item-price">${formatPrice(menu.price)}</div>
-      <button type="button" class="btn-reorder-mini" data-menu-id="${menu.id}" data-quantity="${item.quantity}" ${menu.isSoldOut ? "disabled" : ""}>
+      <button type="button" class="btn-reorder-mini" data-menu-id="${menu.id}" data-quantity="${item.quantity}" data-temp="${item.temp || ''}" data-size="${item.size || ''}" ${menu.isSoldOut ? "disabled" : ""}>
         ${menu.isSoldOut ? "품절" : "다시 담기"}
       </button>
     </div>
@@ -131,7 +131,7 @@ function renderRecentOrderWidget() {
 
   row.querySelectorAll(".btn-reorder-mini:not(:disabled)").forEach((btn) => {
     btn.addEventListener("click", () => {
-      addToCart(Number(btn.dataset.menuId), Number(btn.dataset.quantity));
+      addToCart(Number(btn.dataset.menuId), Number(btn.dataset.quantity), { temp: btn.dataset.temp || null, size: btn.dataset.size || null });
       renderCartBadge();
       showToast("장바구니에 담았습니다");
       btn.textContent = "담았습니다 ✓";
@@ -312,7 +312,7 @@ function renderSearchSuggestions(query) {
   container.innerHTML = matches
     .map(
       (menu) => `
-    <a class="search-suggestion-item" href="detail.html?id=${menu.id}">
+    <a class="search-suggestion-item" href="detail?id=${menu.id}">
       <span class="search-suggestion-name">${escapeHtml(menu.name)}</span>
       <span class="search-suggestion-price">${formatPrice(menu.price)}</span>
     </a>

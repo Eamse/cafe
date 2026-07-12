@@ -73,6 +73,7 @@ function handleSubmit(event) {
   clearError();
 
   const menus = getMenus();
+  const hasSizeOption = document.getElementById("hasSizeOption").checked;
   const newMenu = {
     id: nextId(menus),
     categoryId: document.getElementById("categoryId").value,
@@ -81,6 +82,9 @@ function handleSubmit(event) {
     description: document.getElementById("description").value.trim(),
     image: imageDataUrl,
     isSoldOut: document.getElementById("isSoldOut").checked,
+    hasTempOption: document.getElementById("hasTempOption").checked,
+    hasSizeOption,
+    sizeUpcharge: hasSizeOption ? Number(document.getElementById("sizeUpcharge").value) || 0 : 0,
   };
 
   if (!newMenu.name) {
@@ -104,8 +108,14 @@ function handleSubmit(event) {
   window.location.href = "list.html";
 }
 
+function updateSizeUpchargeVisibility() {
+  document.getElementById("size-upcharge-field").hidden = !document.getElementById("hasSizeOption").checked;
+}
+
 renderCategoryOptions();
 updateImagePreview();
+updateSizeUpchargeVisibility();
 document.getElementById("image-file").addEventListener("change", handleImageFileChange);
 document.getElementById("image-remove-btn").addEventListener("click", handleRemoveImage);
+document.getElementById("hasSizeOption").addEventListener("change", updateSizeUpchargeVisibility);
 document.getElementById("menu-form").addEventListener("submit", handleSubmit);

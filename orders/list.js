@@ -39,7 +39,7 @@ function renderRecentOrderWidget() {
     <div class="recent-item">
       <div class="recent-item-name">${escapeHtml(menu.name)}</div>
       <div class="recent-item-price">${formatPrice(menu.price)}</div>
-      <button type="button" class="btn-reorder-mini" data-menu-id="${menu.id}" data-quantity="${item.quantity}" ${menu.isSoldOut ? "disabled" : ""}>
+      <button type="button" class="btn-reorder-mini" data-menu-id="${menu.id}" data-quantity="${item.quantity}" data-temp="${item.temp || ''}" data-size="${item.size || ''}" ${menu.isSoldOut ? "disabled" : ""}>
         ${menu.isSoldOut ? "품절" : "다시 담기"}
       </button>
     </div>
@@ -49,7 +49,7 @@ function renderRecentOrderWidget() {
 
   row.querySelectorAll(".btn-reorder-mini:not(:disabled)").forEach((btn) => {
     btn.addEventListener("click", () => {
-      addToCart(Number(btn.dataset.menuId), Number(btn.dataset.quantity));
+      addToCart(Number(btn.dataset.menuId), Number(btn.dataset.quantity), { temp: btn.dataset.temp || null, size: btn.dataset.size || null });
       renderCartBadge();
       showToast("장바구니에 담았습니다");
       btn.textContent = "담았습니다 ✓";
@@ -75,7 +75,7 @@ function reorder(order, button) {
     return;
   }
 
-  addableItems.forEach((item) => addToCart(item.menuId, item.quantity));
+  addableItems.forEach((item) => addToCart(item.menuId, item.quantity, { temp: item.temp || null, size: item.size || null }));
   renderCartBadge();
 
   const skipped = order.items.length - addableItems.length;
@@ -103,7 +103,7 @@ function renderOrders() {
     .map(
       (order) => `
     <div class="order-card">
-      <a class="order-card-link" href="detail.html?id=${order.id}">
+      <a class="order-card-link" href="detail?id=${order.id}">
         <div class="order-date">${formatDate(order.createdAt)}</div>
         <div class="order-summary">${escapeHtml(order.items[0].name)}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
         <div class="order-status-cell">

@@ -67,6 +67,22 @@
         <span>품절</span>
       </label>
 
+      <div class="option-fields">
+        <p class="option-fields-title">주문 옵션</p>
+        <label class="form-field-checkbox">
+          <input type="checkbox" id="hasTempOption" />
+          <span>온도 옵션 사용 (아이스/핫)</span>
+        </label>
+        <label class="form-field-checkbox">
+          <input type="checkbox" id="hasSizeOption" />
+          <span>사이즈 옵션 사용 (레귤러/라지)</span>
+        </label>
+        <label class="form-field" id="size-upcharge-field" hidden>
+          <span>라지 사이즈 추가 금액</span>
+          <input type="number" id="sizeUpcharge" min="0" value="0" />
+        </label>
+      </div>
+
       <p class="form-error" id="form-error" hidden></p>
 
       <div class="form-actions">

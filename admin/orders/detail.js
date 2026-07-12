@@ -6,6 +6,7 @@ import {
   updateOrderStatus,
   getAvailableStatuses,
   renderStatusSteps,
+  formatItemOptions,
 } from "../../js/utils.js";
 
 const params = new URLSearchParams(window.location.search);
@@ -38,7 +39,7 @@ function render() {
           .map(
             (item) => `
           <div class="order-item">
-            <div class="item-name">${escapeHtml(item.name)}</div>
+            <div class="item-name">${escapeHtml(item.name)}${formatItemOptions(item) ? ` <span class="item-options">(${escapeHtml(formatItemOptions(item))})</span>` : ""}</div>
             <div class="item-quantity">수량: ${item.quantity}</div>
             <div class="item-price">${formatPrice(item.price * item.quantity)}</div>
           </div>

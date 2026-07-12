@@ -17,8 +17,16 @@ function fillForm(menu) {
   document.getElementById("price").value = menu.price;
   document.getElementById("description").value = menu.description;
   document.getElementById("isSoldOut").checked = menu.isSoldOut;
+  document.getElementById("hasTempOption").checked = Boolean(menu.hasTempOption);
+  document.getElementById("hasSizeOption").checked = Boolean(menu.hasSizeOption);
+  document.getElementById("sizeUpcharge").value = menu.sizeUpcharge || 0;
+  updateSizeUpchargeVisibility();
   imageDataUrl = menu.image || "";
   updateImagePreview();
+}
+
+function updateSizeUpchargeVisibility() {
+  document.getElementById("size-upcharge-field").hidden = !document.getElementById("hasSizeOption").checked;
 }
 
 function showError(message) {
@@ -96,12 +104,17 @@ function handleSubmit(event) {
     return;
   }
 
+  const hasSizeOption = document.getElementById("hasSizeOption").checked;
+
   target.name = name;
   target.categoryId = document.getElementById("categoryId").value;
   target.price = price;
   target.description = document.getElementById("description").value.trim();
   target.image = imageDataUrl;
   target.isSoldOut = document.getElementById("isSoldOut").checked;
+  target.hasTempOption = document.getElementById("hasTempOption").checked;
+  target.hasSizeOption = hasSizeOption;
+  target.sizeUpcharge = hasSizeOption ? Number(document.getElementById("sizeUpcharge").value) || 0 : 0;
 
   try {
     saveMenus(menus);
@@ -110,7 +123,7 @@ function handleSubmit(event) {
     return;
   }
 
-  window.location.href = `detail.html?id=${menuId}`;
+  window.location.href = `detail?id=${menuId}`;
 }
 
 function init() {
@@ -126,6 +139,7 @@ function init() {
   fillForm(menu);
   document.getElementById("image-file").addEventListener("change", handleImageFileChange);
   document.getElementById("image-remove-btn").addEventListener("click", handleRemoveImage);
+  document.getElementById("hasSizeOption").addEventListener("change", updateSizeUpchargeVisibility);
   document.getElementById("menu-form").addEventListener("submit", handleSubmit);
 }
 

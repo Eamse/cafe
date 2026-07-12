@@ -13,6 +13,11 @@ import {
   getLastRecipientInfo,
   saveLastRecipientInfo,
   initThemeToggle,
+  getCartLineKey,
+  getMenuUnitPrice,
+  getEffectiveUnitPrice,
+  cartHasDrink,
+  formatItemOptions,
 } from "../js/utils.js";
 
 function nextOrderId(orders) {
@@ -39,8 +44,10 @@ function renderBasket() {
   }
 
   const menus = getMenus();
+  const hasDrink = cartHasDrink(cart, menus);
   let total = 0;
   let totalQuantity = 0;
+  let totalDessertDiscount = 0;
   let hasSoldOutItem = false;
 
   listEl.innerHTML = cart
@@ -48,32 +55,44 @@ function renderBasket() {
       const menu = menus.find((m) => m.id === item.menuId);
       if (!menu) return "";
 
-      const subtotal = menu.price * item.quantity;
+      const unitPrice = getMenuUnitPrice(menu, item);
+      const effectiveUnitPrice = getEffectiveUnitPrice(menu, item, hasDrink);
+      const discountPerUnit = unitPrice - effectiveUnitPrice;
+      const subtotal = effectiveUnitPrice * item.quantity;
       total += subtotal;
+      totalDessertDiscount += discountPerUnit * item.quantity;
       if (!menu.isSoldOut) totalQuantity += item.quantity;
       if (menu.isSoldOut) hasSoldOutItem = true;
 
+      const lineKey = getCartLineKey(item.menuId, item.temp, item.size);
+      const options = formatItemOptions(item);
+
       return `
-        <div class="basket-item ${menu.isSoldOut ? "is-soldout" : ""}" data-menu-id="${menu.id}">
+        <div class="basket-item ${menu.isSoldOut ? "is-soldout" : ""}" data-line-key="${escapeHtml(lineKey)}">
           <div>
             <div class="item-name">
               ${escapeHtml(menu.name)}
               ${menu.isSoldOut ? `<span class="item-soldout-tag">품절</span>` : ""}
             </div>
+            ${options ? `<div class="item-options">${escapeHtml(options)}</div>` : ""}
+            ${discountPerUnit > 0 ? `<div class="item-discount-tag">음료와 함께 담아 ${formatPrice(discountPerUnit)} 할인</div>` : ""}
             <div class="item-qty-control">
-              <button type="button" data-action="decrease" data-id="${menu.id}" aria-label="수량 감소" ${menu.isSoldOut ? "disabled" : ""}>-</button>
+              <button type="button" data-action="decrease" data-key="${escapeHtml(lineKey)}" aria-label="수량 감소" ${menu.isSoldOut ? "disabled" : ""}>-</button>
               <span>${item.quantity}</span>
-              <button type="button" data-action="increase" data-id="${menu.id}" aria-label="수량 증가" ${menu.isSoldOut ? "disabled" : ""}>+</button>
+              <button type="button" data-action="increase" data-key="${escapeHtml(lineKey)}" aria-label="수량 증가" ${menu.isSoldOut ? "disabled" : ""}>+</button>
             </div>
           </div>
           <div class="item-price">${formatPrice(subtotal)}</div>
-          <button type="button" data-action="remove" data-id="${menu.id}">삭제</button>
+          <button type="button" data-action="remove" data-key="${escapeHtml(lineKey)}">삭제</button>
         </div>
       `;
     })
     .join("");
 
-  totalEl.textContent = `총 금액: ${formatPrice(total)}`;
+  totalEl.innerHTML =
+    totalDessertDiscount > 0
+      ? `<span class="basket-discount-line">디저트 할인 -${formatPrice(totalDessertDiscount)}</span>총 금액: ${formatPrice(total)}`
+      : `총 금액: ${formatPrice(total)}`;
 
   if (totalQuantity > 0) {
     pickupEl.hidden = false;
@@ -93,19 +112,19 @@ function renderBasket() {
 
   listEl.querySelectorAll("button[data-action='remove']").forEach((button) => {
     button.addEventListener("click", () => {
-      const menuId = Number(button.dataset.id);
-      removeFromCart(menuId);
+      const current = getCart().find((item) => getCartLineKey(item.menuId, item.temp, item.size) === button.dataset.key);
+      if (!current) return;
+      removeFromCart(current.menuId, current);
       renderBasket();
     });
   });
 
   listEl.querySelectorAll("button[data-action='increase'], button[data-action='decrease']").forEach((button) => {
     button.addEventListener("click", () => {
-      const menuId = Number(button.dataset.id);
-      const current = getCart().find((item) => item.menuId === menuId);
+      const current = getCart().find((item) => getCartLineKey(item.menuId, item.temp, item.size) === button.dataset.key);
       if (!current) return;
       const delta = button.dataset.action === "increase" ? 1 : -1;
-      updateCartQuantity(menuId, current.quantity + delta);
+      updateCartQuantity(current.menuId, current.quantity + delta, current);
       renderBasket();
     });
   });
@@ -138,11 +157,20 @@ function handleCheckout() {
   if (cart.length === 0) return;
 
   const menus = getMenus();
+  const hasDrink = cartHasDrink(cart, menus);
   const items = cart
     .map((item) => {
       const menu = menus.find((m) => m.id === item.menuId);
       if (!menu) return null;
-      return { menuId: menu.id, name: menu.name, price: menu.price, quantity: item.quantity, isSoldOut: menu.isSoldOut };
+      return {
+        menuId: menu.id,
+        name: menu.name,
+        price: getEffectiveUnitPrice(menu, item, hasDrink),
+        quantity: item.quantity,
+        temp: item.temp || null,
+        size: item.size || null,
+        isSoldOut: menu.isSoldOut,
+      };
     })
     .filter(Boolean);
 
@@ -166,7 +194,7 @@ function handleCheckout() {
   orders.push({
     id: newOrderId,
     createdAt: new Date().toISOString(),
-    items: items.map(({ menuId, name, price, quantity }) => ({ menuId, name, price, quantity })),
+    items: items.map(({ menuId, name, price, quantity, temp, size }) => ({ menuId, name, price, quantity, temp, size })),
     total,
     status: "주문완료",
     note,
@@ -175,7 +203,7 @@ function handleCheckout() {
   saveOrders(orders);
   saveLastRecipientInfo(recipient);
   clearCart();
-  window.location.href = `/orders/detail.html?id=${newOrderId}&new=1`;
+  window.location.href = `/orders/detail?id=${newOrderId}&new=1`;
 }
 
 document.getElementById("checkout-btn").addEventListener("click", handleCheckout);

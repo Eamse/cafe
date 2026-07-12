@@ -28,6 +28,13 @@ import {
   getRecentSearches,
   addRecentSearch,
   removeRecentSearch,
+  getCartLineKey,
+  getMenuUnitPrice,
+  cartHasDrink,
+  getEffectiveUnitPrice,
+  isDessertMenu,
+  DESSERT_DRINK_DISCOUNT,
+  formatItemOptions,
 } from "../js/utils.js";
 
 beforeEach(() => {
@@ -60,7 +67,7 @@ test("장바구니: 담기 → 수량 변경 → 삭제", () => {
   assert.deepEqual(getCart(), []);
 
   addToCart(1, 2);
-  assert.deepEqual(getCart(), [{ menuId: 1, quantity: 2 }]);
+  assert.deepEqual(getCart(), [{ menuId: 1, quantity: 2, temp: null, size: null }]);
 
   addToCart(1, 1); // 같은 메뉴면 수량이 더해져야 함
   assert.equal(getCart()[0].quantity, 3);
@@ -78,6 +85,54 @@ test("장바구니: 담기 → 수량 변경 → 삭제", () => {
   addToCart(3, 1);
   clearCart();
   assert.deepEqual(getCart(), []);
+});
+
+test("장바구니: 같은 메뉴라도 온도/사이즈 옵션이 다르면 별도 줄로 담긴다", () => {
+  addToCart(1, 1, { temp: "ICE", size: "REGULAR" });
+  addToCart(1, 1, { temp: "HOT", size: "REGULAR" }); // 옵션이 다르므로 별도 줄
+  addToCart(1, 2, { temp: "ICE", size: "REGULAR" }); // 기존 줄과 같은 옵션이므로 수량만 증가
+
+  const cart = getCart();
+  assert.equal(cart.length, 2);
+  assert.equal(cart.find((i) => i.temp === "ICE").quantity, 3);
+  assert.equal(cart.find((i) => i.temp === "HOT").quantity, 1);
+
+  updateCartQuantity(1, 0, { temp: "HOT", size: "REGULAR" });
+  assert.equal(getCart().length, 1);
+
+  removeFromCart(1, { temp: "ICE", size: "REGULAR" });
+  assert.deepEqual(getCart(), []);
+});
+
+test("getMenuUnitPrice / getEffectiveUnitPrice: 사이즈 업차지와 디저트+음료 할인", () => {
+  const drink = { id: 1, categoryId: "coffee", price: 4500, sizeUpcharge: 500 };
+  const dessert = { id: 2, categoryId: "dessert", price: 6000 };
+
+  assert.equal(getMenuUnitPrice(drink, { size: "REGULAR" }), 4500);
+  assert.equal(getMenuUnitPrice(drink, { size: "LARGE" }), 5000);
+  assert.equal(isDessertMenu(dessert), true);
+  assert.equal(isDessertMenu(drink), false);
+
+  const cartWithoutDrink = [{ menuId: 2, quantity: 1 }];
+  const cartWithDrink = [{ menuId: 1, quantity: 1 }, { menuId: 2, quantity: 1 }];
+  const menus = [drink, dessert];
+
+  assert.equal(cartHasDrink(cartWithoutDrink, menus), false);
+  assert.equal(cartHasDrink(cartWithDrink, menus), true);
+
+  // 음료 없이는 디저트 할인 없음
+  assert.equal(getEffectiveUnitPrice(dessert, {}, false), 6000);
+  // 음료와 같이 담으면 500원 할인
+  assert.equal(getEffectiveUnitPrice(dessert, {}, true), 6000 - DESSERT_DRINK_DISCOUNT);
+  // 음료 자체는 할인 대상이 아님
+  assert.equal(getEffectiveUnitPrice(drink, { size: "REGULAR" }, true), 4500);
+});
+
+test("getCartLineKey / formatItemOptions", () => {
+  assert.equal(getCartLineKey(1, "ICE", "LARGE"), getCartLineKey(1, "ICE", "LARGE"));
+  assert.notEqual(getCartLineKey(1, "ICE", "LARGE"), getCartLineKey(1, "HOT", "LARGE"));
+  assert.equal(formatItemOptions({ temp: "ICE", size: "LARGE" }), "아이스 · 라지");
+  assert.equal(formatItemOptions({}), "");
 });
 
 test("주문: 저장 → 조회 → 상태 변경", () => {
