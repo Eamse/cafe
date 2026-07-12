@@ -328,55 +328,54 @@ cafe-app
 
 ### 9단계: 완성도 보강 (2026-07-11)
 
-- [x] **관리자 카테고리 관리 신규 추가** — `admin/categories/list.html/.css/.js`. 지금까지 카테고리는 `js/data.js`에 4개(coffee/tea/ade/dessert)가 하드코딩되어 있어 관리자가 늘리거나 이름을 바꿀 방법이 없었음. `getCategories()`/`saveCategories()`(`cafe_admin_categories`)를 신설해 메뉴와 동일한 시드→localStorage 패턴으로 통합하고, 이를 참조하던 7개 파일(`index.js`, `menus/list.js`, `menus/detail.js`, `admin/menus/{list,detail,create,edit}.js`)의 정적 `categories` import를 전부 `getCategories()` 호출로 전환. 카테고리 목록 화면에서 추가/이름 변경(인라인 편집)/삭제 가능하며, 메뉴가 하나라도 걸려있는 카테고리는 삭제 버튼이 비활성화됨(참조 무결성 보호). 전 admin 페이지 사이드바에 "카테고리 관리" 링크 추가.
-- [x] **관리자 메뉴 등록/수정에 이미지 URL 입력 추가** — `admin/menus/create.html/.js`, `edit.html/.js`. 그동안 이미지 입력 필드 자체가 없어 관리자가 새 메뉴를 추가하면 사진 없이 등록됐음(`image: ""` 고정). URL 입력 필드 + 실시간 미리보기(`<img>` 프리로드로 깨진 링크도 감지해서 "이미지를 불러올 수 없어요" 표시) 추가. `admin/menus/list.js`(목록 썸네일), `detail.js`(상세 이미지)에도 반영.
-- [x] **폼 검증 UX 개선** — 메뉴 생성/수정 폼에서 이름/가격 유효성 실패 시 조용히 `return`만 하던 것을, 폼 상단에 인라인 에러 메시지(`.form-error`)로 표시하도록 개선.
-- [x] **README.md 작성** — 실행 방법, 폴더 구조, 주요 기능, 데이터 모델(localStorage 키) 요약.
-- [x] **품절 메뉴 재검증 버그 수정** — 장바구니에 담긴 뒤/과거 주문 이후 관리자가 품절 처리한 메뉴가 결제(`basket/list.js`)나 재주문(`orders/list.js`, `orders/detail.js`, `menus/list.js`)에서 걸러지지 않고 그대로 통과되던 문제. 장바구니는 품절 항목에 품절 뱃지 + 수량버튼 비활성화 + 결제 버튼 차단으로, 재주문은 품절 항목을 자동 제외(일부만 제외됐으면 안내 문구로 표시)하도록 수정.
-- [x] **장바구니 담기 패널 — "전체 한번에 담기" 추가**: 메뉴 카드를 여러 개 눌러서 패널에 쌓아도 지금까지는 각 항목마다 "장바구니 담기"를 따로 눌러야 했음(UX 이슈). `js/cartPanel.js`에 아직 안 담은 항목을 추적하는 `pendingItems` 맵을 추가하고, 패널 상단에 "담을 메뉴 N개 · 전체 한번에 담기" 바를 노출해 한 번의 클릭으로 전부 장바구니에 담을 수 있도록 함. 개별 "장바구니 담기" 버튼도 그대로 유지(선택적으로 하나씩 담는 것도 가능).
-- [x] **즐겨찾기 로직을 `js/utils.js`로 공용화**: 기존엔 `index.js`에만 로컬로 존재해서 다른 페이지에서 즐겨찾기 목록을 읽을 방법이 없었음. `getFavorites()`/`toggleFavorite()`를 `js/utils.js`로 옮기고 `index.js`는 이를 import해서 사용하도록 변경.
-- [x] **마이페이지 — 즐겨찾기한 메뉴 섹션 추가**: 즐겨찾기 기능은 있었지만 마이페이지에서 확인할 방법이 없었음(메뉴 목록의 "즐겨찾기만" 필터로만 접근 가능). "즐겨찾기한 메뉴" 섹션(가로 스크롤 카드, 품절 표시 포함)과 요약 카드에 "즐겨찾기 N개" 통계 추가.
-- [x] **마이페이지 — 취소된 주문 시각적 구분**: 최근 주문 카드에서 `취소` 상태 주문이 다른 주문과 구분 없이 보이던 것을, 반투명 처리 + 상태 텍스트 빨간색 강조로 구분되게 함.
-- [x] **최근 본 메뉴 최대 개수 10개로 확대**: 기존 6개 → 10개(`index.js`의 `RECENTLY_VIEWED_MAX`). 오래된 항목은 그대로 자동으로 밀려나 사라짐(기존 `slice` 로직 그대로 재사용, 별도 UI 불필요).
-- [x] **주문 요청사항 입력 추가**: `basket/list.html`에 "요청사항(선택)" textarea 추가, 체크아웃 시 `order.note`로 저장. 고객(`orders/detail.js`)·관리자(`admin/orders/detail.js`) 양쪽 상세 페이지에 노출(`escapeHtml` 적용).
-- [x] **주문 상태 진행 표시줄(스텝바) 추가**: 지금까지 주문 상태가 텍스트 하나로만 보이던 것을, `주문완료 → 조리중 → 수령완료` 3단계 시각적 스텝바로 표시(취소된 주문은 스텝 대신 배너로 대체). `js/utils.js`에 공용 `renderStatusSteps(status)` 추가해 고객/관리자 상세 페이지가 함께 사용.
-- [x] **메뉴 상세 — "함께 주문하면 좋은 메뉴" 추천**: 기존엔 현재 메뉴를 제외한 나머지 메뉴를 그냥 다 보여주기만 했음. `getOrders()` 데이터를 집계해 이 메뉴와 실제로 함께 주문된 메뉴를 우선 추천하고(부족하면 같은 카테고리 → 나머지 메뉴로 채움), 추천이 실제 주문 데이터 기반일 땐 제목도 "함께 주문하면 좋은 메뉴"로 바뀜(데이터 없으면 기존 "다른 메뉴도 담아보세요" 유지).
-- [x] **장바구니 — 예상 준비 시간 안내**: 담긴 메뉴 총 수량 기준으로 "예상 준비 시간: 약 N~M분" 문구를 장바구니 목록 위에 표시(`basket/list.js`의 `estimatePickupMinutes`).
-- [x] **최근 검색어**: `index.html`/`menus/list.html` 검색창에서 Enter 또는 포커스 아웃 시 검색어를 저장(`js/utils.js`의 `getRecentSearches`/`addRecentSearch`/`removeRecentSearch`, `cafe_recent_searches`, 최대 6개). 검색창 아래 칩으로 노출되고 클릭하면 그 검색어로 바로 필터링, 개별 삭제(✕)도 가능.
-- [x] **검색 자동완성**: `index.html`/`menus/list.html` 검색창에 입력하는 즉시 이름이 일치하는 메뉴 최대 5개를 드롭다운으로 보여주고, 클릭하면 해당 메뉴 상세로 바로 이동. Escape/포커스아웃(약간의 지연)으로 닫힘.
-- [x] **장바구니 담기 패널 — 미니 추천**: 메뉴 상세의 "함께 주문하면 좋은 메뉴" 로직(`getFrequentlyBoughtWith`)을 재사용해, 패널에서 담기 직전 항목 아래 "함께 담으면 좋아요"로 최대 2개 추천 + 개별 "+ 담기" 버튼 노출(실제 co-occurrence 데이터가 있을 때만 표시).
-- [x] **주문완료 상태에 예상 준비 시간 재노출**: 체크아웃 직후에도 확인할 수 있도록, `주문완료` 상태인 주문에 한해 주문 목록(`orders/list.js`)·상세(`orders/detail.js`) 양쪽에 장바구니와 같은 방식(`estimatePickupMinutes`)으로 예상 준비 시간을 표시.
-- [x] **공용 로직 정리**: `estimatePickupMinutes`, `getFrequentlyBoughtWith`를 `js/utils.js`로 옮겨 `basket/list.js`·`orders/*`·`menus/detail.js`·`js/cartPanel.js`가 하나의 구현을 공유하도록 정리(중복 로직 제거).
-- [x] **즐겨찾기를 메뉴 목록/상세로 확대**: 하트 버튼(즐겨찾기)이 홈 화면 카드에만 있고 `menus/list.html`·메뉴 상세엔 없어서, 마이페이지 즐겨찾기 섹션이 있어도 메뉴 목록/상세에서는 찜을 못 누르던 문제. `menus/list.js`에 하트 버튼 + "♥ 즐겨찾기만" 토글, 메뉴 상세 페이지에 하트 버튼 추가 — 전부 `js/utils.js`의 `getFavorites`/`toggleFavorite` 공용 함수 사용.
-- [x] **즐겨찾기 하트 팝 애니메이션**: 즐겨찾기 추가 시 `heart-pop` 키프레임(살짝 커졌다 돌아옴)으로 인터랙션 강조. `prefers-reduced-motion: reduce`면 비활성화.
-- [x] **히어로 배경 페이드 인/아웃**: 기존 `translateX` 슬라이드 방식(트랙 이동)을 opacity 크로스페이드로 교체(`.hero-slide.is-active { opacity: 1 }`, 1.2s transition). 전환이 밀어내는 느낌 대신 부드럽게 겹쳐 사라지고 나타남.
-- [x] **관리자 — 오늘의 추천 메뉴 직접 지정**: 기존엔 `index.js`가 카테고리별 대표 메뉴를 자동으로 골랐음(관리자가 손댈 수 없었음). `js/data.js`에 `getFeaturedMenuIds`/`saveFeaturedMenuIds`/`toggleFeaturedMenu`(`cafe_featured_menus`) 추가, `admin/menus/list.js`에 메뉴별 "☆ 추천" 토글 버튼(최대 6개) 추가. 관리자가 하나라도 고르면 홈 화면 "오늘의 추천"이 그 목록을 그대로 사용하고, 하나도 안 골랐으면 기존 자동 로직으로 대체(하위 호환).
-- [x] **준비 시간 실시간 카운트다운**: 주문 상세(`orders/detail.js`)에서 `주문완료` 상태일 때 고정 문구 대신 "약 N분 후 준비 완료 예정"이 30초마다 갱신되는 카운트다운으로 표시(예상 시간 지나면 "곧 준비 완료될 예정이에요 ☕"). 페이지 재렌더링(주문 취소 등) 시 이전 타이머는 반드시 정리.
-- [x] **장바구니 패널 — 포커스 트랩**: 패널이 열려있는 동안 Tab/Shift+Tab이 패널 밖으로 안 나가도록 포커싱을 가둠. 열릴 때 닫기 버튼에 포커스, 닫히면 패널을 열기 전 포커스했던 요소로 복귀.
-- [x] **주문 취소 시 사유 선택**: 기존엔 `confirm()` 하나로 바로 취소됐음. "주문 취소" 클릭 시 사유 선택 패널(단순 변심/주문 실수/너무 늦게 준비돼요/기타)이 뜨고, 고른 사유가 `order.cancelReason`으로 저장되어 고객 주문 상세·관리자 주문 상세 양쪽에 노출됨(`js/utils.js`의 `cancelOrderWithReason`).
-- [x] **관리자가 주문 수락하면 고객 취소 불가 + 관리자 취소 옵션도 사라짐**: 기존엔 관리자 상태 셀렉트에 항상 `취소`가 남아있어서 `수령완료` 이후에도 실수로 취소를 고를 수 있었음. `js/utils.js`에 `getAvailableStatuses(currentStatus)` 추가 — 현재 상태가 `주문완료`일 때만 `취소`를 옵션에 포함하고, `조리중`/`수령완료`로 넘어가면 `취소`가 선택지에서 사라짐. `admin/orders/list.js`·`admin/orders/detail.js` 양쪽 상태 셀렉트 적용, 상태 변경 시 목록/상세 재렌더링해서 옵션이 바로 갱신되도록 함. (고객 쪽 "주문 취소" 버튼은 원래부터 `주문완료`일 때만 노출되어 있어 별도 수정 불필요.)
-- [x] **메뉴 목록/상세 페이지 카드 리디자인**: 지금까지 `menus/list.html`(및 상세의 추천 그리드)의 메뉴 카드가 이미지 없이 텍스트만 있어서 홈 화면 카드보다 훨씬 밋밋했음. 홈 화면과 동일한 이미지 카드 레이아웃(이미지 상단 + 카테고리 포인트 컬러 보더 + 호버 시 살짝 확대/그림자)으로 통일, 컨테이너 폭도 960px → 1100px로 넓혀 카드가 덜 답답하게 배치되도록 함.
-- [x] **결제 완료 "감사합니다" 배너**: 체크아웃 직후 바로 주문 목록으로 넘어가던 것을 `orders/detail.html?id=…&new=1`로 리다이렉트하도록 바꾸고, 그 파라미터가 있을 때만(취소 상태 제외) 주문 상세 최상단에 축하 배너를 보여줌. 새로고침 시 다시 뜨지 않도록 `history.replaceState`로 `new` 파라미터를 제거.
-- [x] **관리자 대시보드 — 오늘의 추천 현황 카드**: `admin/menus/list.js`에서 "☆ 추천" 토글만 있고 대시보드에서 몇 개가 걸려있는지 확인할 방법이 없었음. 대시보드에 현재 추천 지정된 메뉴를 칩으로 보여주는 섹션 추가(품절 중이면 표시).
-- [x] **메뉴 필터/정렬/검색/즐겨찾기 상태 URL 쿼리 유지**: `index.html`/`menus/list.html`에서 카테고리·정렬·가격대·검색어·즐겨찾기 필터가 새로고침하면 초기화되던 것을, `?category=&sort=&price=&q=&favorites=1` 쿼리 파라미터에 반영(변경 시마다 `history.replaceState`)해서 새로고침·링크 공유 시에도 같은 화면이 유지되도록 함.
-- [x] **메뉴 이미지 lazy loading**: `js/utils.js`에 `IntersectionObserver` 기반 `lazyLoadBackgroundImages()` 추가. 카드 HTML은 `style="background-image:..."` 대신 `data-bg="URL"`로 렌더링하고, 렌더링 직후 이 함수를 호출해 화면에 가까워질 때만 실제 이미지를 불러오도록 함(`index.js`, `menus/list.js`, `menus/detail.js`, `my/index.js` 적용).
-- [x] **관리자 페이지를 고객 페이지와 같은 다크 테마로 통일**: 관리자만 라이트 테마(variables.css 기본값)로 남아있어 고객 페이지(다크 에스프레소)와 톤이 어긋났음. `admin/sidebar.css`(모든 admin 페이지가 공통으로 불러옴)에 동일한 `:root` 다크 토큰 오버라이드를 추가해, 각 페이지 CSS는 손대지 않고도 전체가 한 번에 다크 테마로 바뀌도록 함.
-- [x] **핵심 함수 유닛 테스트 추가**: `tests/utils.test.mjs`, `tests/data.test.mjs`(총 19개 테스트, `node --test`)로 장바구니/주문/즐겨찾기/최근검색어/카테고리·메뉴·추천메뉴 저장소 등 순수 로직을 검증. `tests/setup.mjs`가 메모리 기반 `localStorage` 폴리필을 제공해 DOM 없이도 테스트 가능. 이 작업 과정에서 `package.json`의 `"type"`이 실제 코드(ESM `import`/`export`)와 다르게 `"commonjs"`로 잘못 적혀 있던 것을 발견해 `"module"`로 수정(`npm test`/`npm start` 둘 다 재확인 완료).
-- [x] **모바일 반응형 검증 (Playwright로 실제 렌더링 확인)**: 코드 리뷰가 아니라 Chromium을 직접 띄워 320/375/414/768px 폭에서 고객·관리자 페이지 10개를 렌더링하고 `document.documentElement.scrollWidth`로 가로 스크롤 발생 여부를 확인. **실제 버그 발견**: 홈 화면(`index.html`)의 "오늘의 추천" 섹션에서 375px 폭일 때 페이지 전체가 133px 가로로 스크롤되는 문제 발견 — 원인은 캐러셀이 아니라 `.home-featured::before`라는 장식용 배경 블러(가운데 정렬, 640px 고정폭)가 뷰포트보다 넓어 좌우로 새던 것. `.home-featured`에 `overflow: hidden` 추가로 수정(캐러셀 자체의 가로 스크롤 동작은 그대로 유지됨을 확인). 나머지 9개 페이지는 전부 정상.
-- [x] **관리자 메뉴 이미지 — URL 입력 대신 사진 업로드**: `admin/menus/create.html`/`edit.html`의 이미지 URL 텍스트 입력을 `<input type="file">`로 교체. `js/utils.js`에 `readImageFileAsDataUrl(file, maxDimension, quality)` 추가 — 캔버스로 최대 800px로 리사이즈 + JPEG 재인코딩 후 data URL로 변환해서 저장(원본 폰 사진을 그대로 저장하면 몇 장만 등록해도 localStorage 용량을 넘길 수 있어서 용량을 크게 줄임). "사진 제거" 버튼 추가, `saveMenus` 저장 시 용량 초과(QuotaExceededError)를 잡아 사용자에게 안내 메시지를 보여주도록 함(기존엔 조용히 실패했음).
-- [x] **관리자 주문 관리 — 여러 건 한 번에 상태 변경**: 기존엔 주문 하나씩 셀렉트를 눌러야 해서 불편했음(주문이 많아지면 특히). 각 주문 행에 체크박스 + 상단에 "전체 선택" + 선택 시 나타나는 일괄 변경 바(선택 건수, 상태 셀렉트, "일괄 변경"/"선택 해제" 버튼) 추가. 상태 필터 탭을 바꾸면 화면에 없는 항목의 선택은 자동 정리됨. 일괄 변경 가능한 상태 목록은 `getAvailableStatuses`와 같은 규칙(선택한 주문이 전부 `주문완료`일 때만 "취소" 포함)을 적용해 이미 조리 중인 주문이 실수로 취소되지 않도록 함. Playwright로 실제 체크박스 선택 → 일괄 변경 → localStorage 반영까지 동작 확인 완료.
-- [x] **메뉴 상세 페이지에 정작 메뉴 사진이 없던 버그 수정**: 홈 카드/목록 카드/장바구니 패널엔 다 이미지가 있는데 `menus/detail.html`(상세 페이지 본문)에만 사진이 없었음(추천 그리드에만 있었음). 카드 상단에 이미지를 채운 히어로 이미지 블록 추가(lazy loading 적용).
-- [x] **고객 페이지 CSS/JS 경로를 절대경로로 전환 (배포 버그 수정)**: `serve`(정적 서버)가 확장자 없는 clean URL로 리다이렉트할 때(예: `/my/index.html` → `/my`) 상대경로 `<link>`/`<script src>`가 엉뚱한 위치(루트)를 가리키게 되어 실제로 `my` 페이지가 루트의 `index.js`를 잘못 불러와 크래시하는 버그를 발견(이전에 `/admin/*`에서 겪었던 것과 동일한 원인). `menus/list.html`, `menus/detail.html`, `orders/list.html`, `orders/detail.html`, `my/index.html`, `basket/list.html`의 CSS/JS `<link>`/`<script>`뿐 아니라 페이지 내부 네비게이션 링크(`<a href>`)와 JS의 `window.location.href`/템플릿 내 `href`까지 전부 절대경로(`/menus/list.js` 등)로 전환. Playwright로 `serve`의 clean URL 리다이렉트를 재현해 정상 로드를 재확인.
-- [x] **관리자 공지사항(Notice) 관리 신규 추가**: `admin/notices/list.html/.css/.js` — 공지 등록(내용+날짜), 홈 화면 노출 여부를 체크박스로 선택(최대 `MAX_ACTIVE_NOTICES`(3)개, 초과 선택은 비활성화), 삭제. `js/data.js`에 `getNotices`/`saveNotices`(`cafe_notices`)와 `getActiveNoticeIds`/`saveActiveNoticeIds`/`toggleActiveNotice`(`cafe_active_notice_ids`) 추가. 홈 화면(`index.html`/`index.js`)의 기존 정적 공지바(`.notice-bar`, 하드코딩된 문구 1개)를 동적으로 전환 — 노출 선택된 공지가 있으면 4초 간격으로 하나씩 순서대로 로테이션 표시(`renderNoticeBar`), 하나도 없으면 공지바 자체를 숨김. 전 admin 페이지 사이드바에 "공지 관리" 링크 추가.
-- [x] **홈 화면 메뉴 카드 호버 효과가 동작하지 않던 버그 수정**: "메뉴 카드에 호버 효과가 없다"는 피드백으로 확인해보니, `.menu-card`(추천/전체 메뉴 카드 공통)에 걸려있던 등장 애니메이션 `card-drop-in`이 `animation: ... both;`(양방향 fill-mode)로 설정돼 있어 애니메이션이 끝난 뒤에도 마지막 키프레임의 `transform` 값이 영구적으로 고정됨 — CSS 애니메이션이 일반 규칙(`.menu-card:hover { transform: translateY(-4px) }` 등)보다 우선순위가 높아 호버의 `transform`이 전혀 반영되지 않던 실제 버그였음(호버로 인한 그림자/이미지 확대는 걸려있었지만 카드 자체가 뜨는 효과만 죽어있었음). fill-mode를 `both` → `backwards`로 변경해 애니메이션은 시작 전(딜레이 구간)에만 초기 상태를 유지하고, 애니메이션이 끝나면 이후 즉시 일반 CSS 캐스케이드(호버 포함)로 제어권이 넘어가도록 수정. 홈 화면 전체 메뉴 그리드에도 `menus/list.html`과 동일한 이미지 확대(`scale(1.06)`) 호버를 추가해 두 페이지의 카드 호버 경험을 통일. Playwright로 실제 마우스 호버 후 `transform` computed 값이 카드/이미지 양쪽에서 정상 반영되는 것 확인.
-- [x] **히어로 슬라이드 — 켄번즈(서서히 확대) 효과 추가**: 페이드만 있고 확대/축소가 없어 밋밋하다는 피드백으로, 활성 슬라이드가 보이는 동안 `scale(1) → scale(1.08)`로 6초에 걸쳐 서서히 확대되는 `hero-kenburns` 키프레임 애니메이션 추가(`.home-hero`에 이미 있던 `overflow: hidden` 덕분에 확대된 부분이 컨테이너 밖으로 새지 않음). 다음 슬라이드로 넘어가 `is-active`가 빠지면 `transform`에도 `opacity`와 동일한 1.2s 트랜지션을 적용해 확대된 상태에서 갑자기 원래 크기로 튀지 않고 자연스럽게 원위치로 돌아오며 페이드 아웃되도록 함. `prefers-reduced-motion: reduce`에서는 애니메이션 비활성화 유지.
-- [x] **히어로 첫 이미지가 로드 시 페이드 없이 바로 나타나던 버그 수정**: 슬라이드 간 전환(5초마다, 화살표/닷 클릭)은 opacity 크로스페이드가 잘 동작했지만, 페이지 최초 로드 때는 `initHeroSlider()`가 `goTo(0)`을 동기적으로 즉시 호출해 브라우저가 별도 프레임 없이 `opacity: 1`로 바로 그려버려 첫 이미지만 페이드 없이 "뚝" 나타나던 문제. `requestAnimationFrame`을 두 번 중첩해 브라우저가 `opacity: 0` 상태를 한 번 실제로 그린 뒤에 `is-active`를 붙이도록 수정, Playwright로 0ms~1.3s 구간의 `opacity` 값이 0→1로 실제로 보간되는 것을 확인.
-- [x] **접근성 — skip link 추가**: 고객 페이지 8개(`index.html`, `menus/list.html`, `menus/detail.html`, `orders/list.html`, `orders/detail.html`, `my/index.html`, `basket/list.html`, `events/list.html`)와 관리자 페이지 10개 전부(총 18개 파일)에 `<body>` 최상단 첫 요소로 "본문으로 바로가기" 스킵 링크를 추가. 평소엔 화면 밖(`top: -100%`)에 숨어있다가 키보드 Tab으로 포커스를 받으면 화면 좌상단에 나타나며(`css/variables.css`의 `.skip-link`/`.skip-link:focus`), Enter를 누르면 각 페이지의 `<main id="main-content">`(메뉴 상세만 기존 id `menu-detail` 재사용)로 포커스가 이동해 반복되는 헤더/사이드바 내비게이션을 건너뛸 수 있음. Playwright로 Tab→포커스 스타일 전환→Enter→해시 이동까지 실제 확인.
-- [x] **다크/라이트 테마 수동 토글 — 전 페이지 동작 재검증**: 이전에 구현해둔 `initThemeToggle()`/`applyTheme()`가 신규 `events/list.html` 포함 고객 페이지 8개 전체에서 토글 클릭 → 즉시 반영 → `localStorage` 저장 → 새로고침 후에도 유지(깜빡임 없이) 되는지 Playwright로 재확인 완료. 별도 코드 수정 없이 기존 구현이 정상 동작함을 검증.
-- [x] **관리자 이벤트(Event) 관리 + 이벤트 전체보기 페이지 신규 추가**: `admin/events/list.html/.css/.js` — 이벤트 등록(제목/날짜/내용/사진 업로드 `readImageFileAsDataUrl` 재사용), 체크박스로 "종료됨" 처리, 삭제. `js/data.js`에 `getEvents`/`saveEvents`(`cafe_events`)/`getEventById` 추가(시드 3건, 그중 1건은 종료 상태로 시작). 종료 처리된 이벤트는 관리자 목록·홈 화면·이벤트 전체보기 페이지 전부에서 썸네일 이미지 위에 반투명 "종료된 이벤트입니다" 워터마크 오버레이 + 제목 옆 같은 문구의 텍스트 배지로 표시됨. 홈 화면(`index.html`)의 기존 정적 이벤트 3개 하드코딩 목록을 `getEvents()` 기반 동적 렌더링(최신 3개, `renderHomeEvents`)으로 전환하고, 지금까지 `href="#"`였던 "소식 더보기" 링크를 신규 페이지 `events/list.html`(모든 이벤트를 날짜 내림차순으로 전부 보여줌)로 연결. 전 admin 페이지 사이드바에 "이벤트 관리" 링크 추가. Playwright로 공지 등록→노출선택, 이벤트 등록→종료처리→홈/전체보기 페이지 반영까지 실제 브라우저에서 동작 확인 완료.
-
-- [x] **`.html?쿼리` 링크가 `serve`에서 쿼리스트링째로 사라지는 배포 버그 수정 (근본 원인 발견)**: "체크아웃 직후엔 주문 상세가 잘 뜨는데 새로고침하면 '주문을 찾을 수 없습니다'가 뜬다"는 제보를 재현하던 중, 정적 서버 `serve`가 `.html` 확장자 + 쿼리스트링이 붙은 URL(`/orders/detail.html?id=5`)을 요청받으면 확장자 없는 클린 URL(`/orders/detail`)로 301 리다이렉트하면서 **쿼리스트링 자체를 통째로 버리는** 동작을 확인(반대로 확장자 없는 경로는 리다이렉트 없이 200으로 바로 응답하며 쿼리스트링도 그대로 유지됨). 즉 `id=`가 붙은 페이지로 이동하는 링크·리다이렉트가 전부 이 문제에 노출돼 있었음. `basket/list.js`의 체크아웃 후 리다이렉트, `index.js`/`menus/list.js`의 상세보기·검색결과 링크, `my/index.js`의 즐겨찾기·최근주문 카드, `orders/list.js`의 주문 카드, `admin/menus/list.js`·`admin/menus/detail.js`·`admin/menus/edit.js`·`admin/orders/list.js`·`admin/index.js`의 상세/수정 링크까지 전부 `.html?id=...` → `?id=...`(확장자 제거)로 전환해 리다이렉트 자체가 발생하지 않도록 근본 수정. Playwright로 관리자 목록에서 "수정" 링크를 실제로 클릭해 쿼리스트링이 살아있는 것과, 체크아웃 → 주문 상세 이동이 정상 동작하는 것을 확인.
-- [x] **메뉴 옵션(온도/사이즈) + 디저트·음료 동시 주문 할인 기능**: 어드민이 메뉴별로 온도(아이스/핫)·사이즈(레귤러/라지, 라지 추가금액 직접 설정) 옵션 사용 여부를 개별 지정할 수 있게 됨(`admin/menus/create.html`/`edit.html`의 `.option-fields`, 메뉴 객체의 `hasTempOption`/`hasSizeOption`/`sizeUpcharge` 필드). 고객은 메뉴 카드를 눌러 뜨는 담기 패널(`js/cartPanel.js`)과 메뉴 상세 페이지(`menus/detail.js`) 양쪽에서 옵션을 고르고 담을 수 있으며, 사이즈 선택에 따라 표시 가격이 실시간으로 바뀜. 같은 메뉴라도 옵션 조합이 다르면 장바구니에서 별도 줄로 담기도록 `js/utils.js`의 장바구니 함수들(`addToCart`/`updateCartQuantity`/`removeFromCart`)을 `menuId` 단독 기준에서 `getCartLineKey(menuId, temp, size)` 복합 키 기준으로 재설계(하위 호환: 옵션 없이 호출하면 기존과 동일하게 동작). 디저트 카테고리 메뉴를 음료(디저트가 아닌 다른 모든 카테고리) 메뉴와 같은 장바구니에 담으면 디저트 1개당 500원이 자동 할인되도록 `cartHasDrink`/`getEffectiveUnitPrice`/`DESSERT_DRINK_DISCOUNT`를 추가하고, 장바구니 화면(`basket/list.js`)에 할인 안내 문구와 총액 상단 할인액 표시를 추가. 주문 항목에는 선택된 옵션(`temp`/`size`)과 옵션·할인이 이미 반영된 최종 단가를 저장해 고객·관리자 주문 상세(`orders/detail.js`, `admin/orders/detail.js`)에서 "아이스 · 라지" 형태로 그대로 노출(`formatItemOptions`). 재주문(`orders/list.js`, `orders/detail.js`의 다시 담기)도 원래 주문에 저장된 옵션을 그대로 복원해서 담도록 수정. 유닛 테스트 3개 추가, Playwright로 어드민에서 옵션 등록 → 고객이 HOT·라지 선택 후 담기 → 디저트 추가 담기 → 장바구니에서 라지 추가금액과 디저트 할인이 정확한 금액으로 반영되는 전체 흐름을 실제 브라우저로 확인 완료.
+- [x] **관리자 카테고리 관리 신규 추가**
+- [x] **관리자 메뉴 등록/수정에 이미지 URL 입력 추가**
+- [x] **폼 검증 UX 개선**
+- [x] **README.md 작성**
+- [x] **품절 메뉴 재검증 버그 수정**
+- [x] **장바구니 담기 패널 — "전체 한번에 담기" 추가**
+- [x] **즐겨찾기 로직을 `js/utils.js`로 공용화**
+- [x] **마이페이지 — 즐겨찾기한 메뉴 섹션 추가**
+- [x] **마이페이지 — 취소된 주문 시각적 구분**
+- [x] **최근 본 메뉴 최대 개수 10개로 확대**
+- [x] **주문 요청사항 입력 추가**
+- [x] **주문 상태 진행 표시줄(스텝바) 추가**
+- [x] **메뉴 상세 — "함께 주문하면 좋은 메뉴" 추천**
+- [x] **장바구니 — 예상 준비 시간 안내**
+- [x] **최근 검색어**
+- [x] **검색 자동완성**
+- [x] **장바구니 담기 패널 — 미니 추천**
+- [x] **주문완료 상태에 예상 준비 시간 재노출**
+- [x] **공용 로직 정리**
+- [x] **즐겨찾기를 메뉴 목록/상세로 확대**
+- [x] **즐겨찾기 하트 팝 애니메이션**
+- [x] **히어로 배경 페이드 인/아웃**
+- [x] **관리자 — 오늘의 추천 메뉴 직접 지정**
+- [x] **준비 시간 실시간 카운트다운**
+- [x] **장바구니 패널 — 포커스 트랩**
+- [x] **주문 취소 시 사유 선택**
+- [x] **관리자가 주문 수락하면 고객 취소 불가 + 관리자 취소 옵션도 사라짐**
+- [x] **메뉴 목록/상세 페이지 카드 리디자인**
+- [x] **결제 완료 "감사합니다" 배너**
+- [x] **관리자 대시보드 — 오늘의 추천 현황 카드**
+- [x] **메뉴 필터/정렬/검색/즐겨찾기 상태 URL 쿼리 유지**
+- [x] **메뉴 이미지 lazy loading**
+- [x] **관리자 페이지를 고객 페이지와 같은 다크 테마로 통일**
+- [x] **핵심 함수 유닛 테스트 추가**
+- [x] **모바일 반응형 검증 (Playwright로 실제 렌더링 확인)**
+- [x] **관리자 메뉴 이미지 — URL 입력 대신 사진 업로드**
+- [x] **관리자 주문 관리 — 여러 건 한 번에 상태 변경**
+- [x] **메뉴 상세 페이지에 정작 메뉴 사진이 없던 버그 수정**
+- [x] **고객 페이지 CSS/JS 경로를 절대경로로 전환 (배포 버그 수정)**
+- [x] **관리자 공지사항(Notice) 관리 신규 추가**
+- [x] **홈 화면 메뉴 카드 호버 효과가 동작하지 않던 버그 수정**
+- [x] **히어로 슬라이드 — 켄번즈(서서히 확대) 효과 추가**
+- [x] **히어로 첫 이미지가 로드 시 페이드 없이 바로 나타나던 버그 수정**
+- [x] **접근성 — skip link 추가**
+- [x] **다크/라이트 테마 수동 토글 — 전 페이지 동작 재검증**
+- [x] **관리자 이벤트(Event) 관리 + 이벤트 전체보기 페이지 신규 추가**
+- [x] **`.html?쿼리` 링크가 `serve`에서 쿼리스트링째로 사라지는 배포 버그 수정 (근본 원인 발견)**
+- [x] **메뉴 옵션(온도/사이즈) + 디저트·음료 동시 주문 할인 기능**
 
 ### 추후 구현 (DB 연결 필요, 현재 localStorage 구조로는 보류)
 
