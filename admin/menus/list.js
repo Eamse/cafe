@@ -87,7 +87,7 @@ function renderList() {
       <label class="row-checkbox">
         <input type="checkbox" data-select-id="${menu.id}" ${selectedIds.has(menu.id) ? "checked" : ""} />
       </label>
-      <a class="row-main" href="detail?id=${menu.id}">
+      <a class="row-main" href="detail.html?id=${menu.id}">
         <div class="row-thumb" style="${menu.image ? `background-image: url('${escapeHtml(menu.image)}')` : ""}"></div>
         <div class="row-name">
           ${escapeHtml(menu.name)}
@@ -104,7 +104,7 @@ function renderList() {
         <button class="btn-soldout ${menu.isSoldOut ? "is-soldout" : ""}" data-action="toggle" data-id="${menu.id}">
           ${menu.isSoldOut ? "품절" : "판매중"}
         </button>
-        <a class="btn-edit" href="edit?id=${menu.id}">수정</a>
+        <a class="btn-edit" href="edit.html?id=${menu.id}">수정</a>
         <button class="btn-delete" data-action="delete" data-id="${menu.id}">삭제</button>
       </div>
     </div>

@@ -312,7 +312,7 @@ function renderSearchSuggestions(query) {
   container.innerHTML = matches
     .map(
       (menu) => `
-    <a class="search-suggestion-item" href="detail?id=${menu.id}">
+    <a class="search-suggestion-item" href="detail.html?id=${menu.id}">
       <span class="search-suggestion-name">${escapeHtml(menu.name)}</span>
       <span class="search-suggestion-price">${formatPrice(menu.price)}</span>
     </a>

@@ -103,7 +103,7 @@ function renderOrders() {
     .map(
       (order) => `
     <div class="order-card">
-      <a class="order-card-link" href="detail?id=${order.id}">
+      <a class="order-card-link" href="detail.html?id=${order.id}">
         <div class="order-date">${formatDate(order.createdAt)}</div>
         <div class="order-summary">${escapeHtml(order.items[0].name)}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
         <div class="order-status-cell">

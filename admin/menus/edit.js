@@ -123,7 +123,7 @@ function handleSubmit(event) {
     return;
   }
 
-  window.location.href = `detail?id=${menuId}`;
+  window.location.href = `detail.html?id=${menuId}`;
 }
 
 function init() {

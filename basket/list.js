@@ -203,7 +203,7 @@ function handleCheckout() {
   saveOrders(orders);
   saveLastRecipientInfo(recipient);
   clearCart();
-  window.location.href = `/orders/detail?id=${newOrderId}&new=1`;
+  window.location.href = `/orders/detail.html?id=${newOrderId}&new=1`;
 }
 
 document.getElementById("checkout-btn").addEventListener("click", handleCheckout);

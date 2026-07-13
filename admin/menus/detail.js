@@ -27,7 +27,7 @@ function renderDetail() {
       <div class="menu-status ${menu.isSoldOut ? "is-soldout" : ""}">${menu.isSoldOut ? "품절" : "판매중"}</div>
       <p class="menu-description">${escapeHtml(menu.description)}</p>
       <div class="detail-actions">
-        <a class="btn btn-primary" href="edit?id=${menu.id}">수정하기</a>
+        <a class="btn btn-primary" href="edit.html?id=${menu.id}">수정하기</a>
         <button class="btn btn-delete" id="delete-btn">삭제하기</button>
       </div>
     </div>

@@ -111,7 +111,7 @@ function menuCardHtml(menu, popularIds, favorites) {
         <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
         <div class="menu-card-footer">
           <span class="menu-price">${formatPrice(menu.price)}</span>
-          <a href="menus/detail?id=${menu.id}" class="menu-detail-link" aria-label="${escapeHtml(menu.name)} 상세보기">🔍</a>
+          <a href="menus/detail.html?id=${menu.id}" class="menu-detail-link" aria-label="${escapeHtml(menu.name)} 상세보기">🔍</a>
         </div>
       </div>
     </div>
@@ -351,7 +351,7 @@ function renderSearchSuggestions(query) {
   container.innerHTML = matches
     .map(
       (menu) => `
-    <a class="search-suggestion-item" href="menus/detail?id=${menu.id}">
+    <a class="search-suggestion-item" href="menus/detail.html?id=${menu.id}">
       <span class="search-suggestion-name">${escapeHtml(menu.name)}</span>
       <span class="search-suggestion-price">${formatPrice(menu.price)}</span>
     </a>

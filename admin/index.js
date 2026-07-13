@@ -46,7 +46,7 @@ function renderFeaturedMenus() {
   listEl.innerHTML = featured
     .map(
       (menu) => `
-    <a class="featured-menu-chip ${menu.isSoldOut ? "is-soldout" : ""}" href="menus/detail?id=${menu.id}">
+    <a class="featured-menu-chip ${menu.isSoldOut ? "is-soldout" : ""}" href="menus/detail.html?id=${menu.id}">
       ${escapeHtml(menu.name)}
       ${menu.isSoldOut ? `<span class="featured-menu-soldout">품절중</span>` : ""}
     </a>
@@ -67,7 +67,7 @@ function renderRecentOrders() {
   listEl.innerHTML = orders
     .map(
       (order) => `
-    <a class="recent-order-row" href="orders/detail?id=${order.id}">
+    <a class="recent-order-row" href="orders/detail.html?id=${order.id}">
       <div class="order-date">${formatDate(order.createdAt)}</div>
       <div class="order-summary">${escapeHtml(order.items[0].name)}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
       <div class="order-status">${order.status}</div>
