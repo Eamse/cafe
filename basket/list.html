@@ -100,6 +100,16 @@
     <button type="button" class="checkout-btn" id="checkout-btn">주문하기</button>
   </main>
 
+  <div class="min-order-modal-overlay" id="min-order-modal" hidden>
+    <div class="min-order-modal" role="dialog" aria-modal="true" aria-labelledby="min-order-modal-title">
+      <button type="button" class="min-order-modal-close" id="min-order-modal-close" aria-label="닫기">✕</button>
+      <p class="min-order-modal-icon">🚚</p>
+      <h3 id="min-order-modal-title">배달 최소 주문 금액은 15,000원이에요</h3>
+      <p class="min-order-modal-desc">메뉴를 조금 더 담아주시면 배달 주문이 가능해요.</p>
+      <a href="../menus/list.html" class="min-order-modal-btn">메뉴 추가하러 가기</a>
+    </div>
+  </div>
+
   <script type="module" src="../basket/list.js"></script>
 </body>
 </html>

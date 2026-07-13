@@ -79,12 +79,16 @@ document.getElementById("notice-form").addEventListener("submit", async (event) 
     return;
   }
 
+  const submitBtn = event.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+
   const id = generateId("notice");
   await createNotice({ id, message, date });
   noticesCache.push({ id, message, date });
 
   messageInput.value = "";
   dateInput.value = "";
+  submitBtn.disabled = false;
   render();
 });
 

@@ -105,11 +105,17 @@ document.getElementById("category-form").addEventListener("submit", async (event
     return;
   }
 
+  // 네트워크가 느릴 때 두 번 제출하면 카테고리가 중복 생성될 수 있어 잠근다.
+  const submitBtn = event.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+
   const id = generateId("cat");
   await createCategory({ id, name });
   categoriesCache.push({ id, name });
   input.value = "";
   render();
+
+  submitBtn.disabled = false;
 });
 
 async function init() {

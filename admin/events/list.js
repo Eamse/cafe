@@ -158,10 +158,14 @@ document.getElementById("event-form").addEventListener("submit", async (event) =
   const id = generateId("event");
   const newEvent = { id, title, date, endDate, description, image: imageDataUrl, isEnded: false };
 
+  const submitBtn = event.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+
   try {
     await createEvent(newEvent);
   } catch {
     showError("저장에 실패했어요. 다시 시도해주세요.");
+    submitBtn.disabled = false;
     return;
   }
 
@@ -171,6 +175,7 @@ document.getElementById("event-form").addEventListener("submit", async (event) =
   imageDataUrl = "";
   updateImagePreview();
   render();
+  submitBtn.disabled = false;
 });
 
 document.getElementById("event-image-file").addEventListener("change", handleImageFileChange);

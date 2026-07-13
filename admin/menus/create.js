@@ -101,10 +101,14 @@ async function handleSubmit(event) {
     return;
   }
 
+  const submitBtn = event.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+
   try {
     await createMenu(newMenu);
   } catch {
     showError("저장에 실패했어요. 다시 시도해주세요.");
+    submitBtn.disabled = false;
     return;
   }
 

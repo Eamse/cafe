@@ -142,6 +142,22 @@ function showRecipientError(message) {
   warningEl.textContent = message;
 }
 
+function showMinOrderModal() {
+  document.getElementById("min-order-modal").hidden = false;
+}
+
+function hideMinOrderModal() {
+  document.getElementById("min-order-modal").hidden = true;
+}
+
+document.getElementById("min-order-modal-close").addEventListener("click", hideMinOrderModal);
+document.getElementById("min-order-modal").addEventListener("click", (event) => {
+  if (event.target.id === "min-order-modal") hideMinOrderModal();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") hideMinOrderModal();
+});
+
 function getSelectedDeliveryType() {
   return document.querySelector('input[name="deliveryType"]:checked').value;
 }
@@ -226,7 +242,7 @@ async function handleCheckout() {
   const missingAddress = deliveryType === "delivery" && !recipient.address;
 
   if (deliveryType === "delivery" && total < MIN_DELIVERY_ORDER) {
-    showRecipientError(`최소 주문은 ${formatPrice(MIN_DELIVERY_ORDER)}입니다`);
+    showMinOrderModal();
     checkoutBtn.disabled = false;
     return;
   }

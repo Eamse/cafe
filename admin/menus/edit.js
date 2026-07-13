@@ -126,10 +126,14 @@ async function handleSubmit(event) {
     sizeUpcharge: hasSizeOption ? Number(document.getElementById("sizeUpcharge").value) || 0 : 0,
   };
 
+  const submitBtn = event.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+
   try {
     await updateMenu(menuId, patch);
   } catch {
     showError("저장에 실패했어요. 다시 시도해주세요.");
+    submitBtn.disabled = false;
     return;
   }
 
