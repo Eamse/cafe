@@ -124,7 +124,7 @@ body {
 }
 
 .orders-page {
-  max-width: 640px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-md);
 }
@@ -192,20 +192,16 @@ body {
 }
 
 .orders-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: var(--spacing-md);
+  align-items: start;
 }
 
 .order-card {
-  display: grid;
-  grid-template-columns: 1fr 2fr auto auto auto;
-  align-items: center;
-  gap: var(--spacing-md);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
   padding: var(--spacing-md) var(--spacing-lg);
   transition: var(--transition-base);
 }
@@ -215,7 +211,17 @@ body {
 }
 
 .order-card-link {
-  display: contents;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  color: inherit;
+}
+
+.order-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
 }
 
 .btn-reorder {
@@ -254,15 +260,15 @@ body {
   white-space: nowrap;
 }
 
-.order-status-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
 .order-status {
   font-size: var(--font-size-xs);
+  font-weight: 700;
   color: var(--color-success);
+  white-space: nowrap;
+}
+
+.order-status.is-cancelled {
+  color: var(--color-danger);
 }
 
 .order-pickup-hint {
@@ -284,8 +290,7 @@ body {
 }
 
 @media (max-width: 600px) {
-  .order-card {
+  .orders-list {
     grid-template-columns: 1fr;
-    text-align: left;
   }
 }

@@ -99,23 +99,23 @@ function renderOrders(menus) {
   listEl.innerHTML = orders
     .map(
       (order) => `
-    <div class="order-card">
+    <div class="order-card glass-card">
       <a class="order-card-link" href="detail.html?id=${order.id}">
-        <div class="order-date">${formatDate(order.createdAt)}</div>
+        <div class="order-card-top">
+          <span class="order-date">${formatDate(order.createdAt)}</span>
+          <span class="order-status ${order.status === "취소" ? "is-cancelled" : ""}">${order.status}</span>
+        </div>
         <div class="order-summary">${escapeHtml(order.items[0].name)}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
         ${
           order.barcodeNumber && order.status !== "취소"
             ? `<div class="order-barcode-badge">🎫 픽업 바코드 확인 →</div>`
             : ""
         }
-        <div class="order-status-cell">
-          <div class="order-status">${order.status}</div>
-          ${
-            order.status === "주문완료"
-              ? `<div class="order-pickup-hint">${estimatePickupMinutes(order.items.reduce((sum, item) => sum + item.quantity, 0))}</div>`
-              : ""
-          }
-        </div>
+        ${
+          order.status === "주문완료"
+            ? `<div class="order-pickup-hint">${estimatePickupMinutes(order.items.reduce((sum, item) => sum + item.quantity, 0))}</div>`
+            : ""
+        }
         <div class="order-total">${formatPrice(order.total)}</div>
       </a>
       ${
