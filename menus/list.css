@@ -57,7 +57,7 @@ body {
 }
 
 .menu-header h1 {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xl);
   color: var(--color-cream-100);
 }
 
@@ -65,7 +65,7 @@ body {
   display: flex;
   align-items: center;
   gap: var(--spacing-lg);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;

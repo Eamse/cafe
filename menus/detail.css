@@ -57,7 +57,7 @@ body {
 }
 
 .menu-header h1 {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xl);
   color: var(--color-cream-100);
 }
 
