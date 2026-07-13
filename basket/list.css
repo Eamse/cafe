@@ -210,6 +210,10 @@ body {
   margin-bottom: var(--spacing-md);
 }
 
+.delivery-type-fields[hidden] {
+  display: none;
+}
+
 .delivery-type-fields legend {
   padding: 0 var(--spacing-xs);
   font-size: var(--font-size-sm);
