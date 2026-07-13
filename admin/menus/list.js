@@ -22,7 +22,7 @@ function renderTabs() {
     .map(
       (tab) => `
     <button class="tab-btn ${tab.id === activeCategory ? "active" : ""}" data-category="${tab.id}">
-      ${tab.name}
+      ${escapeHtml(tab.name)}
     </button>
   `
     )

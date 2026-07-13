@@ -1,7 +1,7 @@
 import { initAdminGuard } from "../../js/auth.js";
 initAdminGuard();
 import { getCategories, getMenus, saveMenus } from "../../js/data.js";
-import { readImageFileAsDataUrl } from "../../js/utils.js";
+import { readImageFileAsDataUrl, escapeHtml } from "../../js/utils.js";
 
 const params = new URLSearchParams(window.location.search);
 const menuId = Number(params.get("id"));
@@ -10,7 +10,7 @@ let imageDataUrl = "";
 
 function renderCategoryOptions() {
   const select = document.getElementById("categoryId");
-  select.innerHTML = getCategories().map((c) => `<option value="${c.id}">${c.name}</option>`).join("");
+  select.innerHTML = getCategories().map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
 }
 
 function fillForm(menu) {

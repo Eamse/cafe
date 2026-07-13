@@ -84,7 +84,7 @@ function render() {
       const ended = isEventEnded(event);
       return `
     <div class="event-row-admin ${ended ? "is-ended" : ""}" data-id="${event.id}">
-      <div class="event-thumb-admin" style="${event.image ? `background-image: url('${event.image}')` : ""}">
+      <div class="event-thumb-admin" style="${event.image ? `background-image: url('${escapeHtml(event.image)}')` : ""}">
         ${ended ? `<span class="ended-watermark">종료된 이벤트입니다</span>` : ""}
       </div>
       <div class="event-info-admin">

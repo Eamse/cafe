@@ -27,7 +27,7 @@ function render() {
         <h3>${escapeHtml(event.title)}${ended ? `<span class="event-ended-tag">종료된 이벤트입니다</span>` : ""}</h3>
         <p>${escapeHtml(event.description)}</p>
       </div>
-      <div class="event-thumb" style="${event.image ? `background-image: url('${event.image}')` : ""}">
+      <div class="event-thumb" style="${event.image ? `background-image: url('${escapeHtml(event.image)}')` : ""}">
         ${ended ? `<span class="event-ended-watermark">종료된 이벤트입니다</span>` : ""}
       </div>
     </li>

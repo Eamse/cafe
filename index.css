@@ -4,7 +4,7 @@
    ========================================================================== */
 
 :root,
-:root[data-theme="dark"] {
+:root[data-theme='dark'] {
   --color-bg: #150e0a;
   --color-surface: #241a13;
   --color-text: #f3e9dc;
@@ -18,7 +18,7 @@
   --dot-color: rgba(243, 233, 220, 0.07);
 }
 
-:root[data-theme="light"] {
+:root[data-theme='light'] {
   --color-bg: #fdfaf6;
   --color-surface: #ffffff;
   --color-text: #3a2a20;
@@ -983,7 +983,7 @@ body {
 
 .home-featured {
   position: relative;
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: var(--spacing-lg) var(--spacing-md) 0;
   overflow: hidden;
