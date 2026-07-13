@@ -185,6 +185,7 @@ export async function openCartPanel(menu, categoryName, basketHref = "basket/lis
   const itemEl = document.createElement("div");
   itemEl.className = `cart-panel-content cat-${menu.categoryId}`;
   itemEl.innerHTML = `
+    <button type="button" class="cart-panel-remove-btn" aria-label="${escapeHtml(menu.name)} 칸 닫기" title="이 칸 닫기">✕</button>
     ${menu.image ? `<div class="cart-panel-image" style="background-image: url('${escapeHtml(menu.image)}')"></div>` : ""}
     <div class="cart-panel-category">${escapeHtml(categoryName)}</div>
     <h2 class="cart-panel-name">${escapeHtml(menu.name)}</h2>
@@ -206,6 +207,10 @@ export async function openCartPanel(menu, categoryName, basketHref = "basket/lis
     }
   `;
   bodyEl.prepend(itemEl);
+
+  itemEl.querySelector(".cart-panel-remove-btn").addEventListener("click", () => {
+    itemEl.remove();
+  });
 
   if (!menu.isSoldOut) {
     const qtyValueEl = itemEl.querySelector(".qty-value");
