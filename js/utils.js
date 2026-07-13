@@ -432,17 +432,20 @@ export function initThemeToggle(buttonId = "theme-toggle-btn") {
   const btn = document.getElementById(buttonId);
   if (!btn) return;
 
-  const updateLabel = (theme) => {
-    btn.textContent = theme === "dark" ? "☀️" : "🌙";
+  btn.setAttribute("role", "switch");
+
+  const updateState = (theme) => {
+    btn.classList.toggle("is-dark", theme === "dark");
+    btn.setAttribute("aria-checked", theme === "dark" ? "true" : "false");
     btn.setAttribute("aria-label", theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환");
   };
 
-  updateLabel(getTheme());
+  updateState(getTheme());
 
   btn.addEventListener("click", () => {
     const next = getTheme() === "dark" ? "light" : "dark";
     applyTheme(next);
-    updateLabel(next);
+    updateState(next);
   });
 }
 
