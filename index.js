@@ -1,4 +1,4 @@
-import { getMenus, getCategories, getFeaturedMenuIds, getNotices, getActiveNoticeIds, getEvents } from "./js/data.js";
+import { getMenus, getCategories, getFeaturedMenuIds, getNotices, getActiveNoticeIds, getEvents, isEventEnded } from "./js/data.js";
 import { renderAuthNav } from "./js/auth.js";
 import {
   formatPrice,
@@ -516,18 +516,19 @@ function renderHomeEvents() {
   listEl.innerHTML = events
     .map((event) => {
       const [year, month, day] = event.date.split("-");
+      const ended = isEventEnded(event);
       return `
-    <li class="event-row ${event.isEnded ? "is-ended" : ""}">
+    <li class="event-row ${ended ? "is-ended" : ""}">
       <div class="event-date">
         <span class="event-day">${day}</span>
         <span class="event-month">${year}.${month}</span>
       </div>
       <div class="event-info">
-        <h3>${escapeHtml(event.title)}${event.isEnded ? `<span class="event-ended-tag">종료된 이벤트입니다</span>` : ""}</h3>
+        <h3>${escapeHtml(event.title)}${ended ? `<span class="event-ended-tag">종료된 이벤트입니다</span>` : ""}</h3>
         <p>${escapeHtml(event.description)}</p>
       </div>
       <div class="event-thumb" style="${event.image ? `background-image: url('${event.image}')` : ""}">
-        ${event.isEnded ? `<span class="event-ended-watermark">종료된 이벤트입니다</span>` : ""}
+        ${ended ? `<span class="event-ended-watermark">종료된 이벤트입니다</span>` : ""}
       </div>
     </li>
   `;

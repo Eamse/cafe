@@ -55,6 +55,7 @@ async function handleImageFileChange(event) {
   }
 
   clearError();
+  document.getElementById("image-url").value = "";
   try {
     imageDataUrl = await readImageFileAsDataUrl(file);
   } catch {
@@ -64,9 +65,16 @@ async function handleImageFileChange(event) {
   updateImagePreview();
 }
 
+function handleImageUrlInput(event) {
+  document.getElementById("image-file").value = "";
+  imageDataUrl = event.target.value.trim();
+  updateImagePreview();
+}
+
 function handleRemoveImage() {
   imageDataUrl = "";
   document.getElementById("image-file").value = "";
+  document.getElementById("image-url").value = "";
   updateImagePreview();
 }
 
@@ -118,6 +126,7 @@ renderCategoryOptions();
 updateImagePreview();
 updateSizeUpchargeVisibility();
 document.getElementById("image-file").addEventListener("change", handleImageFileChange);
+document.getElementById("image-url").addEventListener("input", handleImageUrlInput);
 document.getElementById("image-remove-btn").addEventListener("click", handleRemoveImage);
 document.getElementById("hasSizeOption").addEventListener("change", updateSizeUpchargeVisibility);
 document.getElementById("menu-form").addEventListener("submit", handleSubmit);

@@ -254,6 +254,7 @@ cafe-app
 | `MAX_ACTIVE_NOTICES`             | `3`                                                                                                                          | 노출 가능한 공지 최대 개수 상수                                                                                       |
 | `getEvents()` / `saveEvents(list)` | → `{ id, title, description, date, image, isEnded }[]` / 저장                                                              | **이벤트 단일 소스** (2026-07-11 추가). `admin/events/list.js`가 등록/종료 처리, 홈(`index.js`)·`events/list.js`가 읽음 |
 | `getEventById(eventId)`          | → event 객체 \| null                                                                                                        | 내부적으로 `getEvents()` 사용                                                                                        |
+| `isEventEnded(event)`            | → `boolean`                                                                                                                  | `event.isEnded`(수동 종료) 또는 `event.endDate`(종료 예정일)가 오늘 이전이면 true. 이벤트를 표시하는 모든 곳(관리자 목록/홈/이벤트 전체보기)이 `event.isEnded`를 직접 읽지 않고 반드시 이 함수를 거침 (2026-07-13 추가) |
 
 ### `js/utils.js` (export)
 
@@ -319,7 +320,7 @@ cafe-app
 | `cafe_featured_menus` | `number[]` (menu id)                                                                                               | `js/data.js`의 `getFeaturedMenuIds`/`saveFeaturedMenuIds`/`toggleFeaturedMenu`가 관리 (2026-07-11 추가) |
 | `cafe_notices` | `{ id: string, message: string, date: string }[]`                                                                  | `js/data.js`의 `getNotices`/`saveNotices`가 관리 (2026-07-11 추가) |
 | `cafe_active_notice_ids` | `string[]` (notice id, 최대 3개)                                                                                | `js/data.js`의 `getActiveNoticeIds`/`saveActiveNoticeIds`/`toggleActiveNotice`가 관리 (2026-07-11 추가) |
-| `cafe_events` | `{ id: string, title: string, description: string, date: string, image: string, isEnded: boolean }[]`                | `js/data.js`의 `getEvents`/`saveEvents`가 관리 (2026-07-11 추가) |
+| `cafe_events` | `{ id: string, title: string, description: string, date: string, endDate?: string, image: string, isEnded: boolean }[]` | `js/data.js`의 `getEvents`/`saveEvents`가 관리 (2026-07-11 추가, `endDate`는 2026-07-13 추가 — 종료 예정일, 표시 여부는 `isEventEnded()`로 판단) |
 | `cafe_customers` | `{ id: string, name: string, email: string, password: string, phone: string, createdAt: string }[]` | `js/auth.js`의 `signupCustomer`가 관리 (2026-07-13 추가) |
 | `cafe_customer_session` | `string` (customer id) | `js/auth.js`의 로그인 세션 |
 | `cafe_admin_accounts` | `{ id: string, email: string, password: string, name: string }[]` | `js/auth.js`가 관리, 최초 접근 시 기본 계정 1개 자동 시드 (2026-07-13 추가) |
@@ -396,6 +397,8 @@ cafe-app
 - [x] **메뉴 옵션(온도/사이즈) + 디저트·음료 동시 주문 할인 기능**
 - [x] **테마 토글 버튼을 슬라이딩 스위치 디자인으로 교체**
 - [x] **고객 회원가입/로그인 + 어드민 로그인(분리) — localStorage 기반 임시 인증, 추후 Supabase Auth로 교체 예정**
+- [x] **관리자 메뉴/이벤트 이미지 등록 — 파일 업로드 + URL 둘 다 지원**
+- [x] **이벤트 관리 — 종료 예약 날짜(endDate) 설정, 지나면 자동으로 종료 처리**
 
 ### 추후 구현 (DB 연결 필요, 현재 localStorage 구조로는 보류)
 

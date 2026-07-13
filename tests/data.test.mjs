@@ -15,6 +15,7 @@ import {
   getFeaturedMenuIds,
   saveFeaturedMenuIds,
   toggleFeaturedMenu,
+  isEventEnded,
 } from "../js/data.js";
 
 beforeEach(() => {
@@ -73,4 +74,15 @@ test("오늘의 추천: 토글로 추가/해제", () => {
 test("saveFeaturedMenuIds로 직접 저장도 가능하다", () => {
   saveFeaturedMenuIds([3, 4]);
   assert.deepEqual(getFeaturedMenuIds(), [3, 4]);
+});
+
+test("isEventEnded: 수동 종료 또는 종료 예정일 경과 여부로 판단한다", () => {
+  assert.equal(isEventEnded({ isEnded: false, endDate: null }), false);
+  assert.equal(isEventEnded({ isEnded: true, endDate: null }), true);
+
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+
+  assert.equal(isEventEnded({ isEnded: false, endDate: yesterday }), true);
+  assert.equal(isEventEnded({ isEnded: false, endDate: tomorrow }), false);
 });

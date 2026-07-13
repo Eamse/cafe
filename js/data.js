@@ -306,3 +306,12 @@ export function saveEvents(list) {
 export function getEventById(eventId) {
   return getEvents().find((event) => event.id === eventId) || null;
 }
+
+// 관리자가 수동으로 "종료됨"을 켰거나, 종료 예정일(endDate)이 이미 지났으면
+// 종료된 것으로 취급한다. 화면에 표시할 때는 항상 이 함수를 거쳐야 한다.
+export function isEventEnded(event) {
+  if (event.isEnded) return true;
+  if (!event.endDate) return false;
+  const today = new Date().toISOString().slice(0, 10);
+  return event.endDate <= today;
+}
