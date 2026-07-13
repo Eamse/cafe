@@ -280,6 +280,10 @@ body {
   resize: vertical;
 }
 
+.pickup-estimate[hidden] {
+  display: none;
+}
+
 .pickup-estimate {
   display: inline-block;
   margin-bottom: var(--spacing-md);

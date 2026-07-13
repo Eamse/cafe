@@ -109,10 +109,19 @@ function updateBulkBar(basketHref) {
   bulkBarEl.querySelector(".cart-panel-bulk-btn").dataset.basketHref = basketHref;
 }
 
-function markAsAdded({ itemEl, addBtn }) {
+// 옵션(온도/사이즈)이 있는 메뉴는 아이스 1개 담고 나서 핫으로 바꿔 또 담는 식으로
+// 같은 패널에서 여러 조합을 계속 담을 수 있어야 해서, 담은 뒤에도 버튼을 영구히
+// 잠그지 않고 잠깐 체크 표시만 보여준 뒤 다시 누를 수 있게 되돌린다.
+function markAsAdded({ addBtn }) {
+  const originalLabel = addBtn.dataset.originalLabel || addBtn.textContent;
+  addBtn.dataset.originalLabel = originalLabel;
   addBtn.textContent = "담았습니다 ✓";
   addBtn.disabled = true;
-  itemEl.querySelector(".cart-panel-qty")?.classList.add("is-locked");
+  clearTimeout(addBtn._resetTimer);
+  addBtn._resetTimer = setTimeout(() => {
+    addBtn.textContent = originalLabel;
+    addBtn.disabled = false;
+  }, 900);
 }
 
 function addAllPending(basketHrefOverride) {
@@ -269,6 +278,14 @@ export function openCartPanel(menu, categoryName, basketHref = "basket/list.html
             btn.classList.add("is-selected");
             entry[optionKey] = btn.dataset.value;
             updatePriceDisplay();
+
+            // 옵션을 바꿨다는 건 다른 조합을 새로 담고 싶다는 뜻이니, 방금 담아서
+            // 잠깐 잠겨있던 버튼이면 기다리지 않고 바로 다시 누를 수 있게 한다.
+            if (entry.addBtn.disabled) {
+              clearTimeout(entry.addBtn._resetTimer);
+              entry.addBtn.textContent = entry.addBtn.dataset.originalLabel || "장바구니 담기";
+              entry.addBtn.disabled = false;
+            }
           });
         });
       });

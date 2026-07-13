@@ -156,6 +156,10 @@ body {
   border-bottom-color: var(--color-accent);
 }
 
+.my-tab-panel[hidden] {
+  display: none;
+}
+
 .my-tab-panel {
   display: flex;
   flex-direction: column;
@@ -348,6 +352,10 @@ body {
 .profile-name-edit-btn:hover {
   color: var(--color-accent);
   border-color: var(--color-accent);
+}
+
+.profile-name-form[hidden] {
+  display: none;
 }
 
 .profile-name-form {

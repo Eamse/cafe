@@ -448,6 +448,10 @@ body {
 
 /* ---------- 공지 바 ---------- */
 
+.notice-bar[hidden] {
+  display: none;
+}
+
 .notice-bar {
   display: flex;
   align-items: stretch;
@@ -936,6 +940,10 @@ body {
 
 /* ---------- 최근 본 메뉴 (좌측 사이드바) ---------- */
 
+.viewed-sidebar[hidden] {
+  display: none;
+}
+
 .viewed-sidebar {
   position: fixed;
   top: 520px;
@@ -1178,6 +1186,10 @@ body {
   padding: var(--spacing-xl) var(--spacing-md);
   border-radius: var(--radius-lg, 16px);
   box-shadow: var(--shadow-md);
+}
+
+.recent-searches[hidden] {
+  display: none;
 }
 
 .recent-searches {

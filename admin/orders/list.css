@@ -85,6 +85,10 @@
   color: var(--color-text-muted);
 }
 
+.bulk-action-bar[hidden] {
+  display: none;
+}
+
 .bulk-action-bar {
   display: flex;
   align-items: center;

@@ -300,6 +300,10 @@ body {
   font-size: var(--font-size-sm);
 }
 
+.recent-searches[hidden] {
+  display: none;
+}
+
 .recent-searches {
   display: flex;
   align-items: center;

@@ -155,6 +155,7 @@ function renderRecentlyViewedWidget() {
 
   if (viewedIds.length === 0) {
     section.hidden = true;
+    row.innerHTML = "";
     return;
   }
 
@@ -163,6 +164,7 @@ function renderRecentlyViewedWidget() {
 
   if (items.length === 0) {
     section.hidden = true;
+    row.innerHTML = "";
     return;
   }
 
