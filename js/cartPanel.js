@@ -55,21 +55,15 @@ function renderOptionPickerHtml(menu) {
 let overlayEl;
 let bodyEl;
 let summaryEl;
-let bulkBarEl;
 let escHandler;
 let trapHandler;
 let lastFocusedEl;
-const renderedMenuIds = new Set();
 
 function getFocusableEls() {
   return Array.from(
     overlayEl.querySelectorAll('button:not([disabled]), a[href], input, [tabindex]:not([tabindex="-1"])')
   ).filter((el) => el.offsetParent !== null);
 }
-
-// menuId -> { quantity, itemEl, addBtn, qtyValueEl } — 아직 "장바구니 담기"를
-// 누르지 않은, 패널에 떠 있는 항목들. "전체 담기"가 이 목록을 한 번에 처리한다.
-const pendingItems = new Map();
 
 function ensurePanel() {
   if (overlayEl) return;
@@ -79,11 +73,7 @@ function ensurePanel() {
   overlayEl.innerHTML = `
     <aside class="cart-panel" role="dialog" aria-modal="true" aria-label="메뉴 담기">
       <button type="button" class="cart-panel-close" aria-label="닫기">✕</button>
-      <p class="cart-panel-hint">다른 메뉴도 계속 눌러서 담을 수 있어요.</p>
-      <div class="cart-panel-bulk-bar" hidden>
-        <span class="cart-panel-bulk-count"></span>
-        <button type="button" class="cart-panel-bulk-btn">전체 한번에 담기</button>
-      </div>
+      <p class="cart-panel-hint">같은 메뉴도 다시 누르면 새 칸이 열려서, 온도/사이즈를 다르게 골라 따로따로 담을 수 있어요.</p>
       <div class="cart-panel-body"></div>
       <div class="cart-panel-summary"></div>
     </aside>
@@ -92,27 +82,14 @@ function ensurePanel() {
 
   bodyEl = overlayEl.querySelector(".cart-panel-body");
   summaryEl = overlayEl.querySelector(".cart-panel-summary");
-  bulkBarEl = overlayEl.querySelector(".cart-panel-bulk-bar");
 
   overlayEl.querySelector(".cart-panel-close").addEventListener("click", closeCartPanel);
-  overlayEl.querySelector(".cart-panel-bulk-btn").addEventListener("click", () => addAllPending());
-}
-
-function updateBulkBar(basketHref) {
-  const count = pendingItems.size;
-  if (count === 0) {
-    bulkBarEl.hidden = true;
-    return;
-  }
-  bulkBarEl.hidden = false;
-  bulkBarEl.querySelector(".cart-panel-bulk-count").textContent = `담을 메뉴 ${count}개`;
-  bulkBarEl.querySelector(".cart-panel-bulk-btn").dataset.basketHref = basketHref;
 }
 
 // 옵션(온도/사이즈)이 있는 메뉴는 아이스 1개 담고 나서 핫으로 바꿔 또 담는 식으로
 // 같은 패널에서 여러 조합을 계속 담을 수 있어야 해서, 담은 뒤에도 버튼을 영구히
 // 잠그지 않고 잠깐 체크 표시만 보여준 뒤 다시 누를 수 있게 되돌린다.
-function markAsAdded({ addBtn }) {
+function markAsAdded(addBtn) {
   const originalLabel = addBtn.dataset.originalLabel || addBtn.textContent;
   addBtn.dataset.originalLabel = originalLabel;
   addBtn.textContent = "담았습니다 ✓";
@@ -122,25 +99,6 @@ function markAsAdded({ addBtn }) {
     addBtn.textContent = originalLabel;
     addBtn.disabled = false;
   }, 900);
-}
-
-async function addAllPending(basketHrefOverride) {
-  if (pendingItems.size === 0) return;
-
-  const basketHref =
-    basketHrefOverride || bulkBarEl.querySelector(".cart-panel-bulk-btn").dataset.basketHref || "basket/list.html";
-
-  const count = pendingItems.size;
-  pendingItems.forEach((entry, menuId) => {
-    addToCart(menuId, entry.quantity, { temp: entry.temp, size: entry.size });
-    markAsAdded(entry);
-  });
-  pendingItems.clear();
-
-  window.dispatchEvent(new CustomEvent("cart:updated"));
-  updateBulkBar(basketHref);
-  await renderSummary(basketHref);
-  showToast(`${count}개 메뉴를 장바구니에 담았습니다`);
 }
 
 function renderRecommendationHtml(menu, allMenus) {
@@ -203,7 +161,7 @@ async function renderSummary(basketHref) {
     <div class="cart-panel-summary-title">지금까지 담은 메뉴 (${cart.length})</div>
     <ul class="cart-panel-summary-list">${rows}</ul>
     <div class="cart-panel-summary-total">총 금액 ${formatPrice(total)}</div>
-    <a class="cart-panel-summary-link" href="${basketHref}">장바구니 보기 →</a>
+    <a class="cart-panel-summary-link cart-panel-order-btn" href="${basketHref}">주문하기 →</a>
   `;
 }
 
@@ -214,121 +172,110 @@ export function closeCartPanel() {
   document.removeEventListener("keydown", escHandler);
   document.removeEventListener("keydown", trapHandler);
   bodyEl.innerHTML = "";
-  renderedMenuIds.clear();
-  pendingItems.clear();
-  bulkBarEl.hidden = true;
   if (lastFocusedEl) lastFocusedEl.focus();
 }
 
+// 메뉴를 누를 때마다(같은 메뉴라도) 새 칸을 하나씩 추가한다 — 온도/사이즈가
+// 있는 메뉴는 "나는 아이스, 친구는 핫"처럼 같은 메뉴를 다른 옵션으로 여러 번
+// 담아야 하는 경우가 흔해서, 한 칸을 재사용하면 옵션을 헷갈리기 쉽다.
 export async function openCartPanel(menu, categoryName, basketHref = "basket/list.html") {
   ensurePanel();
 
-  if (!renderedMenuIds.has(menu.id)) {
-    renderedMenuIds.add(menu.id);
-
-    const allMenus = await getMenus();
-    const itemEl = document.createElement("div");
-    itemEl.className = `cart-panel-content cat-${menu.categoryId}`;
-    itemEl.innerHTML = `
-      ${menu.image ? `<div class="cart-panel-image" style="background-image: url('${escapeHtml(menu.image)}')"></div>` : ""}
-      <div class="cart-panel-category">${escapeHtml(categoryName)}</div>
-      <h2 class="cart-panel-name">${escapeHtml(menu.name)}</h2>
-      <div class="cart-panel-price">${formatPrice(menu.price)}</div>
-      <p class="cart-panel-description">${escapeHtml(menu.description)}</p>
-      ${
-        menu.isSoldOut
-          ? `<div class="cart-panel-sold-out">품절된 메뉴입니다</div>`
-          : `
-      ${renderOptionPickerHtml(menu)}
-      <div class="cart-panel-qty">
-        <button type="button" class="qty-decrease" aria-label="수량 감소">-</button>
-        <span class="qty-value">1</span>
-        <button type="button" class="qty-increase" aria-label="수량 증가">+</button>
-      </div>
-      <button type="button" class="cart-panel-add-btn">장바구니 담기</button>
-      ${renderRecommendationHtml(menu, allMenus)}
-      `
-      }
-    `;
-    bodyEl.prepend(itemEl);
-
-    if (!menu.isSoldOut) {
-      const qtyValueEl = itemEl.querySelector(".qty-value");
-      const priceEl = itemEl.querySelector(".cart-panel-price");
-      const addBtn = itemEl.querySelector(".cart-panel-add-btn");
-      const entry = {
-        quantity: 1,
-        itemEl,
-        addBtn,
-        qtyValueEl,
-        temp: menu.hasTempOption ? "ICE" : null,
-        size: menu.hasSizeOption ? "REGULAR" : null,
-      };
-      pendingItems.set(menu.id, entry);
-
-      const updatePriceDisplay = () => {
-        priceEl.textContent = formatPrice(getMenuUnitPrice(menu, entry));
-      };
-
-      itemEl.querySelectorAll(".cart-panel-option-group").forEach((group) => {
-        const optionKey = group.dataset.option;
-        group.querySelectorAll(".cart-panel-option-btn").forEach((btn) => {
-          btn.addEventListener("click", () => {
-            group.querySelectorAll(".cart-panel-option-btn").forEach((b) => b.classList.remove("is-selected"));
-            btn.classList.add("is-selected");
-            entry[optionKey] = btn.dataset.value;
-            updatePriceDisplay();
-
-            // 옵션을 바꿨다는 건 다른 조합을 새로 담고 싶다는 뜻이니, 방금 담아서
-            // 잠깐 잠겨있던 버튼이면 기다리지 않고 바로 다시 누를 수 있게 한다.
-            if (entry.addBtn.disabled) {
-              clearTimeout(entry.addBtn._resetTimer);
-              entry.addBtn.textContent = entry.addBtn.dataset.originalLabel || "장바구니 담기";
-              entry.addBtn.disabled = false;
-            }
-          });
-        });
-      });
-
-      itemEl.querySelector(".qty-decrease").addEventListener("click", () => {
-        entry.quantity = Math.max(1, entry.quantity - 1);
-        qtyValueEl.textContent = entry.quantity;
-      });
-
-      itemEl.querySelector(".qty-increase").addEventListener("click", () => {
-        entry.quantity += 1;
-        qtyValueEl.textContent = entry.quantity;
-      });
-
-      addBtn.addEventListener("click", async () => {
-        addToCart(menu.id, entry.quantity, { temp: entry.temp, size: entry.size });
-        pendingItems.delete(menu.id);
-        markAsAdded(entry);
-        window.dispatchEvent(new CustomEvent("cart:updated"));
-        updateBulkBar(basketHref);
-        await renderSummary(basketHref);
-        showToast(`${menu.name} 담았습니다`);
-      });
-
-      itemEl.querySelectorAll(".cart-panel-recommend-add").forEach((recBtn) => {
-        recBtn.addEventListener("click", async () => {
-          const recMenu = allMenus.find((m) => m.id === Number(recBtn.dataset.menuId));
-          const recOptions = {
-            temp: recMenu?.hasTempOption ? "ICE" : null,
-            size: recMenu?.hasSizeOption ? "REGULAR" : null,
-          };
-          addToCart(Number(recBtn.dataset.menuId), 1, recOptions);
-          recBtn.textContent = "담음 ✓";
-          recBtn.disabled = true;
-          showToast("장바구니에 담았습니다");
-          window.dispatchEvent(new CustomEvent("cart:updated"));
-          await renderSummary(basketHref);
-        });
-      });
+  const allMenus = await getMenus();
+  const itemEl = document.createElement("div");
+  itemEl.className = `cart-panel-content cat-${menu.categoryId}`;
+  itemEl.innerHTML = `
+    ${menu.image ? `<div class="cart-panel-image" style="background-image: url('${escapeHtml(menu.image)}')"></div>` : ""}
+    <div class="cart-panel-category">${escapeHtml(categoryName)}</div>
+    <h2 class="cart-panel-name">${escapeHtml(menu.name)}</h2>
+    <div class="cart-panel-price">${formatPrice(menu.price)}</div>
+    <p class="cart-panel-description">${escapeHtml(menu.description)}</p>
+    ${
+      menu.isSoldOut
+        ? `<div class="cart-panel-sold-out">품절된 메뉴입니다</div>`
+        : `
+    ${renderOptionPickerHtml(menu)}
+    <div class="cart-panel-qty">
+      <button type="button" class="qty-decrease" aria-label="수량 감소">-</button>
+      <span class="qty-value">1</span>
+      <button type="button" class="qty-increase" aria-label="수량 증가">+</button>
+    </div>
+    <button type="button" class="cart-panel-add-btn">장바구니 담기</button>
+    ${renderRecommendationHtml(menu, allMenus)}
+    `
     }
+  `;
+  bodyEl.prepend(itemEl);
+
+  if (!menu.isSoldOut) {
+    const qtyValueEl = itemEl.querySelector(".qty-value");
+    const priceEl = itemEl.querySelector(".cart-panel-price");
+    const addBtn = itemEl.querySelector(".cart-panel-add-btn");
+    const entry = {
+      quantity: 1,
+      temp: menu.hasTempOption ? "ICE" : null,
+      size: menu.hasSizeOption ? "REGULAR" : null,
+    };
+
+    const updatePriceDisplay = () => {
+      priceEl.textContent = formatPrice(getMenuUnitPrice(menu, entry));
+    };
+
+    itemEl.querySelectorAll(".cart-panel-option-group").forEach((group) => {
+      const optionKey = group.dataset.option;
+      group.querySelectorAll(".cart-panel-option-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          group.querySelectorAll(".cart-panel-option-btn").forEach((b) => b.classList.remove("is-selected"));
+          btn.classList.add("is-selected");
+          entry[optionKey] = btn.dataset.value;
+          updatePriceDisplay();
+
+          // 옵션을 바꿨다는 건 다른 조합을 새로 담고 싶다는 뜻이니, 방금 담아서
+          // 잠깐 잠겨있던 버튼이면 기다리지 않고 바로 다시 누를 수 있게 한다.
+          if (addBtn.disabled) {
+            clearTimeout(addBtn._resetTimer);
+            addBtn.textContent = addBtn.dataset.originalLabel || "장바구니 담기";
+            addBtn.disabled = false;
+          }
+        });
+      });
+    });
+
+    itemEl.querySelector(".qty-decrease").addEventListener("click", () => {
+      entry.quantity = Math.max(1, entry.quantity - 1);
+      qtyValueEl.textContent = entry.quantity;
+    });
+
+    itemEl.querySelector(".qty-increase").addEventListener("click", () => {
+      entry.quantity += 1;
+      qtyValueEl.textContent = entry.quantity;
+    });
+
+    addBtn.addEventListener("click", async () => {
+      addToCart(menu.id, entry.quantity, { temp: entry.temp, size: entry.size });
+      markAsAdded(addBtn);
+      window.dispatchEvent(new CustomEvent("cart:updated"));
+      await renderSummary(basketHref);
+      showToast(`${menu.name} 담았습니다`);
+    });
+
+    itemEl.querySelectorAll(".cart-panel-recommend-add").forEach((recBtn) => {
+      recBtn.addEventListener("click", async () => {
+        const recMenu = allMenus.find((m) => m.id === Number(recBtn.dataset.menuId));
+        const recOptions = {
+          temp: recMenu?.hasTempOption ? "ICE" : null,
+          size: recMenu?.hasSizeOption ? "REGULAR" : null,
+        };
+        addToCart(Number(recBtn.dataset.menuId), 1, recOptions);
+        recBtn.textContent = "담음 ✓";
+        recBtn.disabled = true;
+        showToast("장바구니에 담았습니다");
+        window.dispatchEvent(new CustomEvent("cart:updated"));
+        await renderSummary(basketHref);
+      });
+    });
   }
 
-  updateBulkBar(basketHref);
   await renderSummary(basketHref);
 
   const wasOpen = overlayEl.classList.contains("is-open");

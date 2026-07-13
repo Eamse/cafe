@@ -150,6 +150,10 @@ function getSelectedDineType() {
   return document.querySelector('input[name="dineType"]:checked').value;
 }
 
+function getSelectedPaymentMethod() {
+  return document.querySelector('input[name="paymentMethod"]:checked').value;
+}
+
 // 매장 수령이면 배달 주소가 필요 없으니, 선택에 따라 주소 필드 자체를
 // 선택 입력으로 바꾸고 라벨/문구도 맞춰준다. 매장 수령일 때만 포장/매장취식
 // 선택지를 보여준다(배달은 해당 사항이 없으므로 숨김).
@@ -185,6 +189,12 @@ async function handleCheckout() {
   const cart = getCart();
   if (cart.length === 0) return;
 
+  // getMenus()가 네트워크를 타는 동안 버튼을 다시 누르면 주문이 중복 생성될
+  // 수 있어서, 함수 시작과 동시에 잠그고 검증에 걸리는 경우에만 다시 푼다
+  // (성공 시에는 바로 다른 페이지로 이동하므로 풀 필요가 없다).
+  const checkoutBtn = document.getElementById("checkout-btn");
+  checkoutBtn.disabled = true;
+
   const menus = await getMenus();
   const hasDrink = cartHasDrink(cart, menus);
   const items = cart
@@ -217,6 +227,7 @@ async function handleCheckout() {
 
   if (deliveryType === "delivery" && total < MIN_DELIVERY_ORDER) {
     showRecipientError(`최소 주문은 ${formatPrice(MIN_DELIVERY_ORDER)}입니다`);
+    checkoutBtn.disabled = false;
     return;
   }
 
@@ -226,6 +237,7 @@ async function handleCheckout() {
         ? "수령자 이름, 연락처, 배달 주소를 모두 입력해주세요."
         : "수령자 이름과 연락처를 입력해주세요."
     );
+    checkoutBtn.disabled = false;
     return;
   }
 
@@ -242,6 +254,7 @@ async function handleCheckout() {
     note,
     recipient,
     deliveryType,
+    paymentMethod: getSelectedPaymentMethod(),
     // 매장 수령일 때만 의미 있는 값(포장/매장에서 먹기). 배달 주문은 해당 없음.
     dineType: deliveryType === "pickup" ? getSelectedDineType() : null,
     // 매장 수령 주문만 픽업 확인용 바코드를 발급한다. 이 번호는 절대 겹치지

@@ -78,6 +78,18 @@
       </label>
     </fieldset>
 
+    <fieldset class="delivery-type-fields" id="payment-method-fields">
+      <legend>결제 수단</legend>
+      <label class="delivery-type-option">
+        <input type="radio" name="paymentMethod" id="payment-method-credit" value="credit" checked />
+        <span>신용카드</span>
+      </label>
+      <label class="delivery-type-option">
+        <input type="radio" name="paymentMethod" id="payment-method-check" value="check" />
+        <span>체크카드</span>
+      </label>
+    </fieldset>
+
     <label class="order-note-field">
       <span>요청사항 (선택)</span>
       <textarea id="order-note" rows="2" maxlength="200" placeholder="예: 얼음 적게 주세요, 빨대는 빼주세요"></textarea>

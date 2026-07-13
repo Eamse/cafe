@@ -11,6 +11,7 @@ import {
   formatItemOptions,
   formatBarcodeNumber,
   formatDineType,
+  formatPaymentMethod,
 } from "../../js/utils.js";
 
 const params = new URLSearchParams(window.location.search);
@@ -83,6 +84,8 @@ function render() {
             </div>`
           : ""
       }
+
+      ${order.paymentMethod ? `<div class="order-note"><span class="order-note-label">결제 수단</span>${escapeHtml(formatPaymentMethod(order.paymentMethod))}</div>` : ""}
 
       ${order.note ? `<div class="order-note"><span class="order-note-label">고객 요청사항</span>${escapeHtml(order.note)}</div>` : ""}
 
