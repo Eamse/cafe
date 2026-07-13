@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>매출 통계 - 카페 앱 관리자</title>
+  <link rel="stylesheet" href="../../css/variables.css" />
+  <link rel="stylesheet" href="../../admin/sidebar.css" />
+  <link rel="stylesheet" href="../../admin/stats/list.css" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">본문으로 바로가기</a>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <h1>☕ 카페 앱 관리자</h1>
+      <nav class="admin-sidebar-nav">
+        <a href="../../admin/index.html">대시보드</a>
+        <a href="../../admin/menus/list.html">메뉴 관리</a>
+        <a href="../../admin/categories/list.html">카테고리 관리</a>
+        <a href="../../admin/notices/list.html">공지 관리</a>
+        <a href="../../admin/events/list.html">이벤트 관리</a>
+        <a href="../../admin/orders/list.html">주문 관리</a>
+        <a href="../../admin/stats/list.html" class="active">매출 통계</a>
+      </nav>
+      <div class="admin-sidebar-account">
+        <span id="admin-name" class="admin-sidebar-name"></span>
+        <button type="button" id="admin-logout-btn" class="admin-sidebar-logout">로그아웃</button>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <main id="main-content" class="stats-page">
+        <h2>매출 통계</h2>
+        <p class="stats-note">취소된 주문은 매출에서 제외했어요.</p>
+
+        <div class="stat-grid" id="stat-grid">
+          <!-- list.js가 총 매출/총 주문 요약 카드를 렌더링 -->
+        </div>
+
+        <section class="stats-lookup glass-card">
+          <div class="stats-lookup-field">
+            <label for="stats-date">날짜별로 보기</label>
+            <input type="date" id="stats-date" />
+            <button type="button" id="stats-date-clear" hidden>전체 보기</button>
+          </div>
+          <div class="stats-lookup-result" id="stats-lookup-result"></div>
+        </section>
+
+        <section class="stats-table-section">
+          <h3>날짜별 매출</h3>
+          <div class="stats-table-wrap">
+            <table class="stats-table" id="stats-table">
+              <thead>
+                <tr>
+                  <th>날짜</th>
+                  <th>주문 건수</th>
+                  <th>매출</th>
+                </tr>
+              </thead>
+              <tbody id="stats-table-body">
+                <!-- list.js가 날짜별 행을 렌더링 -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="../../admin/stats/list.js"></script>
+</body>
+</html>
