@@ -252,6 +252,13 @@ export function cartHasDrink(cart, menus) {
 
 const TEMP_OPTION_LABEL = { ICE: '아이스', HOT: '핫' };
 const SIZE_OPTION_LABEL = { REGULAR: '레귤러', LARGE: '라지' };
+const DINE_TYPE_LABEL = { takeout: '포장(테이크아웃)', 'eat-in': '매장에서 먹고 가기' };
+
+// 매장 수령 주문의 dineType(포장/매장취식)을 표시용 문자열로. 배달 주문이거나
+// 값이 없으면 빈 문자열(주문 시점 기준이 아닌 옛 주문 호환을 위해 필수는 아님).
+export function formatDineType(dineType) {
+  return dineType ? DINE_TYPE_LABEL[dineType] || dineType : '';
+}
 
 // 장바구니/주문 항목에 저장된 temp/size를 "아이스 · 라지" 같은 표시용 문자열로.
 export function formatItemOptions(item) {

@@ -10,6 +10,7 @@ import {
   renderStatusSteps,
   formatItemOptions,
   formatBarcodeNumber,
+  formatDineType,
 } from "../../js/utils.js";
 
 const params = new URLSearchParams(window.location.search);
@@ -37,7 +38,7 @@ function render() {
 
       ${renderStatusSteps(order.status)}
 
-      <div class="order-delivery-type">${order.deliveryType === "delivery" ? "🚚 배달" : "🏠 매장 수령"}</div>
+      <div class="order-delivery-type">${order.deliveryType === "delivery" ? "🚚 배달" : `🏠 매장 수령${order.dineType ? ` · ${formatDineType(order.dineType)}` : ""}`}</div>
 
       ${
         order.barcodeNumber

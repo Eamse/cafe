@@ -20,7 +20,11 @@ import {
   cartHasDrink,
   formatItemOptions,
   getNextBarcodeNumber,
+  appPath,
 } from "../js/utils.js";
+
+// 배달 주문은 최소 주문 금액 미만이면 접수하지 않는다(매장 수령은 제한 없음).
+const MIN_DELIVERY_ORDER = 15000;
 
 function nextOrderId(orders) {
   return orders.reduce((max, order) => Math.max(max, order.id), 0) + 1;
@@ -142,8 +146,13 @@ function getSelectedDeliveryType() {
   return document.querySelector('input[name="deliveryType"]:checked').value;
 }
 
+function getSelectedDineType() {
+  return document.querySelector('input[name="dineType"]:checked').value;
+}
+
 // 매장 수령이면 배달 주소가 필요 없으니, 선택에 따라 주소 필드 자체를
-// 선택 입력으로 바꾸고 라벨/문구도 맞춰준다.
+// 선택 입력으로 바꾸고 라벨/문구도 맞춰준다. 매장 수령일 때만 포장/매장취식
+// 선택지를 보여준다(배달은 해당 사항이 없으므로 숨김).
 function updateDeliveryTypeUI() {
   const isDelivery = getSelectedDeliveryType() === "delivery";
   const addressInput = document.getElementById("recipient-address");
@@ -152,6 +161,8 @@ function updateDeliveryTypeUI() {
   addressInput.required = isDelivery;
   addressInput.placeholder = isDelivery ? "배송받으실 주소" : "매장 근처면 참고용으로 적어주세요 (선택)";
   addressLabel.textContent = isDelivery ? "배달 주소 *" : "참고 주소 (선택)";
+
+  document.getElementById("dine-type-fields").hidden = isDelivery;
 }
 
 function readRecipientInfo() {
@@ -198,9 +209,16 @@ async function handleCheckout() {
     return;
   }
 
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
   const deliveryType = getSelectedDeliveryType();
   const recipient = readRecipientInfo();
   const missingAddress = deliveryType === "delivery" && !recipient.address;
+
+  if (deliveryType === "delivery" && total < MIN_DELIVERY_ORDER) {
+    showRecipientError(`최소 주문은 ${formatPrice(MIN_DELIVERY_ORDER)}입니다`);
+    return;
+  }
 
   if (!recipient.name || !recipient.phone || missingAddress) {
     showRecipientError(
@@ -211,7 +229,6 @@ async function handleCheckout() {
     return;
   }
 
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const note = document.getElementById("order-note").value.trim();
 
   const orders = getOrders();
@@ -225,6 +242,8 @@ async function handleCheckout() {
     note,
     recipient,
     deliveryType,
+    // 매장 수령일 때만 의미 있는 값(포장/매장에서 먹기). 배달 주문은 해당 없음.
+    dineType: deliveryType === "pickup" ? getSelectedDineType() : null,
     // 매장 수령 주문만 픽업 확인용 바코드를 발급한다. 이 번호는 절대 겹치지
     // 않도록 전역 카운터에서 하나씩만 발급(getNextBarcodeNumber).
     barcodeNumber: deliveryType === "pickup" ? getNextBarcodeNumber() : null,
@@ -232,7 +251,7 @@ async function handleCheckout() {
   saveOrders(orders);
   saveLastRecipientInfo(recipient);
   clearCart();
-  window.location.href = `/orders/detail.html?id=${newOrderId}&new=1`;
+  window.location.href = `${appPath("orders/detail.html")}?id=${newOrderId}&new=1`;
 }
 
 document.getElementById("checkout-btn").addEventListener("click", handleCheckout);

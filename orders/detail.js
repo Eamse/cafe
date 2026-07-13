@@ -15,6 +15,7 @@ import {
   formatItemOptions,
   formatBarcodeNumber,
   renderBarcodeBarsHtml,
+  formatDineType,
 } from "../js/utils.js";
 
 const params = new URLSearchParams(window.location.search);
@@ -157,6 +158,7 @@ function renderDetail(menus) {
         order.recipient
           ? `<div class="order-recipient">
               <span class="order-note-label">${order.deliveryType === "delivery" ? "배달 정보" : "매장 수령 정보"}</span>
+              ${order.deliveryType === "pickup" && order.dineType ? `<div>${escapeHtml(formatDineType(order.dineType))}</div>` : ""}
               <div>${escapeHtml(order.recipient.name)} · ${escapeHtml(order.recipient.phone)}</div>
               ${order.recipient.address ? `<div>${escapeHtml(order.recipient.address)}</div>` : ""}
             </div>`
