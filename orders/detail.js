@@ -1,4 +1,5 @@
 import { getMenus } from "../js/data.js";
+import { renderAuthNav } from "../js/auth.js";
 import {
   formatPrice,
   formatDate,
@@ -199,6 +200,7 @@ function renderDetail() {
 renderDetail();
 renderCartBadge();
 initThemeToggle();
+renderAuthNav();
 
 // 새로고침하면 배너가 다시 뜨지 않도록, 한 번 보여준 뒤 주소에서 new=1을 지운다.
 if (isJustOrdered) {

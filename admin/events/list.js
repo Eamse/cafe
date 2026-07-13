@@ -1,3 +1,5 @@
+import { initAdminGuard } from "../../js/auth.js";
+initAdminGuard();
 import { getEvents, saveEvents } from "../../js/data.js";
 import { escapeHtml, formatDate, generateId, readImageFileAsDataUrl } from "../../js/utils.js";
 

@@ -306,3 +306,43 @@ img {
 .skip-link:focus {
   top: var(--spacing-md);
 }
+
+/* ==========================================================================
+   고객 페이지 헤더의 로그인 상태 표시 (header-actions 안 #auth-nav).
+   헤더 배경이 항상 --color-dark(어두운 톤)라서 밝은 글자색 고정.
+   ========================================================================== */
+
+.auth-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+}
+
+.auth-link {
+  color: rgba(245, 240, 230, 0.7);
+  font-weight: 700;
+}
+
+.auth-link:hover {
+  color: var(--color-cream-100);
+}
+
+.auth-greeting {
+  color: var(--color-cream-100);
+  font-weight: 700;
+}
+
+.auth-logout-btn {
+  color: rgba(245, 240, 230, 0.7);
+  font-size: var(--font-size-xs);
+  border: 1px solid rgba(245, 240, 230, 0.4);
+  border-radius: var(--radius-full);
+  padding: 2px var(--spacing-sm);
+  transition: var(--transition-fast);
+}
+
+.auth-logout-btn:hover {
+  color: var(--color-cream-100);
+  border-color: var(--color-cream-100);
+}

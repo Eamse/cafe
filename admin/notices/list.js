@@ -1,3 +1,5 @@
+import { initAdminGuard } from "../../js/auth.js";
+initAdminGuard();
 import {
   getNotices,
   saveNotices,

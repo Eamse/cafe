@@ -1,3 +1,5 @@
+import { initAdminGuard } from "../../js/auth.js";
+initAdminGuard();
 import {
   formatPrice,
   formatDate,

@@ -1,3 +1,5 @@
+import { initAdminGuard } from "../../js/auth.js";
+initAdminGuard();
 import { getCategories, getMenus, saveMenus, getFeaturedMenuIds, toggleFeaturedMenu } from "../../js/data.js";
 import { formatPrice, escapeHtml } from "../../js/utils.js";
 

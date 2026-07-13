@@ -1,4 +1,5 @@
 import { getMenus, getCategories } from "../js/data.js";
+import { renderAuthNav } from "../js/auth.js";
 import {
   formatPrice,
   escapeHtml,
@@ -369,6 +370,7 @@ function applyInitialFilterState() {
 
 applyInitialFilterState();
 initThemeToggle();
+renderAuthNav();
 renderCartBadge();
 renderRecentOrderWidget();
 renderRecentSearches();

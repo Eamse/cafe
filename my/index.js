@@ -1,4 +1,5 @@
 import { getMenus } from "../js/data.js";
+import { renderAuthNav } from "../js/auth.js";
 import {
   formatPrice,
   formatDate,
@@ -136,6 +137,7 @@ function init() {
   renderRecentOrders(orders);
   renderCartBadge();
   initThemeToggle();
+  renderAuthNav();
 
   document.getElementById("clear-favorites-btn").addEventListener("click", () => {
     if (!confirm("즐겨찾기한 메뉴를 전부 삭제하시겠습니까?")) return;

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>로그인 - 카페 앱</title>
+  <script>
+    document.documentElement.dataset.theme = localStorage.getItem("cafe_theme") || "dark";
+  </script>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/auth/auth.css" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">본문으로 바로가기</a>
+  <header class="auth-header">
+    <h1><a href="/index.html">☕ 카페 앱</a></h1>
+  </header>
+
+  <main id="main-content" class="auth-page">
+    <form id="login-form" class="auth-card glass-card">
+      <h2>로그인</h2>
+      <label class="form-field">
+        <span>이메일</span>
+        <input type="email" id="email" required autocomplete="email" />
+      </label>
+      <label class="form-field">
+        <span>비밀번호</span>
+        <input type="password" id="password" required autocomplete="current-password" />
+      </label>
+      <p class="form-error" id="form-error" hidden></p>
+      <button type="submit" class="btn btn-primary">로그인</button>
+      <p class="auth-switch">아직 계정이 없으신가요? <a href="/auth/signup.html">회원가입</a></p>
+    </form>
+  </main>
+
+  <script type="module" src="/auth/login.js"></script>
+</body>
+</html>

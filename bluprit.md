@@ -292,6 +292,19 @@ cafe-app
 | `getEffectiveUnitPrice(menu, item, hasDrinkInCart)` | → `number`                                       | 사이즈 업차지 반영 후, 디저트+음료 할인(`DESSERT_DRINK_DISCOUNT`, 500원)까지 뺀 최종 단가. `basket/list.js`의 체크아웃이 이 값을 주문 항목의 `price`로 그대로 저장 (2026-07-12 추가) |
 | `formatItemOptions(item)`                         | → `"아이스 · 라지"` 형태의 문자열                   | 장바구니/주문 항목의 `temp`/`size`를 표시용 텍스트로 변환 (2026-07-12 추가) |
 
+### `js/auth.js` (export) — 2026-07-13 추가, localStorage 기반 임시 인증 (추후 Supabase Auth로 교체 예정)
+
+| 이름 | 형태 | 설명 |
+| --- | --- | --- |
+| `signupCustomer({name, email, password, phone})` | → `{ok, customer}` \| `{ok:false, error}` | 이메일 중복 체크 후 가입, 성공 시 자동 로그인(세션 저장) |
+| `loginCustomer(email, password)` / `logoutCustomer()` | → `{ok, customer}` \| `{ok:false, error}` | 고객 로그인/로그아웃. 세션은 `cafe_customer_session`(customer id)만 저장 |
+| `getCurrentCustomer()` | → customer 객체 \| null | 현재 로그인한 고객 |
+| `renderAuthNav()` | DOM 렌더 | 고객 페이지 헤더의 `#auth-nav`를 로그인 상태에 맞춰 채움(로그인 링크 또는 이름+로그아웃). 전 고객 페이지 8개가 `initThemeToggle()`과 함께 호출 |
+| `loginAdmin(email, password)` / `logoutAdmin()` | → `{ok, admin}` \| `{ok:false, error}` | 어드민 로그인/로그아웃. 고객과 완전히 분리된 별도 세션(`cafe_admin_session`). 기본 계정 `admin@cafe.com`/`admin1234`가 최초 접근 시 자동 시드됨 |
+| `getCurrentAdmin()` | → admin 객체 \| null | 현재 로그인한 관리자 |
+| `requireAdminAuth()` | → `boolean` | 로그인 안 돼있으면 `/admin/login.html`로 즉시 리다이렉트 |
+| `initAdminGuard()` | - | `requireAdminAuth()` + 사이드바의 `#admin-name`/`#admin-logout-btn` 바인딩을 한 번에 처리. 전 admin 페이지 10개의 진입 스크립트 최상단에서 호출 |
+
 ### localStorage 키
 
 > 아래 키는 직접 `localStorage.getItem/setItem`으로 만지지 말고, 반드시 위 `getMenus`/`saveMenus`, `getOrders`/`saveOrders` 함수를 통해서만 접근할 것.
@@ -307,6 +320,10 @@ cafe-app
 | `cafe_notices` | `{ id: string, message: string, date: string }[]`                                                                  | `js/data.js`의 `getNotices`/`saveNotices`가 관리 (2026-07-11 추가) |
 | `cafe_active_notice_ids` | `string[]` (notice id, 최대 3개)                                                                                | `js/data.js`의 `getActiveNoticeIds`/`saveActiveNoticeIds`/`toggleActiveNotice`가 관리 (2026-07-11 추가) |
 | `cafe_events` | `{ id: string, title: string, description: string, date: string, image: string, isEnded: boolean }[]`                | `js/data.js`의 `getEvents`/`saveEvents`가 관리 (2026-07-11 추가) |
+| `cafe_customers` | `{ id: string, name: string, email: string, password: string, phone: string, createdAt: string }[]` | `js/auth.js`의 `signupCustomer`가 관리 (2026-07-13 추가) |
+| `cafe_customer_session` | `string` (customer id) | `js/auth.js`의 로그인 세션 |
+| `cafe_admin_accounts` | `{ id: string, email: string, password: string, name: string }[]` | `js/auth.js`가 관리, 최초 접근 시 기본 계정 1개 자동 시드 (2026-07-13 추가) |
+| `cafe_admin_session` | `string` (admin id) | `js/auth.js`의 어드민 로그인 세션 — 고객 세션과 완전히 분리 |
 
 ### 보안/검증 노트
 
@@ -378,6 +395,7 @@ cafe-app
 - [x] **위 수정을 `serve.json`(`cleanUrls: false`)으로 재수정 — `.html` 제거 방식이 VS Code Live Server 등 확장자 없는 경로를 못 찾는 다른 정적 서버에서 404를 내던 문제 발견, 링크는 전부 `.html` 유지로 되돌리고 서버 설정으로 근본 해결**
 - [x] **메뉴 옵션(온도/사이즈) + 디저트·음료 동시 주문 할인 기능**
 - [x] **테마 토글 버튼을 슬라이딩 스위치 디자인으로 교체**
+- [x] **고객 회원가입/로그인 + 어드민 로그인(분리) — localStorage 기반 임시 인증, 추후 Supabase Auth로 교체 예정**
 
 ### 추후 구현 (DB 연결 필요, 현재 localStorage 구조로는 보류)
 

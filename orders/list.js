@@ -1,4 +1,5 @@
 import { getMenus } from "../js/data.js";
+import { renderAuthNav } from "../js/auth.js";
 import {
   formatPrice,
   formatDate,
@@ -138,3 +139,4 @@ renderOrders();
 renderRecentOrderWidget();
 renderCartBadge();
 initThemeToggle();
+renderAuthNav();

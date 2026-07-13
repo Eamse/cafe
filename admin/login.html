@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 로그인 - 카페 앱 관리자</title>
+  <link rel="stylesheet" href="/css/variables.css" />
+  <link rel="stylesheet" href="/admin/login.css" />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">본문으로 바로가기</a>
+  <main id="main-content" class="admin-login-page">
+    <form id="admin-login-form" class="admin-login-card glass-card">
+      <h1>☕ 카페 앱 관리자</h1>
+      <p class="admin-login-sub">관리자 계정으로 로그인해주세요.</p>
+      <label class="form-field">
+        <span>이메일</span>
+        <input type="email" id="email" required autocomplete="username" />
+      </label>
+      <label class="form-field">
+        <span>비밀번호</span>
+        <input type="password" id="password" required autocomplete="current-password" />
+      </label>
+      <p class="form-error" id="form-error" hidden></p>
+      <button type="submit" class="btn btn-primary">로그인</button>
+      <p class="admin-login-hint">기본 계정: admin@cafe.com / admin1234</p>
+    </form>
+  </main>
+
+  <script type="module" src="/admin/login.js"></script>
+</body>
+</html>

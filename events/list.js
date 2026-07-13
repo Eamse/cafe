@@ -1,4 +1,5 @@
 import { getEvents } from "../js/data.js";
+import { renderAuthNav } from "../js/auth.js";
 import { escapeHtml, renderCartBadge, initThemeToggle } from "../js/utils.js";
 
 function render() {
@@ -37,3 +38,4 @@ function render() {
 render();
 renderCartBadge();
 initThemeToggle();
+renderAuthNav();

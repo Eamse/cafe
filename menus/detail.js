@@ -1,4 +1,5 @@
 import { getMenus, getCategories } from "../js/data.js";
+import { renderAuthNav } from "../js/auth.js";
 import {
   formatPrice,
   addToCart,
@@ -230,3 +231,4 @@ window.addEventListener("cart:updated", renderCartBadge);
 renderMenuDetail();
 renderCartBadge();
 initThemeToggle();
+renderAuthNav();

@@ -1,4 +1,5 @@
 import { getMenus, getCategories, getFeaturedMenuIds, getNotices, getActiveNoticeIds, getEvents } from "./js/data.js";
+import { renderAuthNav } from "./js/auth.js";
 import {
   formatPrice,
   escapeHtml,
@@ -552,6 +553,7 @@ document.getElementById("clear-recently-viewed-btn").addEventListener("click", (
 applyInitialFilterState();
 initHeroSlider();
 initThemeToggle();
+renderAuthNav();
 renderCartBadge();
 renderRecentlyViewedWidget();
 renderRecentSearches();

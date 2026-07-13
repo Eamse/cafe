@@ -1,4 +1,5 @@
 import { getMenus } from "../js/data.js";
+import { renderAuthNav } from "../js/auth.js";
 import {
   getCart,
   removeFromCart,
@@ -210,3 +211,4 @@ document.getElementById("checkout-btn").addEventListener("click", handleCheckout
 fillRecipientInfo();
 renderBasket();
 initThemeToggle();
+renderAuthNav();

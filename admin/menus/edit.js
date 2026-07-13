@@ -1,3 +1,5 @@
+import { initAdminGuard } from "../../js/auth.js";
+initAdminGuard();
 import { getCategories, getMenus, saveMenus } from "../../js/data.js";
 import { readImageFileAsDataUrl } from "../../js/utils.js";
 
