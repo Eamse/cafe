@@ -1,1 +1,5 @@
 node_modules/
+
+# README.md만 남기고 나머지 문서는 추적하지 않음
+*.md
+!README.md
