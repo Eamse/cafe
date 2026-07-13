@@ -14,18 +14,21 @@ function renderStats(menus) {
     .reduce((sum, o) => sum + o.total, 0);
 
   const stats = [
-    { label: "전체 메뉴", value: `${menus.length}개`, sub: `품절 ${soldOutCount}개` },
-    { label: "전체 주문", value: `${orders.length}건`, sub: `조리중 ${cookingCount}건` },
-    { label: "누적 매출", value: formatPrice(revenue), sub: "취소 제외" },
+    { icon: "☕", tone: "menu", label: "전체 메뉴", value: `${menus.length}개`, sub: `품절 ${soldOutCount}개` },
+    { icon: "🧾", tone: "orders", label: "전체 주문", value: `${orders.length}건`, sub: `조리중 ${cookingCount}건` },
+    { icon: "💰", tone: "revenue", label: "누적 매출", value: formatPrice(revenue), sub: "취소 제외" },
   ];
 
   document.getElementById("stat-grid").innerHTML = stats
     .map(
       (stat) => `
-    <div class="stat-card glass-card">
-      <div class="stat-label">${stat.label}</div>
-      <div class="stat-value">${stat.value}</div>
-      <div class="stat-sub">${stat.sub}</div>
+    <div class="stat-card stat-card--${stat.tone} glass-card">
+      <div class="stat-icon">${stat.icon}</div>
+      <div class="stat-body">
+        <div class="stat-label">${stat.label}</div>
+        <div class="stat-value">${stat.value}</div>
+        <div class="stat-sub">${stat.sub}</div>
+      </div>
     </div>
   `
     )
@@ -36,7 +39,7 @@ function renderFeaturedMenus(menus, featuredIds) {
   const listEl = document.getElementById("featured-menus-list");
 
   if (featuredIds.length === 0) {
-    listEl.innerHTML = `<p class="empty-state">아직 고른 추천 메뉴가 없어요. 자동으로 카테고리별 대표 메뉴가 노출됩니다.</p>`;
+    listEl.innerHTML = `<div class="empty-state"><span class="empty-state-icon">⭐</span>아직 고른 추천 메뉴가 없어요.<br />자동으로 카테고리별 대표 메뉴가 노출됩니다.</div>`;
     return;
   }
 
@@ -54,12 +57,14 @@ function renderFeaturedMenus(menus, featuredIds) {
     .join("");
 }
 
+const STATUS_TONE = { 주문완료: "new", 조리중: "progress", 수령완료: "done", 취소: "cancelled" };
+
 function renderRecentOrders() {
   const orders = getOrders().slice().reverse().slice(0, RECENT_COUNT);
   const listEl = document.getElementById("recent-orders-list");
 
   if (orders.length === 0) {
-    listEl.innerHTML = `<p class="empty-state">주문이 없습니다.</p>`;
+    listEl.innerHTML = `<div class="empty-state"><span class="empty-state-icon">🧾</span>주문이 없습니다.</div>`;
     return;
   }
 
@@ -69,7 +74,7 @@ function renderRecentOrders() {
     <a class="recent-order-row" href="orders/detail.html?id=${order.id}">
       <div class="order-date">${formatDate(order.createdAt)}</div>
       <div class="order-summary">${escapeHtml(order.items[0].name)}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
-      <div class="order-status">${order.status}</div>
+      <span class="order-status-pill is-${STATUS_TONE[order.status] || "new"}">${order.status}</span>
       <div class="order-total">${formatPrice(order.total)}</div>
     </a>
   `

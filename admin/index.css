@@ -36,14 +36,42 @@
 
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-xl);
 }
 
 .stat-card {
+  --stat-tone: var(--color-accent);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
   padding: var(--spacing-lg);
+  border-left: 3px solid var(--stat-tone);
+  transition: transform var(--transition-fast);
 }
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-card--menu { --stat-tone: var(--color-accent); }
+.stat-card--orders { --stat-tone: var(--color-warning); }
+.stat-card--revenue { --stat-tone: var(--color-success); }
+
+.stat-icon {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--stat-tone) 18%, transparent);
+  font-size: 1.3rem;
+}
+
+.stat-body { min-width: 0; }
 
 .stat-label {
   font-size: var(--font-size-sm);
@@ -54,7 +82,7 @@
 .stat-value {
   font-size: var(--font-size-xl);
   font-weight: bold;
-  color: var(--color-accent);
+  color: var(--stat-tone);
   margin-bottom: var(--spacing-xs);
 }
 
@@ -137,6 +165,7 @@
 
 .recent-order-row:hover {
   transform: translateY(-2px);
+  border-color: var(--color-accent);
 }
 
 .recent-order-row .order-date {
@@ -144,9 +173,30 @@
   color: var(--color-text-muted);
 }
 
-.recent-order-row .order-status {
+.order-status-pill {
+  justify-self: start;
   font-size: var(--font-size-xs);
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--color-warning) 16%, transparent);
+  color: var(--color-warning);
+}
+
+.order-status-pill.is-progress {
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  color: var(--color-accent);
+}
+
+.order-status-pill.is-done {
+  background: color-mix(in srgb, var(--color-success) 16%, transparent);
   color: var(--color-success);
+}
+
+.order-status-pill.is-cancelled {
+  background: color-mix(in srgb, var(--color-danger) 16%, transparent);
+  color: var(--color-danger);
 }
 
 .recent-order-row .order-total {
@@ -156,14 +206,29 @@
 }
 
 .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
   text-align: center;
   color: var(--color-text-muted);
-  padding: var(--spacing-2xl) 0;
+  padding: var(--spacing-2xl) var(--spacing-md);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  line-height: 1.6;
+}
+
+.empty-state-icon {
+  font-size: 1.6rem;
 }
 
 @media (max-width: 600px) {
   .recent-order-row {
     grid-template-columns: 1fr;
     text-align: left;
+  }
+
+  .order-status-pill {
+    justify-self: start;
   }
 }
