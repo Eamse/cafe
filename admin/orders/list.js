@@ -8,6 +8,8 @@ import {
   updateOrderStatus,
   ORDER_STATUSES,
   getAvailableStatuses,
+  formatDineType,
+  formatPaymentMethod,
 } from "../../js/utils.js";
 
 let activeStatus = "all";
@@ -118,9 +120,17 @@ function renderList() {
       <a class="row-main" href="detail.html?id=${order.id}">
         <div class="row-date">
           ${formatDate(order.createdAt)}
-          <span class="row-delivery-type ${order.deliveryType === "delivery" ? "is-delivery" : "is-pickup"}">${order.deliveryType === "delivery" ? "🚚 배달" : "🏠 매장 수령"}</span>
+          <span class="row-delivery-type ${order.deliveryType === "delivery" ? "is-delivery" : "is-pickup"}">${
+            order.deliveryType === "delivery"
+              ? "🚚 배달"
+              : `🏠 매장 수령${order.dineType ? ` · ${formatDineType(order.dineType)}` : ""}`
+          }</span>
         </div>
         <div class="row-summary">${escapeHtml(order.items[0].name)}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
+        <div class="row-meta">
+          ${order.recipient ? `<span>주문자 ${escapeHtml(order.recipient.name)}</span>` : ""}
+          ${order.paymentMethod ? `<span>${escapeHtml(formatPaymentMethod(order.paymentMethod))}</span>` : ""}
+        </div>
         <div class="row-total">${formatPrice(order.total)}</div>
       </a>
       <select class="status-select" data-id="${order.id}">

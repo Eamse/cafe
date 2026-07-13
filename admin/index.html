@@ -36,6 +36,26 @@
           <!-- index.js가 통계 카드를 렌더링 -->
         </div>
 
+        <section class="revenue-chart glass-card">
+          <div class="revenue-chart-head">
+            <div>
+              <div class="stat-label">누적 매출</div>
+              <div class="revenue-chart-total" id="revenue-chart-total"></div>
+            </div>
+            <div class="revenue-range-field">
+              <label>
+                <span>시작일</span>
+                <input type="date" id="revenue-range-from" />
+              </label>
+              <label>
+                <span>종료일</span>
+                <input type="date" id="revenue-range-to" />
+              </label>
+            </div>
+          </div>
+          <div class="revenue-chart-body" id="revenue-chart-body"></div>
+        </section>
+
         <section class="featured-menus">
           <div class="section-heading">
             <h3>오늘의 추천 메뉴</h3>

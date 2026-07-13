@@ -36,18 +36,18 @@
 
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
 }
 
 .stat-card {
   --stat-tone: var(--color-accent);
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
-  border-left: 3px solid var(--stat-tone);
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  border-left: 4px solid var(--stat-tone);
   transition: transform var(--transition-fast);
 }
 
@@ -57,18 +57,17 @@
 
 .stat-card--menu { --stat-tone: var(--color-accent); }
 .stat-card--orders { --stat-tone: var(--color-warning); }
-.stat-card--revenue { --stat-tone: var(--color-success); }
 
 .stat-icon {
   flex: none;
-  width: 44px;
-  height: 44px;
+  width: 60px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-full);
   background: color-mix(in srgb, var(--stat-tone) 18%, transparent);
-  font-size: 1.3rem;
+  font-size: 1.7rem;
 }
 
 .stat-body { min-width: 0; }
@@ -80,15 +79,143 @@
 }
 
 .stat-value {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-2xl);
   font-weight: bold;
   color: var(--stat-tone);
   margin-bottom: var(--spacing-xs);
 }
 
 .stat-sub {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* ---------- 누적 매출 그래프 카드 ---------- */
+
+.revenue-chart {
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+.revenue-chart-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.revenue-chart-total {
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  font-weight: bold;
+  color: var(--color-success);
+  font-variant-numeric: tabular-nums;
+}
+
+.revenue-range-field {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.revenue-range-field label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
+}
+
+.revenue-range-field input[type="date"] {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+
+.revenue-chart-body {
+  position: relative;
+  min-height: 200px;
+}
+
+.revenue-tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%) translateY(-10px);
+  pointer-events: none;
+  background: var(--color-surface);
+  color: var(--color-cream-100);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  z-index: 5;
+}
+
+.revenue-tooltip b {
+  font-size: var(--font-size-sm);
+  color: var(--color-accent);
+}
+
+.revenue-tooltip span {
+  color: var(--color-text-muted);
+}
+
+.revenue-tooltip[hidden] {
+  display: none;
+}
+
+.revenue-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 200px;
+  padding-top: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.revenue-bar-col {
+  flex: 1 1 0;
+  min-width: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: var(--spacing-xs);
+}
+
+.revenue-bar-track {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.revenue-bar {
+  width: 100%;
+  min-height: 2px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, var(--color-success), color-mix(in srgb, var(--color-success) 55%, transparent));
+  transition: opacity var(--transition-fast);
+}
+
+.revenue-bar-col:hover .revenue-bar {
+  opacity: 0.75;
+}
+
+.revenue-bar-label {
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
 .section-heading {

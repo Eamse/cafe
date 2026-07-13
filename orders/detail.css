@@ -354,13 +354,15 @@ body {
 }
 
 .order-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
-  justify-content: space-between;
+  gap: var(--spacing-md);
 }
 
 .order-item .item-name {
   font-size: var(--font-size-base);
+  min-width: 0;
 }
 
 .order-item .item-options {
@@ -372,12 +374,17 @@ body {
 .order-item .item-quantity {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
+  text-align: right;
+  white-space: nowrap;
 }
 
 .order-item .item-price {
   font-size: var(--font-size-base);
   color: var(--color-accent);
   font-weight: bold;
+  text-align: right;
+  white-space: nowrap;
+  min-width: 7ch;
 }
 
 .order-total {
