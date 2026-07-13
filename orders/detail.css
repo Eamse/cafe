@@ -285,6 +285,45 @@ body {
   font-size: var(--font-size-sm);
 }
 
+.pickup-barcode {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md);
+  background: var(--color-cream-100);
+}
+
+.pickup-barcode-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-brown-700, #6f4e37);
+  margin-bottom: var(--spacing-sm);
+}
+
+.barcode-bars {
+  display: flex;
+  align-items: stretch;
+  height: 56px;
+  margin: 0 auto var(--spacing-sm);
+  max-width: 280px;
+}
+
+.barcode-bar {
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.barcode-bar.is-black {
+  background: #1a1310;
+}
+
+.pickup-barcode-number {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #1a1310;
+}
+
 .order-note,
 .order-recipient {
   margin-bottom: var(--spacing-lg);

@@ -13,6 +13,8 @@ import {
   showToast,
   initThemeToggle,
   formatItemOptions,
+  formatBarcodeNumber,
+  renderBarcodeBarsHtml,
 } from "../js/utils.js";
 
 const params = new URLSearchParams(window.location.search);
@@ -126,6 +128,16 @@ function renderDetail() {
 
       ${order.status === "주문완료" ? `<p class="order-pickup-estimate" id="pickup-countdown"></p>` : ""}
 
+      ${
+        order.barcodeNumber && order.status !== "취소"
+          ? `<div class="pickup-barcode">
+              <p class="pickup-barcode-label">매장에서 이 바코드를 보여주세요</p>
+              ${renderBarcodeBarsHtml(order.barcodeNumber)}
+              <p class="pickup-barcode-number">${formatBarcodeNumber(order.barcodeNumber)}</p>
+            </div>`
+          : ""
+      }
+
       <div class="order-items">
         ${order.items
           .map(
@@ -143,9 +155,9 @@ function renderDetail() {
       ${
         order.recipient
           ? `<div class="order-recipient">
-              <span class="order-note-label">수령 정보</span>
+              <span class="order-note-label">${order.deliveryType === "delivery" ? "배달 정보" : "매장 수령 정보"}</span>
               <div>${escapeHtml(order.recipient.name)} · ${escapeHtml(order.recipient.phone)}</div>
-              <div>${escapeHtml(order.recipient.address)}</div>
+              ${order.recipient.address ? `<div>${escapeHtml(order.recipient.address)}</div>` : ""}
             </div>`
           : ""
       }

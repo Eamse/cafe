@@ -292,6 +292,9 @@ cafe-app
 | `isDessertMenu(menu)` / `cartHasDrink(cart, menus)` | → `boolean`                                     | "디저트+음료 동시 주문 시 할인" 판정에 사용. 카테고리가 `dessert`가 아니면 전부 음료로 취급 (2026-07-12 추가) |
 | `getEffectiveUnitPrice(menu, item, hasDrinkInCart)` | → `number`                                       | 사이즈 업차지 반영 후, 디저트+음료 할인(`DESSERT_DRINK_DISCOUNT`, 500원)까지 뺀 최종 단가. `basket/list.js`의 체크아웃이 이 값을 주문 항목의 `price`로 그대로 저장 (2026-07-12 추가) |
 | `formatItemOptions(item)`                         | → `"아이스 · 라지"` 형태의 문자열                   | 장바구니/주문 항목의 `temp`/`size`를 표시용 텍스트로 변환 (2026-07-12 추가) |
+| `isOrderReadyForPickup(order)`                    | → `boolean`                                       | 주문완료/조리중 상태에서 예상 준비 시각이 지났는지 판단. 홈 화면 픽업 알림 배너가 사용 (2026-07-13 추가) |
+| `getNextBarcodeNumber()`                          | → `number` (항상 이전 값 + 1)                       | 매장 수령 주문에 발급하는 고유 바코드 번호. 주문 id와 별개의 전역 카운터(`cafe_barcode_counter`)라 주문이 취소/삭제돼도 번호가 재사용되지 않음 (2026-07-13 추가) |
+| `formatBarcodeNumber(number)` / `renderBarcodeBarsHtml(number)` | → `"BC-000123"` / 바코드 막대 HTML       | 바코드 번호 표시용 포맷과, 같은 번호면 항상 같은 모양이 나오는 장식용 막대 패턴(실제 스캔 불가, 시각적 표시 목적) |
 
 ### `js/auth.js` (export) — 2026-07-13 추가, localStorage 기반 임시 인증 (추후 Supabase Auth로 교체 예정)
 
@@ -316,7 +319,8 @@ cafe-app
 | 키                 | 형태                                                                                                                  | 비고                                                                                                               |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `cafe_cart`        | `{ menuId: number, quantity: number, temp: "ICE"\|"HOT"\|null, size: "REGULAR"\|"LARGE"\|null }[]`                    | `js/utils.js`의 카트 함수가 관리. `temp`/`size`는 옵션 없는 메뉴면 `null` (2026-07-12: 옵션 필드 추가)             |
-| `cafe_orders`      | `{ id: number, createdAt: string(ISO), items: { menuId, name, price, quantity, temp, size }[], total: number, status: string, note?: string, cancelReason?: string }[]` | `js/utils.js`의 주문 함수가 관리. `status`는 `ORDER_STATUSES` 중 하나. `note`는 체크아웃 시 입력한 요청사항(선택), `cancelReason`은 고객이 취소할 때 고른 사유(선택, 2026-07-11 추가). `items[].price`는 사이즈 업차지·디저트 할인까지 이미 반영된 최종 단가(2026-07-12 추가) |
+| `cafe_orders`      | `{ id: number, createdAt: string(ISO), items: { menuId, name, price, quantity, temp, size }[], total: number, status: string, note?: string, cancelReason?: string, deliveryType: "pickup"\|"delivery", barcodeNumber: number\|null }[]` | `js/utils.js`의 주문 함수가 관리. `status`는 `ORDER_STATUSES` 중 하나. `note`는 체크아웃 시 입력한 요청사항(선택), `cancelReason`은 고객이 취소할 때 고른 사유(선택, 2026-07-11 추가). `items[].price`는 사이즈 업차지·디저트 할인까지 이미 반영된 최종 단가(2026-07-12 추가). `deliveryType`/`barcodeNumber`는 2026-07-13 추가 — 매장 수령일 때만 바코드 발급 |
+| `cafe_barcode_counter` | `number` | `js/utils.js`의 `getNextBarcodeNumber`가 관리하는 전역 증가 카운터. 주문 id와 독립적이라 주문이 삭제돼도 번호가 재사용되지 않음 (2026-07-13 추가) |
 | `cafe_admin_menus` | `menus`와 동일한 형태                                                                                                 | `js/data.js`의 `getMenus`/`saveMenus`가 관리. 관리자 CRUD와 고객 메뉴 조회가 동일한 키를 공유(8단계에서 통합 완료) |
 | `cafe_admin_categories` | `categories`와 동일한 형태                                                                                       | `js/data.js`의 `getCategories`/`saveCategories`가 관리 (2026-07-11 추가) |
 | `cafe_recent_searches` | `string[]`                                                                                                        | `js/utils.js`의 `getRecentSearches`/`addRecentSearch`/`removeRecentSearch`가 관리 (2026-07-11 추가) |
@@ -405,6 +409,7 @@ cafe-app
 - [x] **마이페이지에 "주소 관리" 탭 추가 — 여러 배송지 등록/수정/삭제/기본 설정, 로그인 필수(미들웨어 가드)**
 - [x] **관리자 목록 페이지(메뉴/카테고리/주문/공지/이벤트) 전부 flex 세로 목록 → CSS 그리드 카드 레이아웃으로 전환**
 - [x] **홈 화면 — 픽업 준비 알림 배너**: 픽업 전(주문완료/조리중) 주문의 예상 준비 시각이 지나면 홈 화면 상단에 알림 배너 표시(30초마다 재확인, 클릭 시 주문 상세로 이동). 배너 CSS의 `display:flex`가 `hidden` 속성을 무력화하던 버그를 `[hidden]` 우선순위 규칙 추가로 수정
+- [x] **수령 방법(배달/매장 수령) 선택 + 매장 수령 픽업 바코드 발급**: 체크아웃 시 배달/매장 수령을 고르게 하고(매장 수령이 기본값), 매장 수령이면 절대 겹치지 않는 전역 카운터로 고유 바코드 번호를 발급(`getNextBarcodeNumber`). 고객 주문 상세에 바코드(장식용 패턴+번호) 노출, 어드민 주문 상세에는 바코드 번호 입력/스캔 후 일치하면 자동으로 "수령완료" 처리하는 확인 버튼 추가. 배달 주문은 바코드 미발급, 주소 필드는 매장 수령 선택 시 선택 입력으로 전환
 
 ### 추후 구현 (DB 연결 필요, 현재 localStorage 구조로는 보류)
 

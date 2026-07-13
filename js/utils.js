@@ -263,6 +263,40 @@ export function getAvailableStatuses(currentStatus) {
   return allowed;
 }
 
+const BARCODE_COUNTER_KEY = "cafe_barcode_counter";
+
+// 매장 수령 주문에 발급하는 픽업 바코드 번호 — 절대 겹치면 안 되므로, 주문
+// id와는 별개로 오직 한 방향으로만 증가하는 카운터를 따로 둔다(주문이 취소·
+// 삭제되어도 이미 발급된 번호는 재사용하지 않음).
+export function getNextBarcodeNumber() {
+  const current = Number(localStorage.getItem(BARCODE_COUNTER_KEY)) || 0;
+  const next = current + 1;
+  localStorage.setItem(BARCODE_COUNTER_KEY, String(next));
+  return next;
+}
+
+// 바코드 번호를 "BC-000123" 형태로 통일해서 보여준다.
+export function formatBarcodeNumber(number) {
+  return `BC-${String(number).padStart(6, "0")}`;
+}
+
+// 실제 스캔되는 바코드는 아니고, 번호마다 막대 굵기가 달라지는 장식용
+// 패턴 — 화면에 "바코드처럼" 보이게 하는 용도. 같은 번호는 항상 같은
+// 패턴을 만들어낸다.
+export function renderBarcodeBarsHtml(number) {
+  // 숫자를 여러 자리로 늘려 얇은 줄이 여러 개 있는 실제 바코드에 가깝게 보이게 한다.
+  const seed = String(number).padStart(6, "0") + String(number * 7 + 13).padStart(6, "0");
+  const digits = seed.split("").map(Number);
+  const bars = digits
+    .map((d, i) => {
+      const isBlack = i % 2 === 0;
+      const width = isBlack ? 1 + (d % 3) : 1;
+      return `<span class="barcode-bar ${isBlack ? "is-black" : ""}" style="flex-grow:${width}"></span>`;
+    })
+    .join("");
+  return `<div class="barcode-bars" aria-hidden="true">${bars}</div>`;
+}
+
 export function getOrders() {
   try {
     const raw = localStorage.getItem(ORDERS_STORAGE_KEY);

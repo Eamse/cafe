@@ -19,6 +19,7 @@ import {
   getEffectiveUnitPrice,
   cartHasDrink,
   formatItemOptions,
+  getNextBarcodeNumber,
 } from "../js/utils.js";
 
 function nextOrderId(orders) {
@@ -137,6 +138,22 @@ function showRecipientError(message) {
   warningEl.textContent = message;
 }
 
+function getSelectedDeliveryType() {
+  return document.querySelector('input[name="deliveryType"]:checked').value;
+}
+
+// 매장 수령이면 배달 주소가 필요 없으니, 선택에 따라 주소 필드 자체를
+// 선택 입력으로 바꾸고 라벨/문구도 맞춰준다.
+function updateDeliveryTypeUI() {
+  const isDelivery = getSelectedDeliveryType() === "delivery";
+  const addressInput = document.getElementById("recipient-address");
+  const addressLabel = document.getElementById("recipient-address-label");
+
+  addressInput.required = isDelivery;
+  addressInput.placeholder = isDelivery ? "배송받으실 주소" : "매장 근처면 참고용으로 적어주세요 (선택)";
+  addressLabel.textContent = isDelivery ? "배달 주소 *" : "참고 주소 (선택)";
+}
+
 function readRecipientInfo() {
   return {
     name: document.getElementById("recipient-name").value.trim(),
@@ -181,9 +198,16 @@ function handleCheckout() {
     return;
   }
 
+  const deliveryType = getSelectedDeliveryType();
   const recipient = readRecipientInfo();
-  if (!recipient.name || !recipient.phone || !recipient.address) {
-    showRecipientError("수령자 이름, 연락처, 주소를 모두 입력해주세요.");
+  const missingAddress = deliveryType === "delivery" && !recipient.address;
+
+  if (!recipient.name || !recipient.phone || missingAddress) {
+    showRecipientError(
+      deliveryType === "delivery"
+        ? "수령자 이름, 연락처, 배달 주소를 모두 입력해주세요."
+        : "수령자 이름과 연락처를 입력해주세요."
+    );
     return;
   }
 
@@ -200,6 +224,10 @@ function handleCheckout() {
     status: "주문완료",
     note,
     recipient,
+    deliveryType,
+    // 매장 수령 주문만 픽업 확인용 바코드를 발급한다. 이 번호는 절대 겹치지
+    // 않도록 전역 카운터에서 하나씩만 발급(getNextBarcodeNumber).
+    barcodeNumber: deliveryType === "pickup" ? getNextBarcodeNumber() : null,
   });
   saveOrders(orders);
   saveLastRecipientInfo(recipient);
@@ -208,6 +236,10 @@ function handleCheckout() {
 }
 
 document.getElementById("checkout-btn").addEventListener("click", handleCheckout);
+document.querySelectorAll('input[name="deliveryType"]').forEach((el) => {
+  el.addEventListener("change", updateDeliveryTypeUI);
+});
+updateDeliveryTypeUI();
 fillRecipientInfo();
 renderBasket();
 initThemeToggle();

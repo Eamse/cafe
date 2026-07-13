@@ -23,6 +23,8 @@ import {
   getPickupEstimateRange,
   estimatePickupMinutes,
   isOrderReadyForPickup,
+  getNextBarcodeNumber,
+  formatBarcodeNumber,
   getFrequentlyBoughtWith,
   getFavorites,
   toggleFavorite,
@@ -192,6 +194,13 @@ test("isOrderReadyForPickup: 예상 준비 시각이 지났는지로 판단한�
 
   const cancelled = { status: "취소", items, createdAt: new Date(Date.now() - 60 * 60000).toISOString() };
   assert.equal(isOrderReadyForPickup(cancelled), false);
+});
+
+test("getNextBarcodeNumber는 절대 겹치지 않고 계속 증가한다", () => {
+  assert.equal(getNextBarcodeNumber(), 1);
+  assert.equal(getNextBarcodeNumber(), 2);
+  assert.equal(getNextBarcodeNumber(), 3);
+  assert.equal(formatBarcodeNumber(3), "BC-000003");
 });
 
 test("getFrequentlyBoughtWith는 실제 주문에서 함께 나온 메뉴만 빈도순으로 반환한다", () => {

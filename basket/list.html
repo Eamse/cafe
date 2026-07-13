@@ -38,6 +38,18 @@
     </div>
     <p class="pickup-estimate" id="pickup-estimate" hidden></p>
 
+    <fieldset class="delivery-type-fields">
+      <legend>수령 방법</legend>
+      <label class="delivery-type-option">
+        <input type="radio" name="deliveryType" id="delivery-type-pickup" value="pickup" checked />
+        <span>매장 수령</span>
+      </label>
+      <label class="delivery-type-option">
+        <input type="radio" name="deliveryType" id="delivery-type-delivery" value="delivery" />
+        <span>배달</span>
+      </label>
+    </fieldset>
+
     <fieldset class="recipient-fields">
       <legend>수령 정보</legend>
       <label class="form-field">
@@ -48,9 +60,9 @@
         <span>연락처 *</span>
         <input type="tel" id="recipient-phone" required maxlength="20" placeholder="010-1234-5678" />
       </label>
-      <label class="form-field">
-        <span>주소 *</span>
-        <input type="text" id="recipient-address" required maxlength="100" placeholder="배송/픽업 받으실 주소" />
+      <label class="form-field" id="recipient-address-field">
+        <span id="recipient-address-label">배달 주소 *</span>
+        <input type="text" id="recipient-address" required maxlength="100" placeholder="배송받으실 주소" />
       </label>
     </fieldset>
 

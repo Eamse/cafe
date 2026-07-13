@@ -9,6 +9,7 @@ import {
   getAvailableStatuses,
   renderStatusSteps,
   formatItemOptions,
+  formatBarcodeNumber,
 } from "../../js/utils.js";
 
 const params = new URLSearchParams(window.location.search);
@@ -36,6 +37,28 @@ function render() {
 
       ${renderStatusSteps(order.status)}
 
+      <div class="order-delivery-type">${order.deliveryType === "delivery" ? "🚚 배달" : "🏠 매장 수령"}</div>
+
+      ${
+        order.barcodeNumber
+          ? `<div class="pickup-barcode-admin">
+              <span class="order-note-label">픽업 바코드</span>
+              <div class="pickup-barcode-admin-number">${formatBarcodeNumber(order.barcodeNumber)}</div>
+              ${
+                order.status === "주문완료" || order.status === "조리중"
+                  ? `
+              <div class="barcode-verify-row">
+                <input type="text" id="barcode-verify-input" placeholder="바코드 스캔 또는 번호 입력" />
+                <button type="button" id="barcode-verify-btn">확인 후 수령 처리</button>
+              </div>
+              <p class="barcode-verify-error" id="barcode-verify-error" hidden></p>
+              `
+                  : ""
+              }
+            </div>`
+          : ""
+      }
+
       <div class="order-items">
         ${order.items
           .map(
@@ -53,9 +76,9 @@ function render() {
       ${
         order.recipient
           ? `<div class="order-note">
-              <span class="order-note-label">수령 정보</span>
+              <span class="order-note-label">${order.deliveryType === "delivery" ? "배달 정보" : "매장 수령 정보"}</span>
               <div>${escapeHtml(order.recipient.name)} · ${escapeHtml(order.recipient.phone)}</div>
-              <div>${escapeHtml(order.recipient.address)}</div>
+              ${order.recipient.address ? `<div>${escapeHtml(order.recipient.address)}</div>` : ""}
             </div>`
           : ""
       }
@@ -76,6 +99,25 @@ function render() {
     updateOrderStatus(orderId, event.target.value);
     render();
   });
+
+  const verifyBtn = document.getElementById("barcode-verify-btn");
+  if (verifyBtn) {
+    verifyBtn.addEventListener("click", () => {
+      const input = document.getElementById("barcode-verify-input").value.trim();
+      const normalized = input.replace(/^BC-0*/i, "") || input;
+      const matches = Number(normalized) === order.barcodeNumber || input === formatBarcodeNumber(order.barcodeNumber);
+
+      if (!matches) {
+        const errorEl = document.getElementById("barcode-verify-error");
+        errorEl.textContent = "바코드 번호가 이 주문과 일치하지 않아요.";
+        errorEl.hidden = false;
+        return;
+      }
+
+      updateOrderStatus(orderId, "수령완료");
+      render();
+    });
+  }
 }
 
 render();
