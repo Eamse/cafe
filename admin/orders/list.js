@@ -116,7 +116,10 @@ function renderList() {
         <input type="checkbox" data-select-id="${order.id}" ${selectedIds.has(order.id) ? "checked" : ""} />
       </label>
       <a class="row-main" href="detail.html?id=${order.id}">
-        <div class="row-date">${formatDate(order.createdAt)}</div>
+        <div class="row-date">
+          ${formatDate(order.createdAt)}
+          <span class="row-delivery-type ${order.deliveryType === "delivery" ? "is-delivery" : "is-pickup"}">${order.deliveryType === "delivery" ? "🚚 배달" : "🏠 매장 수령"}</span>
+        </div>
         <div class="row-summary">${escapeHtml(order.items[0].name)}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
         <div class="row-total">${formatPrice(order.total)}</div>
       </a>

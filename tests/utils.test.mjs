@@ -159,10 +159,20 @@ test("주문: 저장 → 조회 → 상태 변경", () => {
 
 test("cancelOrderWithReason은 상태를 취소로 바꾸고 사유를 남긴다", () => {
   saveOrders([{ id: 1, items: [], total: 0, status: "주문완료" }]);
-  cancelOrderWithReason(1, "단순 변심");
+  const result = cancelOrderWithReason(1, "단순 변심");
+  assert.equal(result.ok, true);
   const order = getOrderById(1);
   assert.equal(order.status, "취소");
   assert.equal(order.cancelReason, "단순 변심");
+});
+
+test("cancelOrderWithReason은 주문완료 상태가 아니면 취소를 거부한다 (새로고침 안 한 화면에서 취소 시도해도 무효)", () => {
+  saveOrders([{ id: 1, items: [], total: 0, status: "조리중" }]);
+  const result = cancelOrderWithReason(1, "단순 변심");
+  assert.equal(result.ok, false);
+  const order = getOrderById(1);
+  assert.equal(order.status, "조리중");
+  assert.equal(order.cancelReason, undefined);
 });
 
 test("getAvailableStatuses는 주문완료일 때만 취소를 포함한다", () => {

@@ -276,7 +276,7 @@ cafe-app
 | `getOrders()` / `saveOrders(orders)`             | 주문 전체 읽기/쓰기                              | **주문 단일 소스.** `basket`, `orders/*`, `my/*`, `admin/orders/*` 전부 이 함수로 주문을 읽고 씀                                                |
 | `getOrderById(orderId)`                          | → order 객체 \| null                             |                                                                                                                                                 |
 | `updateOrderStatus(orderId, status)`             | 상태 변경                                        | `admin/orders/*`가 사용                                                                                                                         |
-| `cancelOrderWithReason(orderId, reason)`         | 취소 처리 + `cancelReason` 저장                  | `orders/detail.js`의 취소 사유 선택이 사용 (2026-07-11 추가)                                                                                     |
+| `cancelOrderWithReason(orderId, reason)`         | → `{ok: boolean}`, 성공 시 취소 처리 + `cancelReason` 저장 | `orders/detail.js`의 취소 사유 선택이 사용 (2026-07-11 추가). 현재 상태가 "주문완료"가 아니면 `{ok:false}`만 반환하고 아무것도 바꾸지 않음(2026-07-13 추가 — 새로고침 안 한 화면에서 취소 시도해도 무효화되도록) |
 | `getAvailableStatuses(currentStatus)`            | → `string[]`                                     | 현재 상태 기준 선택 가능한 상태만 반환(주문완료 아니면 취소 제외). `admin/orders/*` 상태 셀렉트가 사용 (2026-07-11 추가)                          |
 | `getFavorites()`                                 | → `Set<number>` (menu id)                        | **즐겨찾기 단일 소스** (2026-07-11, `index.js` 로컬 구현을 여기로 이동). `my/index.js`도 이 함수로 즐겨찾기 목록을 읽음                          |
 | `toggleFavorite(menuId)`                         | 추가/해제 토글                                   | `index.js`의 하트 버튼이 사용                                                                                                                   |
@@ -410,6 +410,8 @@ cafe-app
 - [x] **관리자 목록 페이지(메뉴/카테고리/주문/공지/이벤트) 전부 flex 세로 목록 → CSS 그리드 카드 레이아웃으로 전환**
 - [x] **홈 화면 — 픽업 준비 알림 배너**: 픽업 전(주문완료/조리중) 주문의 예상 준비 시각이 지나면 홈 화면 상단에 알림 배너 표시(30초마다 재확인, 클릭 시 주문 상세로 이동). 배너 CSS의 `display:flex`가 `hidden` 속성을 무력화하던 버그를 `[hidden]` 우선순위 규칙 추가로 수정
 - [x] **수령 방법(배달/매장 수령) 선택 + 매장 수령 픽업 바코드 발급**: 체크아웃 시 배달/매장 수령을 고르게 하고(매장 수령이 기본값), 매장 수령이면 절대 겹치지 않는 전역 카운터로 고유 바코드 번호를 발급(`getNextBarcodeNumber`). 고객 주문 상세에 바코드(장식용 패턴+번호) 노출, 어드민 주문 상세에는 바코드 번호 입력/스캔 후 일치하면 자동으로 "수령완료" 처리하는 확인 버튼 추가. 배달 주문은 바코드 미발급, 주소 필드는 매장 수령 선택 시 선택 입력으로 전환
+- [x] **어드민 주문 목록에 배달/매장 수령 구분 배지 표시**
+- [x] **주문 취소 race condition 버그 수정**: 관리자가 주문을 "조리중"으로 바꿔도, 고객이 새로고침 안 한 주문 상세 화면에는 취소 버튼이 그대로 남아있어 눌러버리면 실제로 취소 처리가 되던 버그 발견. `cancelOrderWithReason`이 저장 직전 최신 상태를 다시 확인해 "주문완료"가 아니면 취소를 거부하도록 데이터 계층에서 근본 수정(화면단이 아니라 함수 자체에 가드를 둬서 다른 진입 경로가 생겨도 안전). 실패 시 안내 토스트 표시 후 최신 상태로 다시 렌더링
 
 ### 추후 구현 (DB 연결 필요, 현재 localStorage 구조로는 보류)
 

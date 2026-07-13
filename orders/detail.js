@@ -88,7 +88,10 @@ function hideCancelReasonPanel() {
 
 function confirmCancel(reason) {
   if (!reason) return;
-  cancelOrderWithReason(orderId, reason);
+  const result = cancelOrderWithReason(orderId, reason);
+  if (!result.ok) {
+    showToast("이미 조리가 시작되어 취소할 수 없어요. 매장으로 문의해주세요.", { type: "error" });
+  }
   renderDetail();
 }
 

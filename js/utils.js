@@ -324,15 +324,19 @@ export function updateOrderStatus(orderId, status) {
 
 // 고객이 직접 취소할 때 사유를 함께 남긴다. 관리자 쪽 상태 변경(updateOrderStatus)과는
 // 별도 경로 — 취소는 항상 사유가 있어야 하므로 한 함수로 묶어 누락을 방지한다.
+// 취소는 오직 "주문완료" 상태에서만 허용한다 — 관리자가 이미 조리를 시작한
+// (또는 그 이후로 넘긴) 주문은 여기서도 다시 한번 막아서, 취소 버튼이 그려진
+// 뒤 화면을 새로고침하지 않은 채로 눌러도 실제로는 취소되지 않도록 한다.
 export function cancelOrderWithReason(orderId, reason) {
   const orders = getOrders();
   const target = orders.find((order) => order.id === orderId);
-  if (target) {
-    target.status = "취소";
-    target.cancelReason = reason;
+  if (!target || target.status !== "주문완료") {
+    return { ok: false };
   }
+  target.status = "취소";
+  target.cancelReason = reason;
   saveOrders(orders);
-  return orders;
+  return { ok: true };
 }
 
 /* ---------- 수령자 정보 ---------- */
