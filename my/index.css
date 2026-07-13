@@ -482,6 +482,12 @@ body {
   color: var(--color-success);
 }
 
+.recent-order-card .order-barcode-badge {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--color-accent);
+}
+
 .recent-order-card .order-total {
   font-size: var(--font-size-base);
   color: var(--color-accent);

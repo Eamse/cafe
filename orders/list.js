@@ -103,6 +103,11 @@ function renderOrders(menus) {
       <a class="order-card-link" href="detail.html?id=${order.id}">
         <div class="order-date">${formatDate(order.createdAt)}</div>
         <div class="order-summary">${escapeHtml(order.items[0].name)}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
+        ${
+          order.barcodeNumber && order.status !== "취소"
+            ? `<div class="order-barcode-badge">🎫 픽업 바코드 확인 →</div>`
+            : ""
+        }
         <div class="order-status-cell">
           <div class="order-status">${order.status}</div>
           ${
