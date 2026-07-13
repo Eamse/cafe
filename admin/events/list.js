@@ -1,9 +1,10 @@
 import { initAdminGuard } from "../../js/auth.js";
 initAdminGuard();
-import { getEvents, saveEvents, isEventEnded } from "../../js/data.js";
-import { escapeHtml, formatDate, generateId, readImageFileAsDataUrl } from "../../js/utils.js";
+import { getEvents, createEvent, updateEvent, deleteEvent } from "../../js/data.js";
+import { escapeHtml, formatDate, generateId, readImageFileAsDataUrl, isEventEnded } from "../../js/utils.js";
 
 let imageDataUrl = "";
+let eventsCache = [];
 
 function showError(message) {
   const errorEl = document.getElementById("form-error");
@@ -70,14 +71,13 @@ function handleRemoveImage() {
 
 function render() {
   const listEl = document.getElementById("event-list");
-  const events = getEvents();
 
-  if (events.length === 0) {
+  if (eventsCache.length === 0) {
     listEl.innerHTML = `<p class="empty-state">등록된 이벤트가 없습니다.</p>`;
     return;
   }
 
-  listEl.innerHTML = events
+  listEl.innerHTML = eventsCache
     .slice()
     .sort((a, b) => (a.date < b.date ? 1 : -1))
     .map((event) => {
@@ -114,31 +114,30 @@ function render() {
   listEl.querySelectorAll(".event-row-admin").forEach((row) => {
     const id = row.dataset.id;
 
-    row.querySelector('[data-action="toggle-ended"]').addEventListener("change", (event) => {
-      const events = getEvents();
-      const target = events.find((e) => e.id === id);
+    row.querySelector('[data-action="toggle-ended"]').addEventListener("change", async (event) => {
+      const target = eventsCache.find((e) => e.id === id);
       target.isEnded = event.target.checked;
-      saveEvents(events);
+      await updateEvent(id, { isEnded: target.isEnded });
       render();
     });
 
-    row.querySelector('[data-action="end-date"]').addEventListener("change", (event) => {
-      const events = getEvents();
-      const target = events.find((e) => e.id === id);
+    row.querySelector('[data-action="end-date"]').addEventListener("change", async (event) => {
+      const target = eventsCache.find((e) => e.id === id);
       target.endDate = event.target.value || null;
-      saveEvents(events);
+      await updateEvent(id, { endDate: target.endDate });
       render();
     });
 
-    row.querySelector('[data-action="remove"]').addEventListener("click", () => {
+    row.querySelector('[data-action="remove"]').addEventListener("click", async () => {
       if (!confirm("이 이벤트를 삭제하시겠습니까?")) return;
-      saveEvents(getEvents().filter((e) => e.id !== id));
+      await deleteEvent(id);
+      eventsCache = eventsCache.filter((e) => e.id !== id);
       render();
     });
   });
 }
 
-document.getElementById("event-form").addEventListener("submit", (event) => {
+document.getElementById("event-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   clearError();
 
@@ -156,23 +155,17 @@ document.getElementById("event-form").addEventListener("submit", (event) => {
     return;
   }
 
-  const events = getEvents();
-  events.push({
-    id: generateId("event"),
-    title,
-    date,
-    endDate,
-    description,
-    image: imageDataUrl,
-    isEnded: false,
-  });
+  const id = generateId("event");
+  const newEvent = { id, title, date, endDate, description, image: imageDataUrl, isEnded: false };
 
   try {
-    saveEvents(events);
+    await createEvent(newEvent);
   } catch {
-    showError("저장 공간이 부족해요. 다른 이벤트 사진을 정리하거나 더 작은 사진으로 시도해주세요.");
+    showError("저장에 실패했어요. 다시 시도해주세요.");
     return;
   }
+
+  eventsCache.push(newEvent);
 
   document.getElementById("event-form").reset();
   imageDataUrl = "";
@@ -184,5 +177,10 @@ document.getElementById("event-image-file").addEventListener("change", handleIma
 document.getElementById("event-image-url").addEventListener("input", handleImageUrlInput);
 document.getElementById("image-remove-btn").addEventListener("click", handleRemoveImage);
 
-updateImagePreview();
-render();
+async function init() {
+  updateImagePreview();
+  eventsCache = await getEvents();
+  render();
+}
+
+init();

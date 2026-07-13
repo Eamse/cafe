@@ -46,8 +46,7 @@ function startPickupCountdown(order) {
   countdownTimer = setInterval(update, 30000);
 }
 
-function reorder(order, button) {
-  const menus = getMenus();
+function reorder(order, button, menus) {
   const addableItems = order.items.filter((item) => {
     const menu = menus.find((m) => m.id === item.menuId);
     return menu && !menu.isSoldOut;
@@ -86,16 +85,16 @@ function hideCancelReasonPanel() {
   cancelBtn.hidden = false;
 }
 
-function confirmCancel(reason) {
+function confirmCancel(reason, menus) {
   if (!reason) return;
   const result = cancelOrderWithReason(orderId, reason);
   if (!result.ok) {
     showToast("이미 조리가 시작되어 취소할 수 없어요. 매장으로 문의해주세요.", { type: "error" });
   }
-  renderDetail();
+  renderDetail(menus);
 }
 
-function renderDetail() {
+function renderDetail(menus) {
   clearInterval(countdownTimer);
 
   const order = getOrderById(orderId);
@@ -106,7 +105,6 @@ function renderDetail() {
     return;
   }
 
-  const menus = getMenus();
   const hasValidItems = order.items.some((item) => menus.some((m) => m.id === item.menuId));
 
   container.innerHTML = `
@@ -197,7 +195,7 @@ function renderDetail() {
   `;
 
   const reorderBtn = document.getElementById("reorder-btn");
-  if (reorderBtn) reorderBtn.addEventListener("click", () => reorder(order, reorderBtn));
+  if (reorderBtn) reorderBtn.addEventListener("click", () => reorder(order, reorderBtn, menus));
 
   const cancelBtn = document.getElementById("cancel-btn");
   if (cancelBtn) cancelBtn.addEventListener("click", showCancelReasonPanel);
@@ -206,16 +204,21 @@ function renderDetail() {
   if (cancelBackBtn) cancelBackBtn.addEventListener("click", hideCancelReasonPanel);
 
   document.querySelectorAll(".cancel-reason-btn").forEach((btn) => {
-    btn.addEventListener("click", () => confirmCancel(btn.dataset.reason));
+    btn.addEventListener("click", () => confirmCancel(btn.dataset.reason, menus));
   });
 
   if (order.status === "주문완료") startPickupCountdown(order);
 }
 
-renderDetail();
-renderCartBadge();
-initThemeToggle();
-renderAuthNav();
+async function init() {
+  const menus = await getMenus();
+  renderDetail(menus);
+  renderCartBadge();
+  initThemeToggle();
+  renderAuthNav();
+}
+
+init();
 
 // 새로고침하면 배너가 다시 뜨지 않도록, 한 번 보여준 뒤 주소에서 new=1을 지운다.
 if (isJustOrdered) {

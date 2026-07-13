@@ -12,7 +12,7 @@ import {
   initThemeToggle,
 } from "../js/utils.js";
 
-function renderRecentOrderWidget() {
+function renderRecentOrderWidget(menus) {
   const section = document.getElementById("home-recent-section");
   const row = document.getElementById("recent-order-row");
   const orders = getOrders();
@@ -22,7 +22,6 @@ function renderRecentOrderWidget() {
     return;
   }
 
-  const menus = getMenus();
   const lastOrder = orders[orders.length - 1];
   const items = lastOrder.items
     .map((item) => ({ item, menu: menus.find((m) => m.id === item.menuId) }))
@@ -63,8 +62,7 @@ function renderRecentOrderWidget() {
   });
 }
 
-function reorder(order, button) {
-  const menus = getMenus();
+function reorder(order, button, menus) {
   const addableItems = order.items.filter((item) => {
     const menu = menus.find((m) => m.id === item.menuId);
     return menu && !menu.isSoldOut;
@@ -89,7 +87,7 @@ function reorder(order, button) {
   }, 1600);
 }
 
-function renderOrders() {
+function renderOrders(menus) {
   const listEl = document.getElementById("orders-list");
   const orders = getOrders().slice().reverse();
 
@@ -97,8 +95,6 @@ function renderOrders() {
     listEl.innerHTML = `<p class="orders-empty">주문 내역이 없습니다.</p>`;
     return;
   }
-
-  const menus = getMenus();
 
   listEl.innerHTML = orders
     .map(
@@ -130,13 +126,18 @@ function renderOrders() {
   listEl.querySelectorAll(".btn-reorder").forEach((button) => {
     button.addEventListener("click", () => {
       const order = orders.find((o) => o.id === Number(button.dataset.id));
-      reorder(order, button);
+      reorder(order, button, menus);
     });
   });
 }
 
-renderOrders();
-renderRecentOrderWidget();
-renderCartBadge();
-initThemeToggle();
-renderAuthNav();
+async function init() {
+  const menus = await getMenus();
+  renderOrders(menus);
+  renderRecentOrderWidget(menus);
+  renderCartBadge();
+  initThemeToggle();
+  renderAuthNav();
+}
+
+init();

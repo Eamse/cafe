@@ -17,6 +17,9 @@ import { openCartPanel } from "../js/cartPanel.js";
 
 const RECOMMEND_COUNT = 4;
 
+let menusCache = [];
+let categoriesCache = [];
+
 function renderOptionPickerHtml(menu) {
   if (!menu.hasTempOption && !menu.hasSizeOption) return "";
   const upcharge = Number(menu.sizeUpcharge) || 0;
@@ -52,7 +55,7 @@ function renderOptionPickerHtml(menu) {
 }
 
 function getCategoryName(categoryId) {
-  const category = getCategories().find((c) => c.id === categoryId);
+  const category = categoriesCache.find((c) => c.id === categoryId);
   return category ? category.name : categoryId;
 }
 
@@ -90,8 +93,7 @@ function getRecommendedMenus(currentMenu, allMenus) {
 function renderMoreMenus(currentMenu) {
   const grid = document.getElementById("more-menu-grid");
   const heading = document.getElementById("more-menu-heading");
-  const allMenus = getMenus();
-  const { menus: recommended, isBasedOnOrders } = getRecommendedMenus(currentMenu, allMenus);
+  const { menus: recommended, isBasedOnOrders } = getRecommendedMenus(currentMenu, menusCache);
 
   heading.textContent = isBasedOnOrders ? "함께 주문하면 좋은 메뉴" : "다른 메뉴도 담아보세요";
 
@@ -131,7 +133,7 @@ function renderMoreMenus(currentMenu) {
 
 function openOtherMenu(cardEl) {
   const menuId = Number(cardEl.dataset.menuId);
-  const menu = getMenus().find((m) => m.id === menuId);
+  const menu = menusCache.find((m) => m.id === menuId);
   if (!menu) return;
   openCartPanel(menu, getCategoryName(menu.categoryId), "../basket/list.html");
 }
@@ -139,7 +141,7 @@ function openOtherMenu(cardEl) {
 function renderMenuDetail() {
   const params = new URLSearchParams(window.location.search);
   const menuId = Number(params.get("id"));
-  const menu = getMenus().find((m) => m.id === menuId);
+  const menu = menusCache.find((m) => m.id === menuId);
   const container = document.getElementById("menu-detail");
 
   if (!menu) {
@@ -228,7 +230,12 @@ function renderMenuDetail() {
 
 window.addEventListener("cart:updated", renderCartBadge);
 
-renderMenuDetail();
-renderCartBadge();
-initThemeToggle();
-renderAuthNav();
+async function init() {
+  [menusCache, categoriesCache] = await Promise.all([getMenus(), getCategories()]);
+  renderMenuDetail();
+  renderCartBadge();
+  initThemeToggle();
+  renderAuthNav();
+}
+
+init();

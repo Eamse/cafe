@@ -26,7 +26,7 @@ function nextOrderId(orders) {
   return orders.reduce((max, order) => Math.max(max, order.id), 0) + 1;
 }
 
-function renderBasket() {
+async function renderBasket() {
   const cart = getCart();
   const listEl = document.getElementById("basket-list");
   const totalEl = document.getElementById("basket-total");
@@ -45,7 +45,7 @@ function renderBasket() {
     return;
   }
 
-  const menus = getMenus();
+  const menus = await getMenus();
   const hasDrink = cartHasDrink(cart, menus);
   let total = 0;
   let totalQuantity = 0;
@@ -170,11 +170,11 @@ function fillRecipientInfo() {
   document.getElementById("recipient-address").value = saved.address || "";
 }
 
-function handleCheckout() {
+async function handleCheckout() {
   const cart = getCart();
   if (cart.length === 0) return;
 
-  const menus = getMenus();
+  const menus = await getMenus();
   const hasDrink = cartHasDrink(cart, menus);
   const items = cart
     .map((item) => {

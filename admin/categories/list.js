@@ -1,7 +1,10 @@
 import { initAdminGuard } from "../../js/auth.js";
 initAdminGuard();
-import { getCategories, saveCategories, getMenus } from "../../js/data.js";
+import { getCategories, createCategory, renameCategory, deleteCategory, getMenus } from "../../js/data.js";
 import { escapeHtml, generateId } from "../../js/utils.js";
+
+let categoriesCache = [];
+let menusCache = [];
 
 function showError(message) {
   const errorEl = document.getElementById("form-error");
@@ -16,19 +19,18 @@ function clearError() {
 }
 
 function menuCountFor(categoryId) {
-  return getMenus().filter((menu) => menu.categoryId === categoryId).length;
+  return menusCache.filter((menu) => menu.categoryId === categoryId).length;
 }
 
 function render() {
   const listEl = document.getElementById("category-list");
-  const categories = getCategories();
 
-  if (categories.length === 0) {
+  if (categoriesCache.length === 0) {
     listEl.innerHTML = `<p class="empty-state">등록된 카테고리가 없습니다.</p>`;
     return;
   }
 
-  listEl.innerHTML = categories
+  listEl.innerHTML = categoriesCache
     .map((category) => {
       const count = menuCountFor(category.id);
       return `
@@ -55,7 +57,7 @@ function render() {
 
     row.querySelector('[data-action="rename"]').addEventListener("click", () => {
       row.classList.add("is-editing");
-      input.value = getCategories().find((c) => c.id === id).name;
+      input.value = categoriesCache.find((c) => c.id === id).name;
       input.focus();
       input.select();
     });
@@ -64,32 +66,30 @@ function render() {
       row.classList.remove("is-editing");
     });
 
-    row.querySelector('[data-action="save"]').addEventListener("click", () => {
+    row.querySelector('[data-action="save"]').addEventListener("click", async () => {
       const newName = input.value.trim();
       if (!newName) {
         showError("카테고리 이름을 입력해주세요.");
         return;
       }
       clearError();
-      const categories = getCategories();
-      const target = categories.find((c) => c.id === id);
-      target.name = newName;
-      saveCategories(categories);
+      await renameCategory(id, newName);
+      categoriesCache.find((c) => c.id === id).name = newName;
       render();
     });
 
     const removeBtn = row.querySelector('[data-action="remove"]');
-    removeBtn.addEventListener("click", () => {
+    removeBtn.addEventListener("click", async () => {
       if (removeBtn.disabled) return;
       if (!confirm("이 카테고리를 삭제하시겠습니까?")) return;
-      const categories = getCategories().filter((c) => c.id !== id);
-      saveCategories(categories);
+      await deleteCategory(id);
+      categoriesCache = categoriesCache.filter((c) => c.id !== id);
       render();
     });
   });
 }
 
-document.getElementById("category-form").addEventListener("submit", (event) => {
+document.getElementById("category-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   clearError();
 
@@ -100,16 +100,21 @@ document.getElementById("category-form").addEventListener("submit", (event) => {
     return;
   }
 
-  const categories = getCategories();
-  if (categories.some((c) => c.name === name)) {
+  if (categoriesCache.some((c) => c.name === name)) {
     showError("이미 있는 카테고리 이름이에요.");
     return;
   }
 
-  categories.push({ id: generateId("cat"), name });
-  saveCategories(categories);
+  const id = generateId("cat");
+  await createCategory({ id, name });
+  categoriesCache.push({ id, name });
   input.value = "";
   render();
 });
 
-render();
+async function init() {
+  [categoriesCache, menusCache] = await Promise.all([getCategories(), getMenus()]);
+  render();
+}
+
+init();

@@ -1,4 +1,5 @@
 import { signupCustomer } from "../js/auth.js";
+import { appPath } from "../js/utils.js";
 
 function showError(message) {
   const errorEl = document.getElementById("form-error");
@@ -25,5 +26,5 @@ document.getElementById("signup-form").addEventListener("submit", (event) => {
     return;
   }
 
-  window.location.href = "/index.html";
+  window.location.href = appPath("index.html");
 });

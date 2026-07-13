@@ -1,13 +1,10 @@
 import { initAdminGuard } from "../../js/auth.js";
 initAdminGuard();
-import {
-  getNotices,
-  saveNotices,
-  getActiveNoticeIds,
-  toggleActiveNotice,
-  MAX_ACTIVE_NOTICES,
-} from "../../js/data.js";
+import { getNotices, createNotice, deleteNotice, getActiveNoticeIds, toggleActiveNotice, MAX_ACTIVE_NOTICES } from "../../js/data.js";
 import { escapeHtml, formatDate, generateId } from "../../js/utils.js";
+
+let noticesCache = [];
+let activeIdsCache = [];
 
 function showError(message) {
   const errorEl = document.getElementById("form-error");
@@ -23,23 +20,21 @@ function clearError() {
 
 function render() {
   const listEl = document.getElementById("notice-list");
-  const notices = getNotices();
-  const activeIds = getActiveNoticeIds();
 
-  if (notices.length === 0) {
+  if (noticesCache.length === 0) {
     listEl.innerHTML = `<p class="empty-state">등록된 공지가 없습니다.</p>`;
     return;
   }
 
-  listEl.innerHTML = notices
+  listEl.innerHTML = noticesCache
     .slice()
     .reverse()
     .map((notice) => {
-      const isActive = activeIds.includes(notice.id);
+      const isActive = activeIdsCache.includes(notice.id);
       return `
     <div class="notice-row ${isActive ? "is-active" : ""}" data-id="${notice.id}">
       <label class="notice-toggle">
-        <input type="checkbox" data-action="toggle-active" ${isActive ? "checked" : ""} ${!isActive && activeIds.length >= MAX_ACTIVE_NOTICES ? "disabled" : ""} />
+        <input type="checkbox" data-action="toggle-active" ${isActive ? "checked" : ""} ${!isActive && activeIdsCache.length >= MAX_ACTIVE_NOTICES ? "disabled" : ""} />
         <span>노출</span>
       </label>
       <div class="notice-info">
@@ -55,20 +50,22 @@ function render() {
   listEl.querySelectorAll(".notice-row").forEach((row) => {
     const id = row.dataset.id;
 
-    row.querySelector('[data-action="toggle-active"]').addEventListener("change", () => {
-      toggleActiveNotice(id);
+    row.querySelector('[data-action="toggle-active"]').addEventListener("change", async () => {
+      activeIdsCache = await toggleActiveNotice(id);
       render();
     });
 
-    row.querySelector('[data-action="remove"]').addEventListener("click", () => {
+    row.querySelector('[data-action="remove"]').addEventListener("click", async () => {
       if (!confirm("이 공지를 삭제하시겠습니까?")) return;
-      saveNotices(getNotices().filter((n) => n.id !== id));
+      await deleteNotice(id);
+      noticesCache = noticesCache.filter((n) => n.id !== id);
+      activeIdsCache = activeIdsCache.filter((activeId) => activeId !== id);
       render();
     });
   });
 }
 
-document.getElementById("notice-form").addEventListener("submit", (event) => {
+document.getElementById("notice-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   clearError();
 
@@ -82,13 +79,18 @@ document.getElementById("notice-form").addEventListener("submit", (event) => {
     return;
   }
 
-  const notices = getNotices();
-  notices.push({ id: generateId("notice"), message, date });
-  saveNotices(notices);
+  const id = generateId("notice");
+  await createNotice({ id, message, date });
+  noticesCache.push({ id, message, date });
 
   messageInput.value = "";
   dateInput.value = "";
   render();
 });
 
-render();
+async function init() {
+  [noticesCache, activeIdsCache] = await Promise.all([getNotices(), getActiveNoticeIds()]);
+  render();
+}
+
+init();

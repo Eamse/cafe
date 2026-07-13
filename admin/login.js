@@ -1,8 +1,9 @@
 import { loginAdmin, getCurrentAdmin } from "../js/auth.js";
+import { appPath } from "../js/utils.js";
 
 // 이미 로그인된 관리자가 로그인 페이지에 들어오면 바로 대시보드로.
 if (getCurrentAdmin()) {
-  window.location.href = "/admin/index.html";
+  window.location.href = appPath("admin/index.html");
 }
 
 function showError(message) {
@@ -23,5 +24,5 @@ document.getElementById("admin-login-form").addEventListener("submit", (event) =
     return;
   }
 
-  window.location.href = "/admin/index.html";
+  window.location.href = appPath("admin/index.html");
 });

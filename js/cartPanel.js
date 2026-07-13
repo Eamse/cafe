@@ -124,7 +124,7 @@ function markAsAdded({ addBtn }) {
   }, 900);
 }
 
-function addAllPending(basketHrefOverride) {
+async function addAllPending(basketHrefOverride) {
   if (pendingItems.size === 0) return;
 
   const basketHref =
@@ -139,7 +139,7 @@ function addAllPending(basketHrefOverride) {
 
   window.dispatchEvent(new CustomEvent("cart:updated"));
   updateBulkBar(basketHref);
-  renderSummary(basketHref);
+  await renderSummary(basketHref);
   showToast(`${count}개 메뉴를 장바구니에 담았습니다`);
 }
 
@@ -172,7 +172,7 @@ function renderRecommendationHtml(menu, allMenus) {
   `;
 }
 
-function renderSummary(basketHref) {
+async function renderSummary(basketHref) {
   const cart = getCart();
 
   if (cart.length === 0) {
@@ -180,7 +180,7 @@ function renderSummary(basketHref) {
     return;
   }
 
-  const menus = getMenus();
+  const menus = await getMenus();
   const hasDrink = cartHasDrink(cart, menus);
   let total = 0;
 
@@ -220,13 +220,13 @@ export function closeCartPanel() {
   if (lastFocusedEl) lastFocusedEl.focus();
 }
 
-export function openCartPanel(menu, categoryName, basketHref = "basket/list.html") {
+export async function openCartPanel(menu, categoryName, basketHref = "basket/list.html") {
   ensurePanel();
 
   if (!renderedMenuIds.has(menu.id)) {
     renderedMenuIds.add(menu.id);
 
-    const allMenus = getMenus();
+    const allMenus = await getMenus();
     const itemEl = document.createElement("div");
     itemEl.className = `cart-panel-content cat-${menu.categoryId}`;
     itemEl.innerHTML = `
@@ -300,18 +300,18 @@ export function openCartPanel(menu, categoryName, basketHref = "basket/list.html
         qtyValueEl.textContent = entry.quantity;
       });
 
-      addBtn.addEventListener("click", () => {
+      addBtn.addEventListener("click", async () => {
         addToCart(menu.id, entry.quantity, { temp: entry.temp, size: entry.size });
         pendingItems.delete(menu.id);
         markAsAdded(entry);
         window.dispatchEvent(new CustomEvent("cart:updated"));
         updateBulkBar(basketHref);
-        renderSummary(basketHref);
+        await renderSummary(basketHref);
         showToast(`${menu.name} 담았습니다`);
       });
 
       itemEl.querySelectorAll(".cart-panel-recommend-add").forEach((recBtn) => {
-        recBtn.addEventListener("click", () => {
+        recBtn.addEventListener("click", async () => {
           const recMenu = allMenus.find((m) => m.id === Number(recBtn.dataset.menuId));
           const recOptions = {
             temp: recMenu?.hasTempOption ? "ICE" : null,
@@ -322,14 +322,14 @@ export function openCartPanel(menu, categoryName, basketHref = "basket/list.html
           recBtn.disabled = true;
           showToast("장바구니에 담았습니다");
           window.dispatchEvent(new CustomEvent("cart:updated"));
-          renderSummary(basketHref);
+          await renderSummary(basketHref);
         });
       });
     }
   }
 
   updateBulkBar(basketHref);
-  renderSummary(basketHref);
+  await renderSummary(basketHref);
 
   const wasOpen = overlayEl.classList.contains("is-open");
   overlayEl.classList.add("is-open");

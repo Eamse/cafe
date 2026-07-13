@@ -1,17 +1,14 @@
 import { initAdminGuard } from "../../js/auth.js";
 initAdminGuard();
-import { getCategories, getMenus, saveMenus } from "../../js/data.js";
+import { getCategories, createMenu } from "../../js/data.js";
 import { readImageFileAsDataUrl, escapeHtml } from "../../js/utils.js";
 
 let imageDataUrl = "";
 
-function nextId(menus) {
-  return menus.reduce((max, menu) => Math.max(max, menu.id), 0) + 1;
-}
-
-function renderCategoryOptions() {
+async function renderCategoryOptions() {
   const select = document.getElementById("categoryId");
-  select.innerHTML = getCategories().map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
+  const categories = await getCategories();
+  select.innerHTML = categories.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
 }
 
 function showError(message) {
@@ -78,14 +75,12 @@ function handleRemoveImage() {
   updateImagePreview();
 }
 
-function handleSubmit(event) {
+async function handleSubmit(event) {
   event.preventDefault();
   clearError();
 
-  const menus = getMenus();
   const hasSizeOption = document.getElementById("hasSizeOption").checked;
   const newMenu = {
-    id: nextId(menus),
     categoryId: document.getElementById("categoryId").value,
     name: document.getElementById("name").value.trim(),
     price: Number(document.getElementById("price").value),
@@ -106,12 +101,10 @@ function handleSubmit(event) {
     return;
   }
 
-  menus.push(newMenu);
-
   try {
-    saveMenus(menus);
+    await createMenu(newMenu);
   } catch {
-    showError("저장 공간이 부족해요. 다른 메뉴 사진을 정리하거나 더 작은 사진으로 시도해주세요.");
+    showError("저장에 실패했어요. 다시 시도해주세요.");
     return;
   }
 

@@ -1,10 +1,10 @@
-import { getEvents, isEventEnded } from "../js/data.js";
+import { getEvents } from "../js/data.js";
 import { renderAuthNav } from "../js/auth.js";
-import { escapeHtml, renderCartBadge, initThemeToggle } from "../js/utils.js";
+import { escapeHtml, renderCartBadge, initThemeToggle, isEventEnded } from "../js/utils.js";
 
-function render() {
+async function render() {
   const listEl = document.getElementById("event-list");
-  const events = getEvents()
+  const events = (await getEvents())
     .slice()
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 

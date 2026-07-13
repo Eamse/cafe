@@ -25,6 +25,9 @@ let activePriceRange = initialParams.get("price") || "all";
 let searchQuery = initialParams.get("q") || "";
 let favoritesOnly = initialParams.get("favorites") === "1";
 
+let menusCache = [];
+let categoriesCache = [];
+
 function syncUrlParams() {
   const params = new URLSearchParams();
   if (activeCategory !== "all") params.set("category", activeCategory);
@@ -70,7 +73,7 @@ function getPopularMenuIds() {
 }
 
 function getCategoryName(categoryId) {
-  const category = getCategories().find((c) => c.id === categoryId);
+  const category = categoriesCache.find((c) => c.id === categoryId);
   return category ? category.name : categoryId;
 }
 
@@ -104,10 +107,9 @@ function renderRecentOrderWidget() {
     return;
   }
 
-  const menus = getMenus();
   const lastOrder = orders[orders.length - 1];
   const items = lastOrder.items
-    .map((item) => ({ item, menu: menus.find((m) => m.id === item.menuId) }))
+    .map((item) => ({ item, menu: menusCache.find((m) => m.id === item.menuId) }))
     .filter(({ menu }) => menu);
 
   if (items.length === 0) {
@@ -147,7 +149,7 @@ function renderRecentOrderWidget() {
 
 function renderTabs() {
   const tabs = document.getElementById("category-tabs");
-  const allTabs = [{ id: "all", name: "전체" }, ...getCategories()];
+  const allTabs = [{ id: "all", name: "전체" }, ...categoriesCache];
 
   tabs.innerHTML = allTabs
     .map(
@@ -172,11 +174,10 @@ function renderTabs() {
 function renderMenuGrid() {
   const grid = document.getElementById("menu-grid");
   const countEl = document.getElementById("menu-count");
-  const menus = getMenus();
   const query = searchQuery.trim().toLowerCase();
   const favorites = getFavorites();
 
-  let filtered = activeCategory === "all" ? menus : menus.filter((menu) => menu.categoryId === activeCategory);
+  let filtered = activeCategory === "all" ? menusCache : menusCache.filter((menu) => menu.categoryId === activeCategory);
   if (query) filtered = filtered.filter((menu) => menu.name.toLowerCase().includes(query));
   filtered = filtered.filter(isInPriceRange);
   if (favoritesOnly) filtered = filtered.filter((menu) => favorites.has(menu.id));
@@ -196,7 +197,7 @@ function renderMenuGrid() {
 
 function openMenuCard(cardEl) {
   const menuId = Number(cardEl.dataset.menuId);
-  const menu = getMenus().find((m) => m.id === menuId);
+  const menu = menusCache.find((m) => m.id === menuId);
   if (!menu) return;
   openCartPanel(menu, getCategoryName(menu.categoryId), "../basket/list.html");
 }
@@ -300,7 +301,7 @@ function renderSearchSuggestions(query) {
     return;
   }
 
-  const matches = getMenus()
+  const matches = menusCache
     .filter((menu) => menu.name.toLowerCase().includes(trimmed.toLowerCase()))
     .slice(0, SUGGESTION_COUNT);
 
@@ -368,11 +369,17 @@ function applyInitialFilterState() {
   favBtn.setAttribute("aria-pressed", String(favoritesOnly));
 }
 
-applyInitialFilterState();
-initThemeToggle();
-renderAuthNav();
-renderCartBadge();
-renderRecentOrderWidget();
-renderRecentSearches();
-renderTabs();
-renderMenuGrid();
+async function init() {
+  [menusCache, categoriesCache] = await Promise.all([getMenus(), getCategories()]);
+
+  applyInitialFilterState();
+  initThemeToggle();
+  renderAuthNav();
+  renderCartBadge();
+  renderRecentOrderWidget();
+  renderRecentSearches();
+  renderTabs();
+  renderMenuGrid();
+}
+
+init();

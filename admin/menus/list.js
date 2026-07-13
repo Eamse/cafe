@@ -1,6 +1,6 @@
 import { initAdminGuard } from "../../js/auth.js";
 initAdminGuard();
-import { getCategories, getMenus, saveMenus, getFeaturedMenuIds, toggleFeaturedMenu } from "../../js/data.js";
+import { getCategories, getMenus, setMenusSoldOut, deleteMenus, getFeaturedMenuIds, toggleFeaturedMenu } from "../../js/data.js";
 import { formatPrice, escapeHtml } from "../../js/utils.js";
 
 const FEATURED_MAX = 6;
@@ -9,14 +9,18 @@ let activeCategory = "all";
 let searchQuery = "";
 const selectedIds = new Set();
 
+let categoriesCache = [];
+let menusCache = [];
+let featuredIdsCache = [];
+
 function getCategoryName(categoryId) {
-  const category = getCategories().find((c) => c.id === categoryId);
+  const category = categoriesCache.find((c) => c.id === categoryId);
   return category ? category.name : categoryId;
 }
 
 function renderTabs() {
   const tabs = document.getElementById("category-tabs");
-  const allTabs = [{ id: "all", name: "전체" }, ...getCategories()];
+  const allTabs = [{ id: "all", name: "전체" }, ...categoriesCache];
 
   tabs.innerHTML = allTabs
     .map(
@@ -57,9 +61,8 @@ function updateSelectAllCheckboxState(total) {
 }
 
 function getFilteredMenus() {
-  const menus = getMenus();
   const query = searchQuery.trim().toLowerCase();
-  let filtered = activeCategory === "all" ? menus : menus.filter((m) => m.categoryId === activeCategory);
+  let filtered = activeCategory === "all" ? menusCache : menusCache.filter((m) => m.categoryId === activeCategory);
   if (query) filtered = filtered.filter((m) => m.name.toLowerCase().includes(query));
   return filtered;
 }
@@ -67,7 +70,6 @@ function getFilteredMenus() {
 function renderList() {
   const listEl = document.getElementById("admin-menu-list");
   const filtered = getFilteredMenus();
-  const featuredIds = getFeaturedMenuIds();
 
   const visibleIds = new Set(filtered.map((m) => m.id));
   selectedIds.forEach((id) => {
@@ -83,7 +85,7 @@ function renderList() {
 
   listEl.innerHTML = filtered
     .map((menu) => {
-      const isFeatured = featuredIds.includes(menu.id);
+      const isFeatured = featuredIdsCache.includes(menu.id);
       return `
     <div class="admin-menu-row glass-card cat-${menu.categoryId} ${selectedIds.has(menu.id) ? "is-selected" : ""}" data-id="${menu.id}">
       <label class="row-checkbox">
@@ -139,46 +141,44 @@ function renderList() {
   updateSelectAllCheckboxState(filtered.length);
 }
 
-function toggleFeatured(menuId) {
-  const current = getFeaturedMenuIds();
-  if (!current.includes(menuId) && current.length >= FEATURED_MAX) {
+async function toggleFeatured(menuId) {
+  if (!featuredIdsCache.includes(menuId) && featuredIdsCache.length >= FEATURED_MAX) {
     alert(`오늘의 추천은 최대 ${FEATURED_MAX}개까지 고를 수 있어요. 다른 메뉴를 먼저 해제해주세요.`);
     return;
   }
-  toggleFeaturedMenu(menuId);
+  featuredIdsCache = await toggleFeaturedMenu(menuId);
   renderList();
 }
 
-function toggleSoldOut(menuId) {
-  const menus = getMenus();
-  const target = menus.find((m) => m.id === menuId);
+async function toggleSoldOut(menuId) {
+  const target = menusCache.find((m) => m.id === menuId);
   if (!target) return;
+  await setMenusSoldOut([menuId], !target.isSoldOut);
   target.isSoldOut = !target.isSoldOut;
-  saveMenus(menus);
   renderList();
 }
 
-function deleteMenu(menuId) {
+async function deleteMenu(menuId) {
   if (!confirm("이 메뉴를 삭제하시겠습니까?")) return;
-  const menus = getMenus().filter((m) => m.id !== menuId);
-  saveMenus(menus);
+  await deleteMenus([menuId]);
+  menusCache = menusCache.filter((m) => m.id !== menuId);
   renderList();
 }
 
-function handleBulkAction(action) {
+async function handleBulkAction(action) {
   if (selectedIds.size === 0) return;
+
+  const ids = [...selectedIds];
 
   if (action === "delete") {
     if (!confirm(`선택한 ${selectedIds.size}개 메뉴를 삭제하시겠습니까?`)) return;
-    const menus = getMenus().filter((m) => !selectedIds.has(m.id));
-    saveMenus(menus);
+    await deleteMenus(ids);
+    menusCache = menusCache.filter((m) => !selectedIds.has(m.id));
   } else {
-    const menus = getMenus();
-    menus.forEach((menu) => {
-      if (!selectedIds.has(menu.id)) return;
-      menu.isSoldOut = action === "soldout";
+    await setMenusSoldOut(ids, action === "soldout");
+    menusCache.forEach((menu) => {
+      if (selectedIds.has(menu.id)) menu.isSoldOut = action === "soldout";
     });
-    saveMenus(menus);
   }
 
   selectedIds.clear();
@@ -206,5 +206,10 @@ document.getElementById("menu-name-search").addEventListener("input", (event) =>
   renderList();
 });
 
-renderTabs();
-renderList();
+async function init() {
+  [categoriesCache, menusCache, featuredIdsCache] = await Promise.all([getCategories(), getMenus(), getFeaturedMenuIds()]);
+  renderTabs();
+  renderList();
+}
+
+init();

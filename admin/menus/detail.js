@@ -1,18 +1,12 @@
 import { initAdminGuard } from "../../js/auth.js";
 initAdminGuard();
-import { getCategories, getMenus, saveMenus } from "../../js/data.js";
+import { getCategories, getMenuById, deleteMenus } from "../../js/data.js";
 import { formatPrice, escapeHtml } from "../../js/utils.js";
 
-function getCategoryName(categoryId) {
-  const category = getCategories().find((c) => c.id === categoryId);
-  return category ? category.name : categoryId;
-}
-
-function renderDetail() {
+async function renderDetail() {
   const params = new URLSearchParams(window.location.search);
   const menuId = Number(params.get("id"));
-  const menus = getMenus();
-  const menu = menus.find((m) => m.id === menuId);
+  const [categories, menu] = await Promise.all([getCategories(), getMenuById(menuId)]);
   const container = document.getElementById("menu-detail");
 
   if (!menu) {
@@ -20,10 +14,13 @@ function renderDetail() {
     return;
   }
 
+  const category = categories.find((c) => c.id === menu.categoryId);
+  const categoryName = category ? category.name : menu.categoryId;
+
   container.innerHTML = `
     <div class="detail-card glass-card cat-${menu.categoryId}">
       ${menu.image ? `<div class="menu-image" style="background-image: url('${escapeHtml(menu.image)}')"></div>` : ""}
-      <div class="menu-category">${getCategoryName(menu.categoryId)}</div>
+      <div class="menu-category">${escapeHtml(categoryName)}</div>
       <h2 class="menu-name">${escapeHtml(menu.name)}</h2>
       <div class="menu-price">${formatPrice(menu.price)}</div>
       <div class="menu-status ${menu.isSoldOut ? "is-soldout" : ""}">${menu.isSoldOut ? "품절" : "판매중"}</div>
@@ -35,9 +32,9 @@ function renderDetail() {
     </div>
   `;
 
-  document.getElementById("delete-btn").addEventListener("click", () => {
+  document.getElementById("delete-btn").addEventListener("click", async () => {
     if (!confirm("이 메뉴를 삭제하시겠습니까?")) return;
-    saveMenus(menus.filter((m) => m.id !== menuId));
+    await deleteMenus([menuId]);
     window.location.href = "list.html";
   });
 }

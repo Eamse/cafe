@@ -2,15 +2,42 @@
    공통 유틸리티 — 포맷, DOM 헬퍼, 장바구니
    ========================================================================== */
 
-const CART_STORAGE_KEY = "cafe_cart";
+const CART_STORAGE_KEY = 'cafe_cart';
+
+// 이 파일은 항상 "<앱 루트>/js/utils.js"에 위치하므로, 여기서 한 단계 위로 올라가면
+// 배포 위치(도메인 루트든 서브패스든)와 무관하게 실제 앱 루트 URL을 구할 수 있다.
+// window.location.href = "/admin/login.html" 같은 절대경로 리다이렉트는 앱이
+// 도메인 루트가 아닌 서브패스에 배포되면 깨지므로, 런타임 리다이렉트/링크는
+// 이 헬퍼로 앱 루트 기준 상대 경로를 계산해서 써야 한다.
+const APP_ROOT_URL = new URL('../', import.meta.url);
+
+export function appPath(path) {
+  return new URL(path, APP_ROOT_URL).pathname;
+}
+
+// 관리자가 수동으로 "종료됨"을 켰거나, 종료 예정일(endDate)이 이미 지났으면
+// 종료된 것으로 취급한다. 화면에 표시할 때는 항상 이 함수를 거쳐야 한다.
+// (순수 함수라 js/data.js의 Supabase 호출과 분리해 여기 둔다 — 네트워크 없이 단위 테스트하려면 필요)
+export function isEventEnded(event) {
+  if (event.isEnded) return true;
+  if (!event.endDate) return false;
+  const today = new Date().toISOString().slice(0, 10);
+  return event.endDate <= today;
+}
 
 /* ---------- 포맷 ---------- */
 
 export function formatPrice(price) {
-  return `${price.toLocaleString("ko-KR")}원`;
+  return `${price.toLocaleString('ko-KR')}원`;
 }
 
-const HTML_ESCAPE_MAP = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+const HTML_ESCAPE_MAP = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
 
 export function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, (ch) => HTML_ESCAPE_MAP[ch]);
@@ -19,14 +46,14 @@ export function escapeHtml(str) {
 export function formatDate(date) {
   const d = date instanceof Date ? date : new Date(date);
   const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  const hh = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
   return `${yyyy}.${mm}.${dd} ${hh}:${min}`;
 }
 
-export function generateId(prefix = "id") {
+export function generateId(prefix = 'id') {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
@@ -36,13 +63,18 @@ export function generateId(prefix = "id") {
 // 원본 사진(특히 폰 카메라 사진)은 몇 MB씩 되는 경우가 많아 그대로 저장하면
 // localStorage 용량(브라우저당 5~10MB)을 몇 개만 등록해도 넘길 수 있으므로,
 // 캔버스로 한 변의 최대 길이를 제한하고 JPEG로 재인코딩해 용량을 크게 줄인다.
-export function readImageFileAsDataUrl(file, maxDimension = 800, quality = 0.82) {
+export function readImageFileAsDataUrl(
+  file,
+  maxDimension = 800,
+  quality = 0.82,
+) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(reader.error || new Error("파일을 읽을 수 없어요"));
+    reader.onerror = () =>
+      reject(reader.error || new Error('파일을 읽을 수 없어요'));
     reader.onload = () => {
       const img = new Image();
-      img.onerror = () => reject(new Error("이미지를 불러올 수 없어요"));
+      img.onerror = () => reject(new Error('이미지를 불러올 수 없어요'));
       img.onload = () => {
         let { width, height } = img;
         if (width > maxDimension || height > maxDimension) {
@@ -50,11 +82,11 @@ export function readImageFileAsDataUrl(file, maxDimension = 800, quality = 0.82)
           width = Math.round(width * scale);
           height = Math.round(height * scale);
         }
-        const canvas = document.createElement("canvas");
+        const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
-        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL("image/jpeg", quality));
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
       };
       img.src = reader.result;
     };
@@ -76,25 +108,25 @@ export function qsa(selector, scope = document) {
 // 임시로 바꾸던 여러 곳의 피드백 방식을 하나로 통일한다.
 let toastTimer = null;
 
-export function showToast(message, { type = "success", duration = 2200 } = {}) {
-  let container = document.querySelector(".toast-container");
+export function showToast(message, { type = 'success', duration = 2200 } = {}) {
+  let container = document.querySelector('.toast-container');
   if (!container) {
-    container = document.createElement("div");
-    container.className = "toast-container";
+    container = document.createElement('div');
+    container.className = 'toast-container';
     document.body.appendChild(container);
   }
 
-  container.innerHTML = "";
-  const toast = document.createElement("div");
-  toast.className = `toast ${type === "error" ? "toast-error" : ""}`;
+  container.innerHTML = '';
+  const toast = document.createElement('div');
+  toast.className = `toast ${type === 'error' ? 'toast-error' : ''}`;
   toast.textContent = message;
   container.appendChild(toast);
 
-  requestAnimationFrame(() => toast.classList.add("is-visible"));
+  requestAnimationFrame(() => toast.classList.add('is-visible'));
 
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => {
-    toast.classList.remove("is-visible");
+    toast.classList.remove('is-visible');
     setTimeout(() => toast.remove(), 250);
   }, duration);
 }
@@ -103,15 +135,15 @@ export function showToast(message, { type = "success", duration = 2200 } = {}) {
 // 채워 넣는다. 카드 HTML은 style 대신 data-bg="URL"로 렌더링하고, 렌더링 직후
 // 이 함수를 호출하면 된다.
 export function lazyLoadBackgroundImages(root = document) {
-  const targets = qsa("[data-bg]:not([data-bg-loaded])", root);
+  const targets = qsa('[data-bg]:not([data-bg-loaded])', root);
   if (targets.length === 0) return;
 
   const load = (el) => {
     if (el.dataset.bg) el.style.backgroundImage = `url('${el.dataset.bg}')`;
-    el.dataset.bgLoaded = "true";
+    el.dataset.bgLoaded = 'true';
   };
 
-  if (!("IntersectionObserver" in window)) {
+  if (!('IntersectionObserver' in window)) {
     targets.forEach(load);
     return;
   }
@@ -124,7 +156,7 @@ export function lazyLoadBackgroundImages(root = document) {
         obs.unobserve(entry.target);
       });
     },
-    { rootMargin: "200px" }
+    { rootMargin: '200px' },
   );
 
   targets.forEach((el) => observer.observe(el));
@@ -148,14 +180,16 @@ export function saveCart(items) {
 // 같은 메뉴라도 온도/사이즈 옵션이 다르면 서로 다른 장바구니 줄(line)로 취급해야
 // 해서, menuId만으로는 항목을 특정할 수 없다. temp/size까지 합쳐 하나의 키로 본다.
 export function getCartLineKey(menuId, temp, size) {
-  return `${menuId}::${temp || ""}::${size || ""}`;
+  return `${menuId}::${temp || ''}::${size || ''}`;
 }
 
 export function addToCart(menuId, quantity = 1, options = {}) {
   const { temp = null, size = null } = options;
   const items = getCart();
   const key = getCartLineKey(menuId, temp, size);
-  const existing = items.find((item) => getCartLineKey(item.menuId, item.temp, item.size) === key);
+  const existing = items.find(
+    (item) => getCartLineKey(item.menuId, item.temp, item.size) === key,
+  );
   if (existing) {
     existing.quantity += quantity;
   } else {
@@ -170,9 +204,13 @@ export function updateCartQuantity(menuId, quantity, options = {}) {
   const key = getCartLineKey(menuId, temp, size);
   let items = getCart();
   if (quantity <= 0) {
-    items = items.filter((item) => getCartLineKey(item.menuId, item.temp, item.size) !== key);
+    items = items.filter(
+      (item) => getCartLineKey(item.menuId, item.temp, item.size) !== key,
+    );
   } else {
-    const target = items.find((item) => getCartLineKey(item.menuId, item.temp, item.size) === key);
+    const target = items.find(
+      (item) => getCartLineKey(item.menuId, item.temp, item.size) === key,
+    );
     if (target) target.quantity = quantity;
   }
   saveCart(items);
@@ -182,14 +220,17 @@ export function updateCartQuantity(menuId, quantity, options = {}) {
 export function removeFromCart(menuId, options = {}) {
   const { temp = null, size = null } = options;
   const key = getCartLineKey(menuId, temp, size);
-  const items = getCart().filter((item) => getCartLineKey(item.menuId, item.temp, item.size) !== key);
+  const items = getCart().filter(
+    (item) => getCartLineKey(item.menuId, item.temp, item.size) !== key,
+  );
   saveCart(items);
   return items;
 }
 
 // 사이즈 업차지까지 반영한 실제 단가.
 export function getMenuUnitPrice(menu, options = {}) {
-  const upcharge = options.size === "LARGE" ? Number(menu.sizeUpcharge) || 0 : 0;
+  const upcharge =
+    options.size === 'LARGE' ? Number(menu.sizeUpcharge) || 0 : 0;
   return menu.price + upcharge;
 }
 
@@ -199,7 +240,7 @@ export const DESSERT_DRINK_DISCOUNT = 500;
 // 카테고리 체계가 coffee/tea/ade/dessert 뿐이라 "dessert가 아니면 음료"로 본다
 // (어드민이 새 카테고리를 추가해도 디저트로 지정하지 않는 한 음료 취급).
 export function isDessertMenu(menu) {
-  return menu.categoryId === "dessert";
+  return menu.categoryId === 'dessert';
 }
 
 export function cartHasDrink(cart, menus) {
@@ -209,15 +250,15 @@ export function cartHasDrink(cart, menus) {
   });
 }
 
-const TEMP_OPTION_LABEL = { ICE: "아이스", HOT: "핫" };
-const SIZE_OPTION_LABEL = { REGULAR: "레귤러", LARGE: "라지" };
+const TEMP_OPTION_LABEL = { ICE: '아이스', HOT: '핫' };
+const SIZE_OPTION_LABEL = { REGULAR: '레귤러', LARGE: '라지' };
 
 // 장바구니/주문 항목에 저장된 temp/size를 "아이스 · 라지" 같은 표시용 문자열로.
 export function formatItemOptions(item) {
   const parts = [];
   if (item.temp) parts.push(TEMP_OPTION_LABEL[item.temp] || item.temp);
   if (item.size) parts.push(SIZE_OPTION_LABEL[item.size] || item.size);
-  return parts.join(" · ");
+  return parts.join(' · ');
 }
 
 // 장바구니 한 줄(cart item)의 실제 결제 단가 — 사이즈 업차지 반영 후,
@@ -235,7 +276,7 @@ export function clearCart() {
 }
 
 export function renderCartBadge() {
-  const badge = document.getElementById("cart-badge");
+  const badge = document.getElementById('cart-badge');
   if (!badge) return;
   const count = getCart().reduce((sum, item) => sum + item.quantity, 0);
 
@@ -245,25 +286,27 @@ export function renderCartBadge() {
   }
 
   badge.hidden = false;
-  badge.textContent = count > 99 ? "99+" : String(count);
+  badge.textContent = count > 99 ? '99+' : String(count);
 }
 
 /* ---------- 주문 ---------- */
 
-const ORDERS_STORAGE_KEY = "cafe_orders";
+const ORDERS_STORAGE_KEY = 'cafe_orders';
 
-export const ORDER_STATUSES = ["주문완료", "조리중", "수령완료", "취소"];
+export const ORDER_STATUSES = ['주문완료', '조리중', '수령완료', '취소'];
 
 // 관리자가 주문을 "수락"(주문완료 → 조리중 이상으로 진행)하면 더 이상 취소를
 // 선택할 수 없도록, 현재 상태 기준으로 고를 수 있는 상태 목록만 반환한다.
 export function getAvailableStatuses(currentStatus) {
   const allowed =
-    currentStatus === "주문완료" ? ORDER_STATUSES : ORDER_STATUSES.filter((status) => status !== "취소");
+    currentStatus === '주문완료'
+      ? ORDER_STATUSES
+      : ORDER_STATUSES.filter((status) => status !== '취소');
   if (!allowed.includes(currentStatus)) allowed.push(currentStatus);
   return allowed;
 }
 
-const BARCODE_COUNTER_KEY = "cafe_barcode_counter";
+const BARCODE_COUNTER_KEY = 'cafe_barcode_counter';
 
 // 매장 수령 주문에 발급하는 픽업 바코드 번호 — 절대 겹치면 안 되므로, 주문
 // id와는 별개로 오직 한 방향으로만 증가하는 카운터를 따로 둔다(주문이 취소·
@@ -277,7 +320,7 @@ export function getNextBarcodeNumber() {
 
 // 바코드 번호를 "BC-000123" 형태로 통일해서 보여준다.
 export function formatBarcodeNumber(number) {
-  return `BC-${String(number).padStart(6, "0")}`;
+  return `BC-${String(number).padStart(6, '0')}`;
 }
 
 // 실제 스캔되는 바코드는 아니고, 번호마다 막대 굵기가 달라지는 장식용
@@ -285,15 +328,16 @@ export function formatBarcodeNumber(number) {
 // 패턴을 만들어낸다.
 export function renderBarcodeBarsHtml(number) {
   // 숫자를 여러 자리로 늘려 얇은 줄이 여러 개 있는 실제 바코드에 가깝게 보이게 한다.
-  const seed = String(number).padStart(6, "0") + String(number * 7 + 13).padStart(6, "0");
-  const digits = seed.split("").map(Number);
+  const seed =
+    String(number).padStart(6, '0') + String(number * 7 + 13).padStart(6, '0');
+  const digits = seed.split('').map(Number);
   const bars = digits
     .map((d, i) => {
       const isBlack = i % 2 === 0;
       const width = isBlack ? 1 + (d % 3) : 1;
-      return `<span class="barcode-bar ${isBlack ? "is-black" : ""}" style="flex-grow:${width}"></span>`;
+      return `<span class="barcode-bar ${isBlack ? 'is-black' : ''}" style="flex-grow:${width}"></span>`;
     })
-    .join("");
+    .join('');
   return `<div class="barcode-bars" aria-hidden="true">${bars}</div>`;
 }
 
@@ -330,10 +374,10 @@ export function updateOrderStatus(orderId, status) {
 export function cancelOrderWithReason(orderId, reason) {
   const orders = getOrders();
   const target = orders.find((order) => order.id === orderId);
-  if (!target || target.status !== "주문완료") {
+  if (!target || target.status !== '주문완료') {
     return { ok: false };
   }
-  target.status = "취소";
+  target.status = '취소';
   target.cancelReason = reason;
   saveOrders(orders);
   return { ok: true };
@@ -341,7 +385,7 @@ export function cancelOrderWithReason(orderId, reason) {
 
 /* ---------- 수령자 정보 ---------- */
 
-const RECIPIENT_KEY = "cafe_recipient_info";
+const RECIPIENT_KEY = 'cafe_recipient_info';
 
 // 마지막으로 입력한 수령자 정보를 기억해서, 다음 주문 때 자동으로 채워준다
 // (매번 이름/연락처/주소를 새로 입력하지 않도록).
@@ -359,10 +403,10 @@ export function saveLastRecipientInfo(info) {
 
 /* ---------- 닉네임 ---------- */
 
-const NICKNAME_KEY = "cafe_nickname";
+const NICKNAME_KEY = 'cafe_nickname';
 
 export function getNickname() {
-  return localStorage.getItem(NICKNAME_KEY) || "";
+  return localStorage.getItem(NICKNAME_KEY) || '';
 }
 
 export function saveNickname(name) {
@@ -389,8 +433,11 @@ export function estimatePickupMinutes(totalQuantity) {
 // 아직 픽업 전(주문완료/조리중)인 주문의 예상 준비 시각이 지났으면 true.
 // 홈 화면의 "픽업 준비됐어요" 알림 배너가 이 함수로 판단한다.
 export function isOrderReadyForPickup(order) {
-  if (order.status !== "주문완료" && order.status !== "조리중") return false;
-  const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  if (order.status !== '주문완료' && order.status !== '조리중') return false;
+  const totalQuantity = order.items.reduce(
+    (sum, item) => sum + item.quantity,
+    0,
+  );
   const { min, max } = getPickupEstimateRange(totalQuantity);
   const avgMinutes = (min + max) / 2;
   const targetTime = new Date(order.createdAt).getTime() + avgMinutes * 60000;
@@ -416,12 +463,12 @@ export function getFrequentlyBoughtWith(menuId, limit = 4) {
     .map(([id]) => Number(id));
 }
 
-const ORDER_PROGRESS_STEPS = ["주문완료", "조리중", "수령완료"];
+const ORDER_PROGRESS_STEPS = ['주문완료', '조리중', '수령완료'];
 
 // 주문 상태를 진행 단계 표시줄(HTML)로 렌더링. 취소된 주문은 단계 대신 배너로 보여줌.
 // 고객(orders/detail.js)과 관리자(admin/orders/detail.js) 양쪽에서 공용으로 사용.
 export function renderStatusSteps(status) {
-  if (status === "취소") {
+  if (status === '취소') {
     return `<div class="status-cancelled-banner">이 주문은 취소되었습니다</div>`;
   }
 
@@ -430,16 +477,21 @@ export function renderStatusSteps(status) {
   return `
     <ol class="status-steps">
       ${ORDER_PROGRESS_STEPS.map((step, index) => {
-        const state = index < currentIndex ? "done" : index === currentIndex ? "active" : "";
+        const state =
+          index < currentIndex
+            ? 'done'
+            : index === currentIndex
+              ? 'active'
+              : '';
         return `<li class="${state}">${step}</li>`;
-      }).join("")}
+      }).join('')}
     </ol>
   `;
 }
 
 /* ---------- 즐겨찾기 ---------- */
 
-const FAVORITES_KEY = "cafe_favorites";
+const FAVORITES_KEY = 'cafe_favorites';
 
 export function getFavorites() {
   try {
@@ -463,10 +515,10 @@ export function clearFavorites() {
 
 /* ---------- 다크/라이트 테마 토글 ---------- */
 
-const THEME_KEY = "cafe_theme";
+const THEME_KEY = 'cafe_theme';
 
 export function getTheme() {
-  return localStorage.getItem(THEME_KEY) || "dark";
+  return localStorage.getItem(THEME_KEY) || 'dark';
 }
 
 export function applyTheme(theme) {
@@ -477,22 +529,25 @@ export function applyTheme(theme) {
 // 헤더의 테마 토글 버튼을 초기화한다. 각 페이지 <head>에 이미
 // `document.documentElement.dataset.theme = localStorage.getItem("cafe_theme") || "dark"`
 // 를 넣어둔 인라인 스크립트가 있어서(깜빡임 방지), 여기서는 버튼 라벨/이벤트만 연결한다.
-export function initThemeToggle(buttonId = "theme-toggle-btn") {
+export function initThemeToggle(buttonId = 'theme-toggle-btn') {
   const btn = document.getElementById(buttonId);
   if (!btn) return;
 
-  btn.setAttribute("role", "switch");
+  btn.setAttribute('role', 'switch');
 
   const updateState = (theme) => {
-    btn.classList.toggle("is-dark", theme === "dark");
-    btn.setAttribute("aria-checked", theme === "dark" ? "true" : "false");
-    btn.setAttribute("aria-label", theme === "dark" ? "라이트 모드로 전환" : "다크 모드로 전환");
+    btn.classList.toggle('is-dark', theme === 'dark');
+    btn.setAttribute('aria-checked', theme === 'dark' ? 'true' : 'false');
+    btn.setAttribute(
+      'aria-label',
+      theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환',
+    );
   };
 
   updateState(getTheme());
 
-  btn.addEventListener("click", () => {
-    const next = getTheme() === "dark" ? "light" : "dark";
+  btn.addEventListener('click', () => {
+    const next = getTheme() === 'dark' ? 'light' : 'dark';
     applyTheme(next);
     updateState(next);
   });
@@ -500,7 +555,7 @@ export function initThemeToggle(buttonId = "theme-toggle-btn") {
 
 /* ---------- 최근 검색어 ---------- */
 
-const RECENT_SEARCHES_KEY = "cafe_recent_searches";
+const RECENT_SEARCHES_KEY = 'cafe_recent_searches';
 const RECENT_SEARCHES_MAX = 6;
 
 export function getRecentSearches() {

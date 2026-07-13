@@ -1,4 +1,4 @@
-import { getMenus, getCategories, getFeaturedMenuIds, getNotices, getActiveNoticeIds, getEvents, isEventEnded } from "./js/data.js";
+import { getMenus, getCategories, getFeaturedMenuIds, getNotices, getActiveNoticeIds, getEvents } from "./js/data.js";
 import { renderAuthNav } from "./js/auth.js";
 import {
   formatPrice,
@@ -13,6 +13,7 @@ import {
   lazyLoadBackgroundImages,
   initThemeToggle,
   isOrderReadyForPickup,
+  isEventEnded,
 } from "./js/utils.js";
 import { openCartPanel } from "./js/cartPanel.js";
 
@@ -23,6 +24,15 @@ let activeSort = initialParams.get("sort") || "default";
 let activePriceRange = initialParams.get("price") || "all";
 let searchQuery = initialParams.get("q") || "";
 let favoritesOnly = initialParams.get("favorites") === "1";
+
+// Supabase에서 한 번 받아온 뒤 화면 안에서는 이 캐시로만 필터/정렬한다
+// (검색어를 입력할 때마다 다시 네트워크를 타지 않도록).
+let menusCache = [];
+let categoriesCache = [];
+let featuredIdsCache = [];
+let noticesCache = [];
+let activeNoticeIdsCache = [];
+let eventsCache = [];
 
 // 필터/정렬/검색 상태를 주소창에 반영해, 새로고침·뒤로가기·링크 공유 시에도
 // 같은 화면을 다시 볼 수 있게 한다. 방문 기록이 지저분해지지 않도록 push가
@@ -93,7 +103,7 @@ function getPopularMenuIds() {
 }
 
 function getCategoryName(categoryId) {
-  const category = getCategories().find((c) => c.id === categoryId);
+  const category = categoriesCache.find((c) => c.id === categoryId);
   return category ? category.name : categoryId;
 }
 
@@ -122,7 +132,7 @@ function menuCardHtml(menu, popularIds, favorites) {
 
 function openMenuCard(cardEl) {
   const menuId = Number(cardEl.dataset.menuId);
-  const menu = getMenus().find((m) => m.id === menuId);
+  const menu = menusCache.find((m) => m.id === menuId);
   if (!menu) return;
   addRecentlyViewed(menuId);
   renderRecentlyViewedWidget();
@@ -131,17 +141,15 @@ function openMenuCard(cardEl) {
 
 function renderFeatured() {
   const row = document.getElementById("featured-row");
-  const menus = getMenus();
   const favorites = getFavorites();
-  const featuredIds = getFeaturedMenuIds();
 
   // 관리자가 "오늘의 추천"으로 직접 고른 메뉴가 있으면 그걸 우선 사용하고,
   // 하나도 안 골랐으면 기존처럼 카테고리별 대표 메뉴로 자동 채운다.
   const featured =
-    featuredIds.length > 0
-      ? featuredIds.map((id) => menus.find((menu) => menu.id === id && !menu.isSoldOut)).filter(Boolean)
-      : getCategories()
-          .map((category) => menus.find((menu) => menu.categoryId === category.id && !menu.isSoldOut))
+    featuredIdsCache.length > 0
+      ? featuredIdsCache.map((id) => menusCache.find((menu) => menu.id === id && !menu.isSoldOut)).filter(Boolean)
+      : categoriesCache
+          .map((category) => menusCache.find((menu) => menu.categoryId === category.id && !menu.isSoldOut))
           .filter(Boolean);
 
   row.innerHTML = featured.map((menu) => menuCardHtml(menu, null, favorites)).join("");
@@ -159,8 +167,7 @@ function renderRecentlyViewedWidget() {
     return;
   }
 
-  const menus = getMenus();
-  const items = viewedIds.map((id) => menus.find((m) => m.id === id)).filter(Boolean);
+  const items = viewedIds.map((id) => menusCache.find((m) => m.id === id)).filter(Boolean);
 
   if (items.length === 0) {
     section.hidden = true;
@@ -193,7 +200,7 @@ function renderRecentlyViewedWidget() {
 
 function renderTabs() {
   const tabs = document.getElementById("category-tabs");
-  const allTabs = [{ id: "all", name: "전체" }, ...getCategories()];
+  const allTabs = [{ id: "all", name: "전체" }, ...categoriesCache];
 
   tabs.innerHTML = allTabs
     .map(
@@ -218,11 +225,10 @@ function renderTabs() {
 function renderMenuGrid() {
   const grid = document.getElementById("menu-grid");
   const countEl = document.getElementById("menu-count");
-  const menus = getMenus();
   const query = searchQuery.trim().toLowerCase();
   const favorites = getFavorites();
 
-  let filtered = activeCategory === "all" ? menus : menus.filter((menu) => menu.categoryId === activeCategory);
+  let filtered = activeCategory === "all" ? menusCache : menusCache.filter((menu) => menu.categoryId === activeCategory);
   if (query) filtered = filtered.filter((menu) => menu.name.toLowerCase().includes(query));
   filtered = filtered.filter(isInPriceRange);
   if (favoritesOnly) filtered = filtered.filter((menu) => favorites.has(menu.id));
@@ -342,7 +348,7 @@ function renderSearchSuggestions(query) {
     return;
   }
 
-  const matches = getMenus()
+  const matches = menusCache
     .filter((menu) => menu.name.toLowerCase().includes(trimmed.toLowerCase()))
     .slice(0, SUGGESTION_COUNT);
 
@@ -495,8 +501,7 @@ let noticeRotationTimer = null;
 
 function renderNoticeBar() {
   const section = document.getElementById("notice-bar");
-  const activeIds = getActiveNoticeIds();
-  const notices = getNotices().filter((notice) => activeIds.includes(notice.id));
+  const notices = noticesCache.filter((notice) => activeNoticeIdsCache.includes(notice.id));
 
   clearInterval(noticeRotationTimer);
 
@@ -525,7 +530,7 @@ function renderNoticeBar() {
 
 function renderHomeEvents() {
   const listEl = document.getElementById("home-event-list");
-  const events = getEvents()
+  const events = eventsCache
     .slice()
     .sort((a, b) => (a.date < b.date ? 1 : -1))
     .slice(0, 3);
@@ -573,17 +578,30 @@ document.getElementById("clear-recently-viewed-btn").addEventListener("click", (
   renderRecentlyViewedWidget();
 });
 
-applyInitialFilterState();
-initHeroSlider();
-initThemeToggle();
-renderAuthNav();
-renderCartBadge();
-renderRecentlyViewedWidget();
-renderRecentSearches();
-renderFeatured();
-renderTabs();
-renderMenuGrid();
-renderNoticeBar();
-renderHomeEvents();
-renderPickupReadyBanner();
-setInterval(renderPickupReadyBanner, 30000);
+async function init() {
+  [menusCache, categoriesCache, featuredIdsCache, noticesCache, activeNoticeIdsCache, eventsCache] = await Promise.all([
+    getMenus(),
+    getCategories(),
+    getFeaturedMenuIds(),
+    getNotices(),
+    getActiveNoticeIds(),
+    getEvents(),
+  ]);
+
+  applyInitialFilterState();
+  initHeroSlider();
+  initThemeToggle();
+  renderAuthNav();
+  renderCartBadge();
+  renderRecentlyViewedWidget();
+  renderRecentSearches();
+  renderFeatured();
+  renderTabs();
+  renderMenuGrid();
+  renderNoticeBar();
+  renderHomeEvents();
+  renderPickupReadyBanner();
+  setInterval(renderPickupReadyBanner, 30000);
+}
+
+init();

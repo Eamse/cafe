@@ -5,8 +5,7 @@ import { formatPrice, formatDate, escapeHtml, getOrders } from "../js/utils.js";
 
 const RECENT_COUNT = 5;
 
-function renderStats() {
-  const menus = getMenus();
+function renderStats(menus) {
   const orders = getOrders();
   const soldOutCount = menus.filter((m) => m.isSoldOut).length;
   const cookingCount = orders.filter((o) => o.status === "조리중").length;
@@ -33,16 +32,14 @@ function renderStats() {
     .join("");
 }
 
-function renderFeaturedMenus() {
+function renderFeaturedMenus(menus, featuredIds) {
   const listEl = document.getElementById("featured-menus-list");
-  const featuredIds = getFeaturedMenuIds();
 
   if (featuredIds.length === 0) {
     listEl.innerHTML = `<p class="empty-state">아직 고른 추천 메뉴가 없어요. 자동으로 카테고리별 대표 메뉴가 노출됩니다.</p>`;
     return;
   }
 
-  const menus = getMenus();
   const featured = featuredIds.map((id) => menus.find((m) => m.id === id)).filter(Boolean);
 
   listEl.innerHTML = featured
@@ -80,6 +77,11 @@ function renderRecentOrders() {
     .join("");
 }
 
-renderStats();
-renderFeaturedMenus();
-renderRecentOrders();
+async function init() {
+  const [menus, featuredIds] = await Promise.all([getMenus(), getFeaturedMenuIds()]);
+  renderStats(menus);
+  renderFeaturedMenus(menus, featuredIds);
+  renderRecentOrders();
+}
+
+init();

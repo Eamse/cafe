@@ -7,24 +7,24 @@
   <script>
     document.documentElement.dataset.theme = localStorage.getItem("cafe_theme") || "dark";
   </script>
-  <link rel="stylesheet" href="/css/variables.css" />
-  <link rel="stylesheet" href="/events/list.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../events/list.css" />
 </head>
 <body>
   <a href="#main-content" class="skip-link">본문으로 바로가기</a>
   <header class="events-header">
-    <h1><a href="/index.html">☕ 카페 앱</a></h1>
+    <h1><a href="../index.html">☕ 카페 앱</a></h1>
     <nav class="home-nav">
-      <a href="/index.html">홈</a>
-      <a href="/menus/list.html">메뉴</a>
-      <a href="/orders/list.html">주문내역</a>
-      <a href="/my/index.html">마이페이지</a>
+      <a href="../index.html">홈</a>
+      <a href="../menus/list.html">메뉴</a>
+      <a href="../orders/list.html">주문내역</a>
+      <a href="../my/index.html">마이페이지</a>
     </nav>
     <div class="header-actions">
       <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" aria-label="테마 전환"></button>
       <div id="auth-nav" class="auth-nav"></div>
       <a class="hotline" href="tel:0212345678">📞 02-1234-5678</a>
-      <a href="/basket/list.html" class="cart-link">
+      <a href="../basket/list.html" class="cart-link">
         장바구니
         <span class="cart-badge" id="cart-badge" hidden>0</span>
       </a>
@@ -39,6 +39,6 @@
     </ul>
   </main>
 
-  <script type="module" src="/events/list.js"></script>
+  <script type="module" src="../events/list.js"></script>
 </body>
 </html>

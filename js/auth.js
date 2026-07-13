@@ -5,7 +5,7 @@
    Supabase Auth 연동으로 대체되어야 한다.
    ========================================================================== */
 
-import { escapeHtml, generateId } from "./utils.js";
+import { escapeHtml, generateId, appPath } from "./utils.js";
 
 /* ---------- 고객 회원가입/로그인 ---------- */
 
@@ -59,7 +59,7 @@ export function getCurrentCustomer() {
 export function requireCustomerAuth() {
   if (!getCurrentCustomer()) {
     const redirect = encodeURIComponent(window.location.pathname + window.location.search);
-    window.location.href = `/auth/login.html?redirect=${redirect}`;
+    window.location.href = `${appPath("auth/login.html")}?redirect=${redirect}`;
     return false;
   }
   return true;
@@ -158,7 +158,7 @@ export function getCurrentAdmin() {
 // 어드민 페이지 최상단에서 호출 — 로그인 안 돼있으면 즉시 로그인 페이지로 보냄.
 export function requireAdminAuth() {
   if (!getCurrentAdmin()) {
-    window.location.href = "/admin/login.html";
+    window.location.href = appPath("admin/login.html");
     return false;
   }
   return true;
@@ -178,7 +178,7 @@ export function initAdminGuard() {
     if (logoutBtn) {
       logoutBtn.addEventListener("click", () => {
         logoutAdmin();
-        window.location.href = "/admin/login.html";
+        window.location.href = appPath("admin/login.html");
       });
     }
   });
@@ -194,7 +194,7 @@ export function renderAuthNav() {
   const customer = getCurrentCustomer();
 
   if (!customer) {
-    el.innerHTML = `<a href="/auth/login.html" class="auth-link">로그인</a>`;
+    el.innerHTML = `<a href="${appPath("auth/login.html")}" class="auth-link">로그인</a>`;
     return;
   }
 

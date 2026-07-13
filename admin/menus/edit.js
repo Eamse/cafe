@@ -1,6 +1,6 @@
 import { initAdminGuard } from "../../js/auth.js";
 initAdminGuard();
-import { getCategories, getMenus, saveMenus } from "../../js/data.js";
+import { getCategories, getMenuById, updateMenu } from "../../js/data.js";
 import { readImageFileAsDataUrl, escapeHtml } from "../../js/utils.js";
 
 const params = new URLSearchParams(window.location.search);
@@ -8,9 +8,10 @@ const menuId = Number(params.get("id"));
 
 let imageDataUrl = "";
 
-function renderCategoryOptions() {
+async function renderCategoryOptions() {
   const select = document.getElementById("categoryId");
-  select.innerHTML = getCategories().map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
+  const categories = await getCategories();
+  select.innerHTML = categories.map((c) => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
 }
 
 function fillForm(menu) {
@@ -95,13 +96,9 @@ function handleRemoveImage() {
   updateImagePreview();
 }
 
-function handleSubmit(event) {
+async function handleSubmit(event) {
   event.preventDefault();
   clearError();
-
-  const menus = getMenus();
-  const target = menus.find((m) => m.id === menuId);
-  if (!target) return;
 
   const name = document.getElementById("name").value.trim();
   const price = Number(document.getElementById("price").value);
@@ -117,30 +114,31 @@ function handleSubmit(event) {
 
   const hasSizeOption = document.getElementById("hasSizeOption").checked;
 
-  target.name = name;
-  target.categoryId = document.getElementById("categoryId").value;
-  target.price = price;
-  target.description = document.getElementById("description").value.trim();
-  target.image = imageDataUrl;
-  target.isSoldOut = document.getElementById("isSoldOut").checked;
-  target.hasTempOption = document.getElementById("hasTempOption").checked;
-  target.hasSizeOption = hasSizeOption;
-  target.sizeUpcharge = hasSizeOption ? Number(document.getElementById("sizeUpcharge").value) || 0 : 0;
+  const patch = {
+    name,
+    categoryId: document.getElementById("categoryId").value,
+    price,
+    description: document.getElementById("description").value.trim(),
+    image: imageDataUrl,
+    isSoldOut: document.getElementById("isSoldOut").checked,
+    hasTempOption: document.getElementById("hasTempOption").checked,
+    hasSizeOption,
+    sizeUpcharge: hasSizeOption ? Number(document.getElementById("sizeUpcharge").value) || 0 : 0,
+  };
 
   try {
-    saveMenus(menus);
+    await updateMenu(menuId, patch);
   } catch {
-    showError("저장 공간이 부족해요. 다른 메뉴 사진을 정리하거나 더 작은 사진으로 시도해주세요.");
+    showError("저장에 실패했어요. 다시 시도해주세요.");
     return;
   }
 
   window.location.href = `detail.html?id=${menuId}`;
 }
 
-function init() {
+async function init() {
   renderCategoryOptions();
-  const menus = getMenus();
-  const menu = menus.find((m) => m.id === menuId);
+  const menu = await getMenuById(menuId);
 
   if (!menu) {
     document.querySelector(".menu-form").innerHTML = `<p class="empty-state">메뉴를 찾을 수 없습니다.</p>`;

@@ -7,24 +7,24 @@
   <script>
         document.documentElement.dataset.theme = localStorage.getItem("cafe_theme") || "dark";
       </script>
-  <link rel="stylesheet" href="/css/variables.css" />
-  <link rel="stylesheet" href="/my/index.css" />
+  <link rel="stylesheet" href="../css/variables.css" />
+  <link rel="stylesheet" href="../my/index.css" />
 </head>
 <body>
   <a href="#main-content" class="skip-link">본문으로 바로가기</a>
   <header class="my-header">
-    <h1><a href="/index.html">☕ 카페 앱</a></h1>
+    <h1><a href="../index.html">☕ 카페 앱</a></h1>
     <nav class="home-nav">
-      <a href="/index.html">홈</a>
-      <a href="/menus/list.html">메뉴</a>
-      <a href="/orders/list.html">주문내역</a>
-      <a href="/my/index.html" class="active">마이페이지</a>
+      <a href="../index.html">홈</a>
+      <a href="../menus/list.html">메뉴</a>
+      <a href="../orders/list.html">주문내역</a>
+      <a href="../my/index.html" class="active">마이페이지</a>
     </nav>
     <div class="header-actions">
             <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" aria-label="테마 전환"></button>
             <div id="auth-nav" class="auth-nav"></div>
 <a class="hotline" href="tel:0212345678">📞 02-1234-5678</a>
-      <a href="/basket/list.html" class="cart-link">
+      <a href="../basket/list.html" class="cart-link">
         장바구니
         <span class="cart-badge" id="cart-badge" hidden>0</span>
       </a>
@@ -74,7 +74,7 @@
           <h2>즐겨찾기한 메뉴</h2>
           <div class="section-heading-actions">
             <button type="button" class="clear-all-btn" id="clear-favorites-btn" hidden>전체 삭제</button>
-            <a href="/menus/list.html">메뉴 보러가기 →</a>
+            <a href="../menus/list.html">메뉴 보러가기 →</a>
           </div>
         </div>
         <div class="favorite-menus-list" id="favorite-menus-list">
@@ -85,7 +85,7 @@
       <section class="recent-orders">
         <div class="section-heading">
           <h2>최근 주문</h2>
-          <a href="/orders/list.html">전체보기 →</a>
+          <a href="../orders/list.html">전체보기 →</a>
         </div>
         <div class="recent-orders-list" id="recent-orders-list">
           <!-- index.js가 최근 주문을 렌더링 -->
@@ -130,6 +130,6 @@
     </div>
   </main>
 
-  <script type="module" src="/my/index.js"></script>
+  <script type="module" src="../my/index.js"></script>
 </body>
 </html>

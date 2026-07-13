@@ -22,6 +22,7 @@ import {
   getNickname,
   saveNickname,
   initThemeToggle,
+  appPath,
 } from "../js/utils.js";
 
 const RECENT_COUNT = 3;
@@ -73,7 +74,7 @@ function renderSummary(orders, favoriteCount) {
   document.getElementById("summary-favorites").textContent = `${favoriteCount}개`;
 }
 
-function renderFavoriteMenus() {
+async function renderFavoriteMenus() {
   const listEl = document.getElementById("favorite-menus-list");
   const clearBtn = document.getElementById("clear-favorites-btn");
   const favoriteIds = getFavorites();
@@ -84,7 +85,8 @@ function renderFavoriteMenus() {
     return 0;
   }
 
-  const menus = getMenus().filter((menu) => favoriteIds.has(menu.id));
+  const allMenus = await getMenus();
+  const menus = allMenus.filter((menu) => favoriteIds.has(menu.id));
 
   if (menus.length === 0) {
     listEl.innerHTML = `<p class="empty-state">아직 즐겨찾기한 메뉴가 없습니다.</p>`;
@@ -97,7 +99,7 @@ function renderFavoriteMenus() {
   listEl.innerHTML = menus
     .map(
       (menu) => `
-    <a class="favorite-menu-card ${menu.isSoldOut ? "is-soldout" : ""}" href="/menus/detail.html?id=${menu.id}">
+    <a class="favorite-menu-card ${menu.isSoldOut ? "is-soldout" : ""}" href="${appPath("menus/detail.html")}?id=${menu.id}">
       <div class="favorite-menu-image" data-bg="${escapeHtml(menu.image || "")}"></div>
       <div class="favorite-menu-name">${escapeHtml(menu.name)}</div>
       <div class="favorite-menu-price">${formatPrice(menu.price)}</div>
@@ -124,7 +126,7 @@ function renderRecentOrders(orders) {
   listEl.innerHTML = recent
     .map(
       (order) => `
-    <a class="recent-order-card ${order.status === "취소" ? "is-cancelled" : ""}" href="/orders/detail.html?id=${order.id}">
+    <a class="recent-order-card ${order.status === "취소" ? "is-cancelled" : ""}" href="${appPath("orders/detail.html")}?id=${order.id}">
       <div class="order-date">${formatDate(order.createdAt)}</div>
       <div class="order-summary">${escapeHtml(order.items[0].name)}${order.items.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}</div>
       <div class="order-status">${order.status}</div>
@@ -135,8 +137,8 @@ function renderRecentOrders(orders) {
     .join("");
 }
 
-function refreshFavorites() {
-  const favoriteCount = renderFavoriteMenus();
+async function refreshFavorites() {
+  const favoriteCount = await renderFavoriteMenus();
   renderSummary(getOrders(), favoriteCount);
 }
 
@@ -264,11 +266,11 @@ function initAddressForm() {
   document.getElementById("address-cancel-edit-btn").addEventListener("click", resetAddressForm);
 }
 
-function init() {
+async function init() {
   renderProfileName();
   initProfileNameEditor();
   const orders = getOrders();
-  const favoriteCount = renderFavoriteMenus();
+  const favoriteCount = await renderFavoriteMenus();
   renderSummary(orders, favoriteCount);
   renderRecentOrders(orders);
   renderCartBadge();
