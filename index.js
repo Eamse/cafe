@@ -12,6 +12,7 @@ import {
   removeRecentSearch,
   lazyLoadBackgroundImages,
   initThemeToggle,
+  isOrderReadyForPickup,
 } from "./js/utils.js";
 import { openCartPanel } from "./js/cartPanel.js";
 
@@ -469,6 +470,25 @@ function initHeroSlider() {
   startAutoplay();
 }
 
+// 아직 픽업 전인 가장 최근 주문의 예상 준비 시각이 지났으면 홈 화면 상단에
+// "픽업 준비됐어요" 배너를 보여준다. 30초마다 다시 확인해서, 홈 화면을 열어둔
+// 채로 기다리다가도 시간이 지나면 자동으로 배너가 뜨도록 함.
+function renderPickupReadyBanner() {
+  const banner = document.getElementById("pickup-ready-banner");
+  const orders = getOrders();
+  const activeOrder = orders
+    .slice()
+    .reverse()
+    .find((order) => order.status === "주문완료" || order.status === "조리중");
+
+  if (activeOrder && isOrderReadyForPickup(activeOrder)) {
+    banner.href = `orders/detail.html?id=${activeOrder.id}`;
+    banner.hidden = false;
+  } else {
+    banner.hidden = true;
+  }
+}
+
 let noticeRotationTimer = null;
 
 function renderNoticeBar() {
@@ -563,3 +583,5 @@ renderTabs();
 renderMenuGrid();
 renderNoticeBar();
 renderHomeEvents();
+renderPickupReadyBanner();
+setInterval(renderPickupReadyBanner, 30000);

@@ -155,6 +155,69 @@ body {
   }
 }
 
+/* ---------- 픽업 준비 알림 배너 ---------- */
+
+@keyframes pickup-banner-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pickup-ready-banner[hidden] {
+  display: none;
+}
+
+.pickup-ready-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  max-width: 1200px;
+  margin: var(--spacing-md) auto 0;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+  color: var(--color-cream-100);
+  text-decoration: none;
+  animation: pickup-banner-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.pickup-ready-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.pickup-ready-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+}
+
+.pickup-ready-text strong {
+  font-size: var(--font-size-base);
+}
+
+.pickup-ready-text span {
+  opacity: 0.9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pickup-ready-banner {
+    animation: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .pickup-ready-banner {
+    margin: var(--spacing-sm) var(--spacing-md) 0;
+  }
+}
+
 .home-hero {
   position: relative;
   display: flex;

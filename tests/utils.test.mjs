@@ -22,6 +22,7 @@ import {
   cancelOrderWithReason,
   getPickupEstimateRange,
   estimatePickupMinutes,
+  isOrderReadyForPickup,
   getFrequentlyBoughtWith,
   getFavorites,
   toggleFavorite,
@@ -175,6 +176,22 @@ test("getPickupEstimateRange / estimatePickupMinutes", () => {
   assert.equal(min, 8);
   assert.equal(max, 13);
   assert.equal(estimatePickupMinutes(3), "예상 준비 시간: 약 8~13분");
+});
+
+test("isOrderReadyForPickup: 예상 준비 시각이 지났는지로 판단한다", () => {
+  const items = [{ menuId: 1, name: "아메리카노", price: 4500, quantity: 1 }];
+
+  const justOrdered = { status: "주문완료", items, createdAt: new Date().toISOString() };
+  assert.equal(isOrderReadyForPickup(justOrdered), false);
+
+  const longAgo = { status: "조리중", items, createdAt: new Date(Date.now() - 60 * 60000).toISOString() };
+  assert.equal(isOrderReadyForPickup(longAgo), true);
+
+  const pickedUp = { status: "수령완료", items, createdAt: new Date(Date.now() - 60 * 60000).toISOString() };
+  assert.equal(isOrderReadyForPickup(pickedUp), false);
+
+  const cancelled = { status: "취소", items, createdAt: new Date(Date.now() - 60 * 60000).toISOString() };
+  assert.equal(isOrderReadyForPickup(cancelled), false);
 });
 
 test("getFrequentlyBoughtWith는 실제 주문에서 함께 나온 메뉴만 빈도순으로 반환한다", () => {

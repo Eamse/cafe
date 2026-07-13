@@ -348,6 +348,17 @@ export function estimatePickupMinutes(totalQuantity) {
   return `예상 준비 시간: 약 ${min}~${max}분`;
 }
 
+// 아직 픽업 전(주문완료/조리중)인 주문의 예상 준비 시각이 지났으면 true.
+// 홈 화면의 "픽업 준비됐어요" 알림 배너가 이 함수로 판단한다.
+export function isOrderReadyForPickup(order) {
+  if (order.status !== "주문완료" && order.status !== "조리중") return false;
+  const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  const { min, max } = getPickupEstimateRange(totalQuantity);
+  const avgMinutes = (min + max) / 2;
+  const targetTime = new Date(order.createdAt).getTime() + avgMinutes * 60000;
+  return Date.now() >= targetTime;
+}
+
 // 특정 메뉴와 실제로 함께 주문된 적 있는 다른 메뉴 id를 빈도순으로 반환.
 // menus/detail.js(상세 추천), js/cartPanel.js(담기 패널 미니 추천)가 공용으로 사용.
 export function getFrequentlyBoughtWith(menuId, limit = 4) {
