@@ -305,6 +305,9 @@ cafe-app
 | `getCurrentAdmin()` | → admin 객체 \| null | 현재 로그인한 관리자 |
 | `requireAdminAuth()` | → `boolean` | 로그인 안 돼있으면 `/admin/login.html`로 즉시 리다이렉트 |
 | `initAdminGuard()` | - | `requireAdminAuth()` + 사이드바의 `#admin-name`/`#admin-logout-btn` 바인딩을 한 번에 처리. 전 admin 페이지 10개의 진입 스크립트 최상단에서 호출 |
+| `requireCustomerAuth()` | → `boolean` | 로그인 안 돼있으면 `/auth/login.html?redirect=<현재경로>`로 리다이렉트(로그인 후 원래 페이지로 복귀). `my/index.js`가 최상단에서 호출 (2026-07-13 추가) |
+| `getCustomerAddresses()` | → `{id, label, recipientName, phone, address, isDefault}[]` | 로그인한 고객의 저장된 배송지 목록. 고객 객체의 `addresses` 배열에 종속 |
+| `addAddress({label, recipientName, phone, address})` / `updateAddress(addressId, fields)` / `removeAddress(addressId)` / `setDefaultAddress(addressId)` | → 갱신된 addresses 배열 | 로그인한 고객의 주소록 CRUD. 삭제 시 그 주소가 기본이었으면 남은 것 중 하나를 자동으로 기본 지정 |
 
 ### localStorage 키
 
@@ -321,7 +324,7 @@ cafe-app
 | `cafe_notices` | `{ id: string, message: string, date: string }[]`                                                                  | `js/data.js`의 `getNotices`/`saveNotices`가 관리 (2026-07-11 추가) |
 | `cafe_active_notice_ids` | `string[]` (notice id, 최대 3개)                                                                                | `js/data.js`의 `getActiveNoticeIds`/`saveActiveNoticeIds`/`toggleActiveNotice`가 관리 (2026-07-11 추가) |
 | `cafe_events` | `{ id: string, title: string, description: string, date: string, endDate?: string, image: string, isEnded: boolean }[]` | `js/data.js`의 `getEvents`/`saveEvents`가 관리 (2026-07-11 추가, `endDate`는 2026-07-13 추가 — 종료 예정일, 표시 여부는 `isEventEnded()`로 판단) |
-| `cafe_customers` | `{ id: string, name: string, email: string, password: string, phone: string, createdAt: string }[]` | `js/auth.js`의 `signupCustomer`가 관리 (2026-07-13 추가) |
+| `cafe_customers` | `{ id, name, email, password, phone, createdAt, addresses?: {id, label, recipientName, phone, address, isDefault}[] }[]` | `js/auth.js`의 `signupCustomer`가 관리, `addresses`는 주소록 CRUD 함수들이 관리 (2026-07-13 추가) |
 | `cafe_customer_session` | `string` (customer id) | `js/auth.js`의 로그인 세션 |
 | `cafe_admin_accounts` | `{ id: string, email: string, password: string, name: string }[]` | `js/auth.js`가 관리, 최초 접근 시 기본 계정 1개 자동 시드 (2026-07-13 추가) |
 | `cafe_admin_session` | `string` (admin id) | `js/auth.js`의 어드민 로그인 세션 — 고객 세션과 완전히 분리 |
@@ -399,6 +402,7 @@ cafe-app
 - [x] **고객 회원가입/로그인 + 어드민 로그인(분리) — localStorage 기반 임시 인증, 추후 Supabase Auth로 교체 예정**
 - [x] **관리자 메뉴/이벤트 이미지 등록 — 파일 업로드 + URL 둘 다 지원**
 - [x] **이벤트 관리 — 종료 예약 날짜(endDate) 설정, 지나면 자동으로 종료 처리**
+- [x] **마이페이지에 "주소 관리" 탭 추가 — 여러 배송지 등록/수정/삭제/기본 설정, 로그인 필수(미들웨어 가드)**
 
 ### 추후 구현 (DB 연결 필요, 현재 localStorage 구조로는 보류)
 

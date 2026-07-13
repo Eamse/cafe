@@ -54,6 +54,72 @@ export function getCurrentCustomer() {
   return getCustomers().find((c) => c.id === id) || null;
 }
 
+// 고객 전용 페이지(마이페이지 등) 최상단에서 호출 — 로그인 안 돼있으면
+// 로그인 후 원래 페이지로 돌아올 수 있도록 redirect 파라미터를 붙여 보낸다.
+export function requireCustomerAuth() {
+  if (!getCurrentCustomer()) {
+    const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.href = `/auth/login.html?redirect=${redirect}`;
+    return false;
+  }
+  return true;
+}
+
+/* ---------- 고객 주소 관리 (로그인한 고객에 종속) ---------- */
+
+export function getCustomerAddresses() {
+  const customer = getCurrentCustomer();
+  return customer?.addresses || [];
+}
+
+function updateCurrentCustomer(mutate) {
+  const customers = getCustomers();
+  const customer = customers.find((c) => c.id === localStorage.getItem(CUSTOMER_SESSION_KEY));
+  if (!customer) return [];
+  if (!customer.addresses) customer.addresses = [];
+  mutate(customer.addresses);
+  saveCustomers(customers);
+  return customer.addresses;
+}
+
+export function addAddress({ label, recipientName, phone, address }) {
+  return updateCurrentCustomer((addresses) => {
+    addresses.push({
+      id: generateId("address"),
+      label,
+      recipientName,
+      phone,
+      address,
+      isDefault: addresses.length === 0,
+    });
+  });
+}
+
+export function updateAddress(addressId, { label, recipientName, phone, address }) {
+  return updateCurrentCustomer((addresses) => {
+    const target = addresses.find((a) => a.id === addressId);
+    if (target) Object.assign(target, { label, recipientName, phone, address });
+  });
+}
+
+export function removeAddress(addressId) {
+  return updateCurrentCustomer((addresses) => {
+    const index = addresses.findIndex((a) => a.id === addressId);
+    if (index === -1) return;
+    const wasDefault = addresses[index].isDefault;
+    addresses.splice(index, 1);
+    if (wasDefault && addresses.length > 0) addresses[0].isDefault = true;
+  });
+}
+
+export function setDefaultAddress(addressId) {
+  return updateCurrentCustomer((addresses) => {
+    addresses.forEach((a) => {
+      a.isDefault = a.id === addressId;
+    });
+  });
+}
+
 /* ---------- 어드민 로그인 (고객과 완전히 분리된 별도 세션) ---------- */
 
 const ADMIN_ACCOUNTS_KEY = "cafe_admin_accounts";

@@ -32,59 +32,102 @@
   </header>
 
   <main id="main-content" class="my-page">
-    <section class="profile-card glass-card">
-      <div class="profile-avatar">☕</div>
-      <div class="profile-info">
-        <div class="profile-name-row">
-          <div class="profile-name" id="profile-name">게스트님</div>
-          <button type="button" class="profile-name-edit-btn" id="profile-name-edit-btn" aria-label="닉네임 수정">✎</button>
+    <div class="my-tabs" role="tablist">
+      <button type="button" class="my-tab-btn active" id="tab-btn-info" role="tab" aria-selected="true" aria-controls="tab-panel-info">내 정보</button>
+      <button type="button" class="my-tab-btn" id="tab-btn-address" role="tab" aria-selected="false" aria-controls="tab-panel-address">주소 관리</button>
+    </div>
+
+    <div class="my-tab-panel" id="tab-panel-info" role="tabpanel">
+      <section class="profile-card glass-card">
+        <div class="profile-avatar">☕</div>
+        <div class="profile-info">
+          <div class="profile-name-row">
+            <div class="profile-name" id="profile-name">게스트님</div>
+            <button type="button" class="profile-name-edit-btn" id="profile-name-edit-btn" aria-label="닉네임 수정">✎</button>
+          </div>
+          <form class="profile-name-form" id="profile-name-form" hidden>
+            <input type="text" id="profile-name-input" maxlength="12" placeholder="닉네임 입력" />
+            <button type="submit" class="btn-save-name">저장</button>
+            <button type="button" class="btn-cancel-name" id="profile-name-cancel">취소</button>
+          </form>
+          <div class="profile-sub">오늘도 좋은 하루 되세요</div>
         </div>
-        <form class="profile-name-form" id="profile-name-form" hidden>
-          <input type="text" id="profile-name-input" maxlength="12" placeholder="닉네임 입력" />
-          <button type="submit" class="btn-save-name">저장</button>
-          <button type="button" class="btn-cancel-name" id="profile-name-cancel">취소</button>
+      </section>
+
+      <section class="summary-card glass-card">
+        <div class="summary-item">
+          <div class="summary-value" id="summary-count">0</div>
+          <div class="summary-label">총 주문</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-value" id="summary-total">0원</div>
+          <div class="summary-label">누적 결제</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-value" id="summary-favorites">0</div>
+          <div class="summary-label">즐겨찾기</div>
+        </div>
+      </section>
+
+      <section class="favorite-menus">
+        <div class="section-heading">
+          <h2>즐겨찾기한 메뉴</h2>
+          <div class="section-heading-actions">
+            <button type="button" class="clear-all-btn" id="clear-favorites-btn" hidden>전체 삭제</button>
+            <a href="/menus/list.html">메뉴 보러가기 →</a>
+          </div>
+        </div>
+        <div class="favorite-menus-list" id="favorite-menus-list">
+          <!-- index.js가 즐겨찾기 메뉴를 렌더링 -->
+        </div>
+      </section>
+
+      <section class="recent-orders">
+        <div class="section-heading">
+          <h2>최근 주문</h2>
+          <a href="/orders/list.html">전체보기 →</a>
+        </div>
+        <div class="recent-orders-list" id="recent-orders-list">
+          <!-- index.js가 최근 주문을 렌더링 -->
+        </div>
+      </section>
+    </div>
+
+    <div class="my-tab-panel" id="tab-panel-address" role="tabpanel" hidden>
+      <section class="address-section">
+        <div class="section-heading">
+          <h2>내 주소</h2>
+        </div>
+        <div class="address-list" id="address-list">
+          <!-- index.js가 저장된 주소 목록을 렌더링 -->
+        </div>
+
+        <form id="address-form" class="address-form glass-card">
+          <h3 id="address-form-title">새 주소 추가</h3>
+          <label class="form-field">
+            <span>이름표 (예: 집, 회사)</span>
+            <input type="text" id="address-label" maxlength="16" required />
+          </label>
+          <label class="form-field">
+            <span>받는 사람</span>
+            <input type="text" id="address-recipient" required />
+          </label>
+          <label class="form-field">
+            <span>전화번호</span>
+            <input type="tel" id="address-phone" required />
+          </label>
+          <label class="form-field">
+            <span>주소</span>
+            <input type="text" id="address-detail" required />
+          </label>
+          <p class="form-error" id="address-form-error" hidden></p>
+          <div class="address-form-actions">
+            <button type="submit" class="btn btn-primary" id="address-submit-btn">추가</button>
+            <button type="button" class="btn btn-cancel" id="address-cancel-edit-btn" hidden>취소</button>
+          </div>
         </form>
-        <div class="profile-sub">오늘도 좋은 하루 되세요</div>
-      </div>
-    </section>
-
-    <section class="summary-card glass-card">
-      <div class="summary-item">
-        <div class="summary-value" id="summary-count">0</div>
-        <div class="summary-label">총 주문</div>
-      </div>
-      <div class="summary-item">
-        <div class="summary-value" id="summary-total">0원</div>
-        <div class="summary-label">누적 결제</div>
-      </div>
-      <div class="summary-item">
-        <div class="summary-value" id="summary-favorites">0</div>
-        <div class="summary-label">즐겨찾기</div>
-      </div>
-    </section>
-
-    <section class="favorite-menus">
-      <div class="section-heading">
-        <h2>즐겨찾기한 메뉴</h2>
-        <div class="section-heading-actions">
-          <button type="button" class="clear-all-btn" id="clear-favorites-btn" hidden>전체 삭제</button>
-          <a href="/menus/list.html">메뉴 보러가기 →</a>
-        </div>
-      </div>
-      <div class="favorite-menus-list" id="favorite-menus-list">
-        <!-- index.js가 즐겨찾기 메뉴를 렌더링 -->
-      </div>
-    </section>
-
-    <section class="recent-orders">
-      <div class="section-heading">
-        <h2>최근 주문</h2>
-        <a href="/orders/list.html">전체보기 →</a>
-      </div>
-      <div class="recent-orders-list" id="recent-orders-list">
-        <!-- index.js가 최근 주문을 렌더링 -->
-      </div>
-    </section>
+      </section>
+    </div>
   </main>
 
   <script type="module" src="/my/index.js"></script>

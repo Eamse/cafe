@@ -1,5 +1,15 @@
 import { getMenus } from "../js/data.js";
-import { renderAuthNav } from "../js/auth.js";
+import {
+  renderAuthNav,
+  requireCustomerAuth,
+  getCurrentCustomer,
+  getCustomerAddresses,
+  addAddress,
+  updateAddress,
+  removeAddress,
+  setDefaultAddress,
+} from "../js/auth.js";
+requireCustomerAuth();
 import {
   formatPrice,
   formatDate,
@@ -18,7 +28,9 @@ const RECENT_COUNT = 3;
 
 function renderProfileName() {
   const nickname = getNickname();
-  document.getElementById("profile-name").textContent = nickname ? `${nickname}님` : "게스트님";
+  const customer = getCurrentCustomer();
+  const displayName = nickname || customer?.name || "게스트";
+  document.getElementById("profile-name").textContent = `${displayName}님`;
 }
 
 function initProfileNameEditor() {
@@ -128,6 +140,130 @@ function refreshFavorites() {
   renderSummary(getOrders(), favoriteCount);
 }
 
+/* ---------- 탭 전환 ---------- */
+
+function initTabs() {
+  const tabs = [
+    { btn: document.getElementById("tab-btn-info"), panel: document.getElementById("tab-panel-info") },
+    { btn: document.getElementById("tab-btn-address"), panel: document.getElementById("tab-panel-address") },
+  ];
+
+  tabs.forEach(({ btn, panel }) => {
+    btn.addEventListener("click", () => {
+      tabs.forEach(({ btn: b, panel: p }) => {
+        const isActive = b === btn;
+        b.classList.toggle("active", isActive);
+        b.setAttribute("aria-selected", String(isActive));
+        p.hidden = !isActive;
+      });
+      if (panel.id === "tab-panel-address") renderAddresses();
+    });
+  });
+}
+
+/* ---------- 주소 관리 ---------- */
+
+let editingAddressId = null;
+
+function resetAddressForm() {
+  editingAddressId = null;
+  document.getElementById("address-form").reset();
+  document.getElementById("address-form-title").textContent = "새 주소 추가";
+  document.getElementById("address-submit-btn").textContent = "추가";
+  document.getElementById("address-cancel-edit-btn").hidden = true;
+  document.getElementById("address-form-error").hidden = true;
+}
+
+function renderAddresses() {
+  const listEl = document.getElementById("address-list");
+  const addresses = getCustomerAddresses();
+
+  if (addresses.length === 0) {
+    listEl.innerHTML = `<p class="empty-state">등록된 주소가 없습니다.</p>`;
+  } else {
+    listEl.innerHTML = addresses
+      .map(
+        (addr) => `
+      <div class="address-card ${addr.isDefault ? "is-default" : ""}" data-id="${addr.id}">
+        <div class="address-card-head">
+          <span class="address-label">${escapeHtml(addr.label)}</span>
+          ${addr.isDefault ? `<span class="address-default-tag">기본 주소</span>` : ""}
+        </div>
+        <div class="address-recipient">${escapeHtml(addr.recipientName)} · ${escapeHtml(addr.phone)}</div>
+        <div class="address-detail">${escapeHtml(addr.address)}</div>
+        <div class="address-actions">
+          ${addr.isDefault ? "" : `<button type="button" data-action="default">기본으로 설정</button>`}
+          <button type="button" data-action="edit">수정</button>
+          <button type="button" data-action="delete">삭제</button>
+        </div>
+      </div>
+    `
+      )
+      .join("");
+  }
+
+  listEl.querySelectorAll(".address-card").forEach((card) => {
+    const id = card.dataset.id;
+
+    card.querySelector('[data-action="default"]')?.addEventListener("click", () => {
+      setDefaultAddress(id);
+      renderAddresses();
+    });
+
+    card.querySelector('[data-action="delete"]').addEventListener("click", () => {
+      if (!confirm("이 주소를 삭제하시겠습니까?")) return;
+      removeAddress(id);
+      if (editingAddressId === id) resetAddressForm();
+      renderAddresses();
+    });
+
+    card.querySelector('[data-action="edit"]').addEventListener("click", () => {
+      const addr = getCustomerAddresses().find((a) => a.id === id);
+      if (!addr) return;
+      editingAddressId = id;
+      document.getElementById("address-label").value = addr.label;
+      document.getElementById("address-recipient").value = addr.recipientName;
+      document.getElementById("address-phone").value = addr.phone;
+      document.getElementById("address-detail").value = addr.address;
+      document.getElementById("address-form-title").textContent = "주소 수정";
+      document.getElementById("address-submit-btn").textContent = "저장";
+      document.getElementById("address-cancel-edit-btn").hidden = false;
+      document.getElementById("address-label").focus();
+    });
+  });
+}
+
+function initAddressForm() {
+  document.getElementById("address-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const fields = {
+      label: document.getElementById("address-label").value.trim(),
+      recipientName: document.getElementById("address-recipient").value.trim(),
+      phone: document.getElementById("address-phone").value.trim(),
+      address: document.getElementById("address-detail").value.trim(),
+    };
+
+    if (!fields.label || !fields.recipientName || !fields.phone || !fields.address) {
+      const errorEl = document.getElementById("address-form-error");
+      errorEl.textContent = "모든 항목을 입력해주세요.";
+      errorEl.hidden = false;
+      return;
+    }
+
+    if (editingAddressId) {
+      updateAddress(editingAddressId, fields);
+    } else {
+      addAddress(fields);
+    }
+
+    resetAddressForm();
+    renderAddresses();
+  });
+
+  document.getElementById("address-cancel-edit-btn").addEventListener("click", resetAddressForm);
+}
+
 function init() {
   renderProfileName();
   initProfileNameEditor();
@@ -138,6 +274,8 @@ function init() {
   renderCartBadge();
   initThemeToggle();
   renderAuthNav();
+  initTabs();
+  initAddressForm();
 
   document.getElementById("clear-favorites-btn").addEventListener("click", () => {
     if (!confirm("즐겨찾기한 메뉴를 전부 삭제하시겠습니까?")) return;
