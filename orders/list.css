@@ -89,17 +89,67 @@ body {
   .orders-header .home-nav,
   .orders-header .header-actions {
     display: none;
-    width: 100%;
+  }
+
+  .orders-header.is-nav-open {
+    position: fixed;
+    inset: 0;
+    height: 100vh;
+    z-index: 100;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--spacing-md) var(--spacing-lg);
+    overflow-y: auto;
+    background: var(--color-dark);
+  }
+
+  .orders-header.is-nav-open .nav-toggle-btn {
+    margin-left: auto;
+  }
+
+  .orders-header.is-nav-open::after {
+    content: "";
+    order: 1;
+    flex-basis: 100%;
   }
 
   .orders-header.is-nav-open .home-nav,
   .orders-header.is-nav-open .header-actions {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
-    padding-top: var(--spacing-sm);
+    display: contents;
   }
+
+  .orders-header.is-nav-open .theme-toggle-btn,
+  .orders-header.is-nav-open .header-actions #auth-nav,
+  .orders-header.is-nav-open .header-actions .cart-link {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .orders-header.is-nav-open .theme-toggle-btn {
+    order: 2;
+    margin-top: var(--spacing-sm);
+  }
+
+  .orders-header.is-nav-open .header-actions #auth-nav {
+    order: 3;
+  }
+
+  .orders-header.is-nav-open .header-actions .cart-link {
+    order: 4;
+  }
+
+  .orders-header.is-nav-open .home-nav a {
+    order: 5;
+    flex: 0 0 100%;
+    width: 100%;
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid rgba(245, 240, 230, 0.16);
+  }
+
 }
 
 .home-nav {
@@ -121,7 +171,7 @@ body {
 }
 
 .home-nav a.active {
-  color: var(--color-accent);
+  color: #ffffff;
   border-bottom: 2px solid var(--color-accent);
   font-weight: 700;
 }
@@ -138,15 +188,7 @@ body {
   font-weight: 700;
 }
 
-.hotline {
-  color: rgba(245, 240, 230, 0.7);
-  font-weight: 700;
-  text-decoration: none;
-}
 
-.hotline:hover {
-  color: var(--color-accent);
-}
 
 .cart-link {
   position: relative;

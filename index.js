@@ -517,14 +517,30 @@ function renderNoticeBar() {
   const dateEl = document.getElementById("notice-bar-date");
 
   let current = 0;
-  function show(index) {
+  function applyNotice(index) {
     current = index;
     const notice = notices[current];
     messageEl.textContent = notice.message;
     dateEl.textContent = notice.date.replace(/-/g, ".");
   }
 
-  show(0);
+  function show(index, { animate = true } = {}) {
+    if (!animate) {
+      applyNotice(index);
+      return;
+    }
+
+    messageEl.classList.add("is-fading");
+    dateEl.classList.add("is-fading");
+
+    setTimeout(() => {
+      applyNotice(index);
+      messageEl.classList.remove("is-fading");
+      dateEl.classList.remove("is-fading");
+    }, 300);
+  }
+
+  show(0, { animate: false });
   if (notices.length > 1) {
     noticeRotationTimer = setInterval(() => show((current + 1) % notices.length), 4000);
   }

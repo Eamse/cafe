@@ -497,6 +497,8 @@ export function initMobileNavToggle(buttonId = 'nav-toggle-btn') {
   btn.addEventListener('click', () => {
     const isOpen = header.classList.toggle('is-nav-open');
     btn.setAttribute('aria-expanded', String(isOpen));
+    btn.textContent = isOpen ? '✕' : '☰';
+    document.body.style.overflow = isOpen ? 'hidden' : '';
   });
 
   document.addEventListener('click', (e) => {
@@ -504,6 +506,8 @@ export function initMobileNavToggle(buttonId = 'nav-toggle-btn') {
     if (header.contains(e.target)) return;
     header.classList.remove('is-nav-open');
     btn.setAttribute('aria-expanded', 'false');
+    btn.textContent = '☰';
+    document.body.style.overflow = '';
   });
 }
 
