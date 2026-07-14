@@ -1,7 +1,7 @@
 import { initAdminGuard } from "../js/auth.js";
 await initAdminGuard();
 import { getMenus, getFeaturedMenuIds, getOrders } from "../js/data.js";
-import { formatPrice, formatDate, escapeHtml } from "../js/utils.js";
+import { formatPrice, formatDate, escapeHtml, toLocalDateKey } from "../js/utils.js";
 
 const RECENT_COUNT = 5;
 
@@ -30,19 +30,24 @@ function renderStats(menus, orders) {
     .join("");
 }
 
-// 날짜(YYYY-MM-DD) -> 그 날 매출(취소 제외) 합계.
+// 날짜(YYYY-MM-DD, 로컬 기준) -> 그 날 매출(취소 제외) 합계.
 function revenueByDate(orders) {
   const map = new Map();
   orders.forEach((order) => {
     if (order.status === "취소") return;
-    const date = order.createdAt.slice(0, 10);
+    const date = toLocalDateKey(order.createdAt);
     map.set(date, (map.get(date) || 0) + order.total);
   });
   return map;
 }
 
+// toISOString()은 UTC로 변환하므로, 한국 시간 기준 날짜가 하루 밀릴 수 있다.
+// <input type="date">는 로컬 기준 값을 쓰므로 여기도 로컬 구성요소로 조립한다.
 function toDateInputValue(date) {
-  return date.toISOString().slice(0, 10);
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 function eachDate(fromStr, toStr) {

@@ -54,10 +54,10 @@ function initProfileNameEditor() {
     editBtn.hidden = false;
   });
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
     saveNickname(input.value);
-    renderProfileName();
+    await renderProfileName();
     form.hidden = true;
     nameEl.hidden = false;
     editBtn.hidden = false;
@@ -268,7 +268,7 @@ function initAddressForm() {
 }
 
 async function init() {
-  renderProfileName();
+  await renderProfileName();
   initProfileNameEditor();
   const orders = await getOrders();
   const favoriteCount = await renderFavoriteMenus();

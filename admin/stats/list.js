@@ -1,14 +1,14 @@
 import { initAdminGuard } from "../../js/auth.js";
 await initAdminGuard();
 import { getOrders } from "../../js/data.js";
-import { formatPrice } from "../../js/utils.js";
+import { formatPrice, toLocalDateKey } from "../../js/utils.js";
 
-// 날짜(YYYY-MM-DD) -> { count, revenue }로 묶는다. 건수는 취소 포함 전체,
+// 날짜(YYYY-MM-DD, 로컬 기준) -> { count, revenue }로 묶는다. 건수는 취소 포함 전체,
 // 매출은 대시보드와 같은 기준으로 취소 주문을 뺀 값만 합산한다.
 function groupByDate(orders) {
   const map = new Map();
   orders.forEach((order) => {
-    const date = order.createdAt.slice(0, 10);
+    const date = toLocalDateKey(order.createdAt);
     const entry = map.get(date) || { count: 0, revenue: 0 };
     entry.count += 1;
     if (order.status !== "취소") entry.revenue += order.total;

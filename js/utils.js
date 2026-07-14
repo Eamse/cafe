@@ -15,6 +15,18 @@ export function appPath(path) {
   return new URL(path, APP_ROOT_URL).pathname;
 }
 
+// 주문의 createdAt(ISO/UTC 문자열)을 "이 브라우저 기준 로컬 날짜"의 YYYY-MM-DD로
+// 바꾼다. .slice(0, 10)으로 ISO 문자열을 그대로 자르면 UTC 날짜가 나와서, 한국
+// 시간 기준 자정~오전 9시 사이 주문이 하루 전 날짜로 집계되는 문제가 있었다
+// (관리자 매출 통계/그래프의 날짜별 집계는 항상 이 함수를 거쳐야 한다).
+export function toLocalDateKey(isoString) {
+  const d = new Date(isoString);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
 // 관리자가 수동으로 "종료됨"을 켰거나, 종료 예정일(endDate)이 이미 지났으면
 // 종료된 것으로 취급한다. 화면에 표시할 때는 항상 이 함수를 거쳐야 한다.
 // (순수 함수라 js/data.js의 Supabase 호출과 분리해 여기 둔다 — 네트워크 없이 단위 테스트하려면 필요)
