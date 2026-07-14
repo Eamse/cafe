@@ -45,7 +45,7 @@ async function render() {
               <span class="order-note-label">픽업 바코드</span>
               <div class="pickup-barcode-admin-number">${formatBarcodeNumber(order.barcodeNumber)}</div>
               ${
-                order.status === "주문완료" || order.status === "조리중"
+                order.status === "주문완료" || order.status === "조리중" || order.status === "조리완료"
                   ? `
               <div class="barcode-verify-row">
                 <input type="text" id="barcode-verify-input" placeholder="바코드 스캔 또는 번호 입력" />

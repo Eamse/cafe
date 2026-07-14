@@ -149,7 +149,7 @@ function renderFeaturedMenus(menus, featuredIds) {
     .join("");
 }
 
-const STATUS_TONE = { 주문완료: "new", 조리중: "progress", 수령완료: "done", 취소: "cancelled" };
+const STATUS_TONE = { 주문완료: "new", 조리중: "progress", 조리완료: "progress", 수령완료: "done", 취소: "cancelled" };
 
 function renderRecentOrders(allOrders) {
   const orders = allOrders.slice().reverse().slice(0, RECENT_COUNT);

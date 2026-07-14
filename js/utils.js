@@ -360,18 +360,10 @@ export function estimatePickupMinutes(totalQuantity) {
   return `예상 준비 시간: 약 ${min}~${max}분`;
 }
 
-// 아직 픽업 전(주문완료/조리중)인 주문의 예상 준비 시각이 지났으면 true.
+// 관리자가 실제로 "조리완료"로 상태를 바꿨을 때만 true.
 // 홈 화면의 "픽업 준비됐어요" 알림 배너가 이 함수로 판단한다.
 export function isOrderReadyForPickup(order) {
-  if (order.status !== '주문완료' && order.status !== '조리중') return false;
-  const totalQuantity = order.items.reduce(
-    (sum, item) => sum + item.quantity,
-    0,
-  );
-  const { min, max } = getPickupEstimateRange(totalQuantity);
-  const avgMinutes = (min + max) / 2;
-  const targetTime = new Date(order.createdAt).getTime() + avgMinutes * 60000;
-  return Date.now() >= targetTime;
+  return order.status === '조리완료';
 }
 
 // 특정 메뉴와 실제로 함께 주문된 적 있는 다른 메뉴 id를 빈도순으로 반환.
@@ -394,7 +386,7 @@ export function getFrequentlyBoughtWith(menuId, orders, limit = 4) {
     .map(([id]) => Number(id));
 }
 
-const ORDER_PROGRESS_STEPS = ['주문완료', '조리중', '수령완료'];
+const ORDER_PROGRESS_STEPS = ['주문완료', '조리중', '조리완료', '수령완료'];
 
 // 주문 상태를 진행 단계 표시줄(HTML)로 렌더링. 취소된 주문은 단계 대신 배너로 보여줌.
 // 고객(orders/detail.js)과 관리자(admin/orders/detail.js) 양쪽에서 공용으로 사용.

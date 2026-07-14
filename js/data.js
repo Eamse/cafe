@@ -281,7 +281,7 @@ export async function deleteEvent(eventId) {
    트레이드오프 — 전화번호로 재조회하려면 getGuestOrder를 쓴다).
    ========================================================================== */
 
-export const ORDER_STATUSES = ["주문완료", "조리중", "수령완료", "취소"];
+export const ORDER_STATUSES = ["주문완료", "조리중", "조리완료", "수령완료", "취소"];
 
 function mapOrderRow(row) {
   return {
