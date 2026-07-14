@@ -97,8 +97,8 @@ function ensurePanel() {
         <span class="cart-panel-top-order-arrow">→</span>
       </a>
       <p class="cart-panel-hint"><span class="cart-panel-hint-icon">💡</span>같은 메뉴도 다시 누르면 새 칸이 열려서, 온도/사이즈를 다르게 골라 따로따로 담을 수 있어요.</p>
-      <div class="cart-panel-body"></div>
       <div class="cart-panel-summary"></div>
+      <div class="cart-panel-body"></div>
     </aside>
   `;
   document.body.appendChild(overlayEl);
