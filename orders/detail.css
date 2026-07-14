@@ -384,19 +384,13 @@ body {
 
 .barcode-bars {
   display: flex;
-  align-items: stretch;
-  height: 56px;
+  justify-content: center;
   margin: 0 auto var(--spacing-sm);
-  max-width: 280px;
 }
 
-.barcode-bar {
-  flex-shrink: 0;
-  background: transparent;
-}
-
-.barcode-bar.is-black {
-  background: #1a1310;
+.barcode-bars svg {
+  max-width: 100%;
+  height: 56px;
 }
 
 .pickup-barcode-number {

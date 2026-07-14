@@ -2,6 +2,8 @@
    공통 유틸리티 — 포맷, DOM 헬퍼, 장바구니
    ========================================================================== */
 
+import JsBarcode from 'https://esm.sh/jsbarcode@3.11.6';
+
 const CART_STORAGE_KEY = 'cafe_cart';
 
 // 이 파일은 항상 "<앱 루트>/js/utils.js"에 위치하므로, 여기서 한 단계 위로 올라가면
@@ -295,22 +297,20 @@ export function formatBarcodeNumber(number) {
   return `BC-${String(number).padStart(6, '0')}`;
 }
 
-// 실제 스캔되는 바코드는 아니고, 번호마다 막대 굵기가 달라지는 장식용
-// 패턴 — 화면에 "바코드처럼" 보이게 하는 용도. 같은 번호는 항상 같은
-// 패턴을 만들어낸다.
+// JsBarcode로 실제 스캔 가능한 CODE128 바코드를 SVG로 그려서 마크업 문자열로 반환한다.
+// 주문번호(바코드 숫자)를 그대로 인코딩하므로, 카메라나 바코드 스캐너로 찍으면
+// 실제로 그 숫자가 읽힌다.
 export function renderBarcodeBarsHtml(number) {
-  // 숫자를 여러 자리로 늘려 얇은 줄이 여러 개 있는 실제 바코드에 가깝게 보이게 한다.
-  const seed =
-    String(number).padStart(6, '0') + String(number * 7 + 13).padStart(6, '0');
-  const digits = seed.split('').map(Number);
-  const bars = digits
-    .map((d, i) => {
-      const isBlack = i % 2 === 0;
-      const width = isBlack ? 1 + (d % 3) : 1;
-      return `<span class="barcode-bar ${isBlack ? 'is-black' : ''}" style="flex-grow:${width}"></span>`;
-    })
-    .join('');
-  return `<div class="barcode-bars" aria-hidden="true">${bars}</div>`;
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  JsBarcode(svg, String(number).padStart(6, '0'), {
+    format: 'CODE128',
+    displayValue: false,
+    height: 56,
+    margin: 0,
+    background: 'transparent',
+    lineColor: '#1a1310',
+  });
+  return `<div class="barcode-bars" aria-hidden="true">${svg.outerHTML}</div>`;
 }
 
 /* ---------- 수령자 정보 ---------- */
