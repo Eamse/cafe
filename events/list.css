@@ -53,6 +53,13 @@ body {
   background: var(--color-dark);
 }
 
+@media (max-width: 480px) {
+  .events-header {
+    height: auto;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}
+
 .events-header h1 {
   font-size: var(--font-size-xl);
   color: var(--color-cream-100);

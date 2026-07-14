@@ -52,6 +52,13 @@ body {
   box-shadow: var(--shadow-md);
 }
 
+@media (max-width: 480px) {
+  .basket-header {
+    height: auto;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}
+
 .basket-header h1 {
   font-size: var(--font-size-xl);
   color: var(--color-accent);

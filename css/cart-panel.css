@@ -13,6 +13,16 @@ body.cart-panel-open {
   overflow-x: hidden;
 }
 
+/* 패널이 화면 전체 폭(100vw)을 덮는 좁은 화면에서는 본문을 옆으로 밀어내면
+   남는 폭이 거의 0이 되어 글자가 세로로 깨진다. 이럴 땐 밀어내는 대신
+   스크롤만 잠근다(패널이 어차피 전체를 덮으므로 밀어낼 필요가 없다). */
+@media (max-width: 480px) {
+  body.cart-panel-open {
+    margin-right: 0;
+    overflow: hidden;
+  }
+}
+
 .cart-panel-overlay {
   position: fixed;
   inset: 0;
