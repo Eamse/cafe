@@ -1,7 +1,7 @@
 import { initAdminGuard } from "../js/auth.js";
-initAdminGuard();
-import { getMenus, getFeaturedMenuIds } from "../js/data.js";
-import { formatPrice, formatDate, escapeHtml, getOrders } from "../js/utils.js";
+await initAdminGuard();
+import { getMenus, getFeaturedMenuIds, getOrders } from "../js/data.js";
+import { formatPrice, formatDate, escapeHtml } from "../js/utils.js";
 
 const RECENT_COUNT = 5;
 
@@ -146,8 +146,8 @@ function renderFeaturedMenus(menus, featuredIds) {
 
 const STATUS_TONE = { 주문완료: "new", 조리중: "progress", 수령완료: "done", 취소: "cancelled" };
 
-function renderRecentOrders() {
-  const orders = getOrders().slice().reverse().slice(0, RECENT_COUNT);
+function renderRecentOrders(allOrders) {
+  const orders = allOrders.slice().reverse().slice(0, RECENT_COUNT);
   const listEl = document.getElementById("recent-orders-list");
 
   if (orders.length === 0) {
@@ -170,12 +170,11 @@ function renderRecentOrders() {
 }
 
 async function init() {
-  const [menus, featuredIds] = await Promise.all([getMenus(), getFeaturedMenuIds()]);
-  const orders = getOrders();
+  const [menus, featuredIds, orders] = await Promise.all([getMenus(), getFeaturedMenuIds(), getOrders()]);
 
   renderStats(menus, orders);
   renderFeaturedMenus(menus, featuredIds);
-  renderRecentOrders();
+  renderRecentOrders(orders);
 
   initRevenueRangeDefaults();
   renderRevenueChart(orders);

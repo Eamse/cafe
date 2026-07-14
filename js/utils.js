@@ -304,33 +304,6 @@ export function renderCartBadge() {
 
 /* ---------- 주문 ---------- */
 
-const ORDERS_STORAGE_KEY = 'cafe_orders';
-
-export const ORDER_STATUSES = ['주문완료', '조리중', '수령완료', '취소'];
-
-// 관리자가 주문을 "수락"(주문완료 → 조리중 이상으로 진행)하면 더 이상 취소를
-// 선택할 수 없도록, 현재 상태 기준으로 고를 수 있는 상태 목록만 반환한다.
-export function getAvailableStatuses(currentStatus) {
-  const allowed =
-    currentStatus === '주문완료'
-      ? ORDER_STATUSES
-      : ORDER_STATUSES.filter((status) => status !== '취소');
-  if (!allowed.includes(currentStatus)) allowed.push(currentStatus);
-  return allowed;
-}
-
-const BARCODE_COUNTER_KEY = 'cafe_barcode_counter';
-
-// 매장 수령 주문에 발급하는 픽업 바코드 번호 — 절대 겹치면 안 되므로, 주문
-// id와는 별개로 오직 한 방향으로만 증가하는 카운터를 따로 둔다(주문이 취소·
-// 삭제되어도 이미 발급된 번호는 재사용하지 않음).
-export function getNextBarcodeNumber() {
-  const current = Number(localStorage.getItem(BARCODE_COUNTER_KEY)) || 0;
-  const next = current + 1;
-  localStorage.setItem(BARCODE_COUNTER_KEY, String(next));
-  return next;
-}
-
 // 바코드 번호를 "BC-000123" 형태로 통일해서 보여준다.
 export function formatBarcodeNumber(number) {
   return `BC-${String(number).padStart(6, '0')}`;
@@ -352,48 +325,6 @@ export function renderBarcodeBarsHtml(number) {
     })
     .join('');
   return `<div class="barcode-bars" aria-hidden="true">${bars}</div>`;
-}
-
-export function getOrders() {
-  try {
-    const raw = localStorage.getItem(ORDERS_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function saveOrders(orders) {
-  localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
-}
-
-export function getOrderById(orderId) {
-  return getOrders().find((order) => order.id === orderId) || null;
-}
-
-export function updateOrderStatus(orderId, status) {
-  const orders = getOrders();
-  const target = orders.find((order) => order.id === orderId);
-  if (target) target.status = status;
-  saveOrders(orders);
-  return orders;
-}
-
-// 고객이 직접 취소할 때 사유를 함께 남긴다. 관리자 쪽 상태 변경(updateOrderStatus)과는
-// 별도 경로 — 취소는 항상 사유가 있어야 하므로 한 함수로 묶어 누락을 방지한다.
-// 취소는 오직 "주문완료" 상태에서만 허용한다 — 관리자가 이미 조리를 시작한
-// (또는 그 이후로 넘긴) 주문은 여기서도 다시 한번 막아서, 취소 버튼이 그려진
-// 뒤 화면을 새로고침하지 않은 채로 눌러도 실제로는 취소되지 않도록 한다.
-export function cancelOrderWithReason(orderId, reason) {
-  const orders = getOrders();
-  const target = orders.find((order) => order.id === orderId);
-  if (!target || target.status !== '주문완료') {
-    return { ok: false };
-  }
-  target.status = '취소';
-  target.cancelReason = reason;
-  saveOrders(orders);
-  return { ok: true };
 }
 
 /* ---------- 수령자 정보 ---------- */
@@ -459,9 +390,10 @@ export function isOrderReadyForPickup(order) {
 
 // 특정 메뉴와 실제로 함께 주문된 적 있는 다른 메뉴 id를 빈도순으로 반환.
 // menus/detail.js(상세 추천), js/cartPanel.js(담기 패널 미니 추천)가 공용으로 사용.
-export function getFrequentlyBoughtWith(menuId, limit = 4) {
+// orders는 호출부가 이미 받아온 목록을 넘긴다(js/data.js의 getOrders는 비동기라 여기선 안 받음).
+export function getFrequentlyBoughtWith(menuId, orders, limit = 4) {
   const counts = {};
-  getOrders().forEach((order) => {
+  orders.forEach((order) => {
     const menuIds = order.items.map((item) => item.menuId);
     if (!menuIds.includes(menuId)) return;
     menuIds.forEach((id) => {

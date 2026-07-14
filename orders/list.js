@@ -1,21 +1,19 @@
-import { getMenus } from "../js/data.js";
+import { getMenus, getOrders } from "../js/data.js";
 import { renderAuthNav } from "../js/auth.js";
 import {
   formatPrice,
   formatDate,
   escapeHtml,
   renderCartBadge,
-  getOrders,
   addToCart,
   estimatePickupMinutes,
   showToast,
   initThemeToggle,
 } from "../js/utils.js";
 
-function renderRecentOrderWidget(menus) {
+function renderRecentOrderWidget(menus, orders) {
   const section = document.getElementById("home-recent-section");
   const row = document.getElementById("recent-order-row");
-  const orders = getOrders();
 
   if (orders.length === 0) {
     section.hidden = true;
@@ -87,9 +85,9 @@ function reorder(order, button, menus) {
   }, 1600);
 }
 
-function renderOrders(menus) {
+function renderOrders(menus, allOrders) {
   const listEl = document.getElementById("orders-list");
-  const orders = getOrders().slice().reverse();
+  const orders = allOrders.slice().reverse();
 
   if (orders.length === 0) {
     listEl.innerHTML = `<p class="orders-empty">주문 내역이 없습니다.</p>`;
@@ -137,12 +135,12 @@ function renderOrders(menus) {
 }
 
 async function init() {
-  const menus = await getMenus();
-  renderOrders(menus);
-  renderRecentOrderWidget(menus);
+  const [menus, orders] = await Promise.all([getMenus(), getOrders()]);
+  renderOrders(menus, orders);
+  renderRecentOrderWidget(menus, orders);
   renderCartBadge();
   initThemeToggle();
-  renderAuthNav();
+  await renderAuthNav();
 }
 
 init();

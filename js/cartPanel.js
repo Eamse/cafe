@@ -3,7 +3,7 @@
    우측에서 슬라이드로 나타나는 상세/담기 패널 (index.js, menus/list.js 공용)
    ========================================================================== */
 
-import { getMenus } from "./data.js";
+import { getMenus, getOrders } from "./data.js";
 import {
   formatPrice,
   escapeHtml,
@@ -96,8 +96,8 @@ function markAsAdded(addBtn) {
   addBtn.disabled = true;
 }
 
-function renderRecommendationHtml(menu, allMenus) {
-  const ids = getFrequentlyBoughtWith(menu.id, RECOMMEND_COUNT * 3);
+function renderRecommendationHtml(menu, allMenus, orders) {
+  const ids = getFrequentlyBoughtWith(menu.id, orders, RECOMMEND_COUNT * 3);
   const candidates = ids
     .map((id) => allMenus.find((m) => m.id === id && !m.isSoldOut))
     .filter(Boolean)
@@ -176,7 +176,7 @@ export function closeCartPanel() {
 export async function openCartPanel(menu, categoryName, basketHref = "basket/list.html") {
   ensurePanel();
 
-  const allMenus = await getMenus();
+  const [allMenus, orders] = await Promise.all([getMenus(), getOrders()]);
   const itemEl = document.createElement("div");
   itemEl.className = `cart-panel-content cat-${menu.categoryId}`;
   itemEl.innerHTML = `
@@ -197,7 +197,7 @@ export async function openCartPanel(menu, categoryName, basketHref = "basket/lis
       <button type="button" class="qty-increase" aria-label="수량 증가">+</button>
     </div>
     <button type="button" class="cart-panel-add-btn">장바구니 담기</button>
-    ${renderRecommendationHtml(menu, allMenus)}
+    ${renderRecommendationHtml(menu, allMenus, orders)}
     `
     }
   `;

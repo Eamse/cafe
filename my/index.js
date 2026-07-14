@@ -1,4 +1,4 @@
-import { getMenus } from "../js/data.js";
+import { getMenus, getOrders } from "../js/data.js";
 import {
   renderAuthNav,
   requireCustomerAuth,
@@ -9,13 +9,12 @@ import {
   removeAddress,
   setDefaultAddress,
 } from "../js/auth.js";
-requireCustomerAuth();
+await requireCustomerAuth();
 import {
   formatPrice,
   formatDate,
   escapeHtml,
   renderCartBadge,
-  getOrders,
   getFavorites,
   clearFavorites,
   lazyLoadBackgroundImages,
@@ -27,9 +26,9 @@ import {
 
 const RECENT_COUNT = 3;
 
-function renderProfileName() {
+async function renderProfileName() {
   const nickname = getNickname();
-  const customer = getCurrentCustomer();
+  const customer = await getCurrentCustomer();
   const displayName = nickname || customer?.name || "게스트";
   document.getElementById("profile-name").textContent = `${displayName}님`;
 }
@@ -140,7 +139,7 @@ function renderRecentOrders(orders) {
 
 async function refreshFavorites() {
   const favoriteCount = await renderFavoriteMenus();
-  renderSummary(getOrders(), favoriteCount);
+  renderSummary(await getOrders(), favoriteCount);
 }
 
 /* ---------- 탭 전환 ---------- */
@@ -177,9 +176,9 @@ function resetAddressForm() {
   document.getElementById("address-form-error").hidden = true;
 }
 
-function renderAddresses() {
+async function renderAddresses() {
   const listEl = document.getElementById("address-list");
-  const addresses = getCustomerAddresses();
+  const addresses = await getCustomerAddresses();
 
   if (addresses.length === 0) {
     listEl.innerHTML = `<p class="empty-state">등록된 주소가 없습니다.</p>`;
@@ -208,20 +207,21 @@ function renderAddresses() {
   listEl.querySelectorAll(".address-card").forEach((card) => {
     const id = card.dataset.id;
 
-    card.querySelector('[data-action="default"]')?.addEventListener("click", () => {
-      setDefaultAddress(id);
+    card.querySelector('[data-action="default"]')?.addEventListener("click", async () => {
+      await setDefaultAddress(id);
       renderAddresses();
     });
 
-    card.querySelector('[data-action="delete"]').addEventListener("click", () => {
+    card.querySelector('[data-action="delete"]').addEventListener("click", async () => {
       if (!confirm("이 주소를 삭제하시겠습니까?")) return;
-      removeAddress(id);
+      await removeAddress(id);
       if (editingAddressId === id) resetAddressForm();
       renderAddresses();
     });
 
-    card.querySelector('[data-action="edit"]').addEventListener("click", () => {
-      const addr = getCustomerAddresses().find((a) => a.id === id);
+    card.querySelector('[data-action="edit"]').addEventListener("click", async () => {
+      const addresses = await getCustomerAddresses();
+      const addr = addresses.find((a) => a.id === id);
       if (!addr) return;
       editingAddressId = id;
       document.getElementById("address-label").value = addr.label;
@@ -237,7 +237,7 @@ function renderAddresses() {
 }
 
 function initAddressForm() {
-  document.getElementById("address-form").addEventListener("submit", (event) => {
+  document.getElementById("address-form").addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const fields = {
@@ -255,9 +255,9 @@ function initAddressForm() {
     }
 
     if (editingAddressId) {
-      updateAddress(editingAddressId, fields);
+      await updateAddress(editingAddressId, fields);
     } else {
-      addAddress(fields);
+      await addAddress(fields);
     }
 
     resetAddressForm();
@@ -270,7 +270,7 @@ function initAddressForm() {
 async function init() {
   renderProfileName();
   initProfileNameEditor();
-  const orders = getOrders();
+  const orders = await getOrders();
   const favoriteCount = await renderFavoriteMenus();
   renderSummary(orders, favoriteCount);
   renderRecentOrders(orders);

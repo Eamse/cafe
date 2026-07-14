@@ -7,7 +7,7 @@ function showError(message) {
   errorEl.hidden = false;
 }
 
-document.getElementById("signup-form").addEventListener("submit", (event) => {
+document.getElementById("signup-form").addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const name = document.getElementById("name").value.trim();
@@ -20,9 +20,18 @@ document.getElementById("signup-form").addEventListener("submit", (event) => {
     return;
   }
 
-  const result = signupCustomer({ name, email, phone, password });
+  const submitBtn = event.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+
+  const result = await signupCustomer({ name, email, phone, password });
   if (!result.ok) {
     showError(result.error);
+    submitBtn.disabled = false;
+    return;
+  }
+
+  if (result.needsEmailConfirm) {
+    window.location.href = `${appPath("auth/login.html")}?confirm=1`;
     return;
   }
 

@@ -1,4 +1,4 @@
-import { getMenus } from "../js/data.js";
+import { getMenus, createOrder } from "../js/data.js";
 import { renderAuthNav } from "../js/auth.js";
 import {
   getCart,
@@ -8,8 +8,6 @@ import {
   formatPrice,
   escapeHtml,
   renderCartBadge,
-  getOrders,
-  saveOrders,
   estimatePickupMinutes,
   getLastRecipientInfo,
   saveLastRecipientInfo,
@@ -19,16 +17,11 @@ import {
   getEffectiveUnitPrice,
   cartHasDrink,
   formatItemOptions,
-  getNextBarcodeNumber,
   appPath,
 } from "../js/utils.js";
 
 // 배달 주문은 최소 주문 금액 미만이면 접수하지 않는다(매장 수령은 제한 없음).
 const MIN_DELIVERY_ORDER = 15000;
-
-function nextOrderId(orders) {
-  return orders.reduce((max, order) => Math.max(max, order.id), 0) + 1;
-}
 
 async function renderBasket() {
   const cart = getCart();
@@ -259,25 +252,24 @@ async function handleCheckout() {
 
   const note = document.getElementById("order-note").value.trim();
 
-  const orders = getOrders();
-  const newOrderId = nextOrderId(orders);
-  orders.push({
-    id: newOrderId,
-    createdAt: new Date().toISOString(),
-    items: items.map(({ menuId, name, price, quantity, temp, size }) => ({ menuId, name, price, quantity, temp, size })),
-    total,
-    status: "주문완료",
-    note,
-    recipient,
-    deliveryType,
-    paymentMethod: getSelectedPaymentMethod(),
-    // 매장 수령일 때만 의미 있는 값(포장/매장에서 먹기). 배달 주문은 해당 없음.
-    dineType: deliveryType === "pickup" ? getSelectedDineType() : null,
-    // 매장 수령 주문만 픽업 확인용 바코드를 발급한다. 이 번호는 절대 겹치지
-    // 않도록 전역 카운터에서 하나씩만 발급(getNextBarcodeNumber).
-    barcodeNumber: deliveryType === "pickup" ? getNextBarcodeNumber() : null,
-  });
-  saveOrders(orders);
+  let newOrderId;
+  try {
+    newOrderId = await createOrder({
+      items: items.map(({ menuId, name, price, quantity, temp, size }) => ({ menuId, name, price, quantity, temp, size })),
+      total,
+      note,
+      recipient,
+      deliveryType,
+      // 매장 수령일 때만 의미 있는 값(포장/매장에서 먹기). 배달 주문은 해당 없음.
+      dineType: deliveryType === "pickup" ? getSelectedDineType() : null,
+      paymentMethod: getSelectedPaymentMethod(),
+    });
+  } catch {
+    showRecipientError("주문 접수에 실패했어요. 다시 시도해주세요.");
+    checkoutBtn.disabled = false;
+    return;
+  }
+
   saveLastRecipientInfo(recipient);
   clearCart();
   window.location.href = `${appPath("orders/detail.html")}?id=${newOrderId}&new=1`;
@@ -291,4 +283,4 @@ updateDeliveryTypeUI();
 fillRecipientInfo();
 renderBasket();
 initThemeToggle();
-renderAuthNav();
+await renderAuthNav();

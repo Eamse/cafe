@@ -1,6 +1,7 @@
 import { initAdminGuard } from "../../js/auth.js";
-initAdminGuard();
-import { formatPrice, getOrders } from "../../js/utils.js";
+await initAdminGuard();
+import { getOrders } from "../../js/data.js";
+import { formatPrice } from "../../js/utils.js";
 
 // 날짜(YYYY-MM-DD) -> { count, revenue }로 묶는다. 건수는 취소 포함 전체,
 // 매출은 대시보드와 같은 기준으로 취소 주문을 뺀 값만 합산한다.
@@ -81,7 +82,7 @@ function renderLookup(byDate, date) {
 }
 
 async function init() {
-  const orders = getOrders();
+  const orders = await getOrders();
   const byDate = groupByDate(orders);
 
   renderSummary(orders);

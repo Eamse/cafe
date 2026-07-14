@@ -1,5 +1,5 @@
 import { initAdminGuard } from "../../js/auth.js";
-initAdminGuard();
+await initAdminGuard();
 import { getCategories, getMenuById, deleteMenus } from "../../js/data.js";
 import { formatPrice, escapeHtml } from "../../js/utils.js";
 

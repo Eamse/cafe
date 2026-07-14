@@ -1,12 +1,10 @@
-import { getMenus } from "../js/data.js";
+import { getMenus, getOrderById, cancelOrderWithReason } from "../js/data.js";
 import { renderAuthNav } from "../js/auth.js";
 import {
   formatPrice,
   formatDate,
   escapeHtml,
   renderCartBadge,
-  getOrderById,
-  cancelOrderWithReason,
   addToCart,
   renderStatusSteps,
   getPickupEstimateRange,
@@ -87,19 +85,19 @@ function hideCancelReasonPanel() {
   cancelBtn.hidden = false;
 }
 
-function confirmCancel(reason, menus) {
+async function confirmCancel(reason, menus) {
   if (!reason) return;
-  const result = cancelOrderWithReason(orderId, reason);
+  const result = await cancelOrderWithReason(orderId, reason);
   if (!result.ok) {
     showToast("이미 조리가 시작되어 취소할 수 없어요. 매장으로 문의해주세요.", { type: "error" });
   }
   renderDetail(menus);
 }
 
-function renderDetail(menus) {
+async function renderDetail(menus) {
   clearInterval(countdownTimer);
 
-  const order = getOrderById(orderId);
+  const order = await getOrderById(orderId);
   const container = document.getElementById("order-detail");
 
   if (!order) {
@@ -217,10 +215,10 @@ function renderDetail(menus) {
 
 async function init() {
   const menus = await getMenus();
-  renderDetail(menus);
+  await renderDetail(menus);
   renderCartBadge();
   initThemeToggle();
-  renderAuthNav();
+  await renderAuthNav();
 }
 
 init();

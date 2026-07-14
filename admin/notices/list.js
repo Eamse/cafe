@@ -1,5 +1,5 @@
 import { initAdminGuard } from "../../js/auth.js";
-initAdminGuard();
+await initAdminGuard();
 import { getNotices, createNotice, deleteNotice, getActiveNoticeIds, toggleActiveNotice, MAX_ACTIVE_NOTICES } from "../../js/data.js";
 import { escapeHtml, formatDate, generateId } from "../../js/utils.js";
 

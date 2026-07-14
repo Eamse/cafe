@@ -1,10 +1,9 @@
-import { getMenus, getCategories } from "../js/data.js";
+import { getMenus, getCategories, getOrders } from "../js/data.js";
 import { renderAuthNav } from "../js/auth.js";
 import {
   formatPrice,
   escapeHtml,
   renderCartBadge,
-  getOrders,
   addToCart,
   getRecentSearches,
   addRecentSearch,
@@ -27,6 +26,7 @@ let favoritesOnly = initialParams.get("favorites") === "1";
 
 let menusCache = [];
 let categoriesCache = [];
+let ordersCache = [];
 
 function syncUrlParams() {
   const params = new URLSearchParams();
@@ -58,7 +58,7 @@ function isInPriceRange(menu) {
 
 function getPopularMenuIds() {
   const counts = {};
-  getOrders().forEach((order) => {
+  ordersCache.forEach((order) => {
     order.items.forEach((item) => {
       counts[item.menuId] = (counts[item.menuId] || 0) + item.quantity;
     });
@@ -100,14 +100,13 @@ function menuCardHtml(menu, popularIds, favorites) {
 function renderRecentOrderWidget() {
   const section = document.getElementById("home-recent-section");
   const row = document.getElementById("recent-order-row");
-  const orders = getOrders();
 
-  if (orders.length === 0) {
+  if (ordersCache.length === 0) {
     section.hidden = true;
     return;
   }
 
-  const lastOrder = orders[orders.length - 1];
+  const lastOrder = ordersCache[ordersCache.length - 1];
   const items = lastOrder.items
     .map((item) => ({ item, menu: menusCache.find((m) => m.id === item.menuId) }))
     .filter(({ menu }) => menu);
@@ -370,11 +369,11 @@ function applyInitialFilterState() {
 }
 
 async function init() {
-  [menusCache, categoriesCache] = await Promise.all([getMenus(), getCategories()]);
+  [menusCache, categoriesCache, ordersCache] = await Promise.all([getMenus(), getCategories(), getOrders()]);
 
   applyInitialFilterState();
   initThemeToggle();
-  renderAuthNav();
+  await renderAuthNav();
   renderCartBadge();
   renderRecentOrderWidget();
   renderRecentSearches();

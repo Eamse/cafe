@@ -1,4 +1,4 @@
-import { getMenus, getCategories } from "../js/data.js";
+import { getMenus, getCategories, getOrders } from "../js/data.js";
 import { renderAuthNav } from "../js/auth.js";
 import {
   formatPrice,
@@ -19,6 +19,7 @@ const RECOMMEND_COUNT = 4;
 
 let menusCache = [];
 let categoriesCache = [];
+let ordersCache = [];
 
 function renderOptionPickerHtml(menu) {
   if (!menu.hasTempOption && !menu.hasSizeOption) return "";
@@ -62,7 +63,7 @@ function getCategoryName(categoryId) {
 // 실제 주문 데이터를 기준으로 "이 메뉴와 함께 주문된 메뉴"를 우선 추천한다.
 // 주문 데이터가 부족하면 같은 카테고리 → 나머지 메뉴 순으로 채운다.
 function getRecommendedMenus(currentMenu, allMenus) {
-  const byCoOccurrence = getFrequentlyBoughtWith(currentMenu.id, allMenus.length);
+  const byCoOccurrence = getFrequentlyBoughtWith(currentMenu.id, ordersCache, allMenus.length);
   const isBasedOnOrders = byCoOccurrence.length > 0;
   const picked = [];
   const usedIds = new Set([currentMenu.id]);
@@ -231,11 +232,11 @@ function renderMenuDetail() {
 window.addEventListener("cart:updated", renderCartBadge);
 
 async function init() {
-  [menusCache, categoriesCache] = await Promise.all([getMenus(), getCategories()]);
+  [menusCache, categoriesCache, ordersCache] = await Promise.all([getMenus(), getCategories(), getOrders()]);
   renderMenuDetail();
   renderCartBadge();
   initThemeToggle();
-  renderAuthNav();
+  await renderAuthNav();
 }
 
 init();

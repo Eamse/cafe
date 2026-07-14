@@ -1,10 +1,9 @@
-import { getMenus, getCategories, getFeaturedMenuIds, getNotices, getActiveNoticeIds, getEvents } from "./js/data.js";
+import { getMenus, getCategories, getFeaturedMenuIds, getNotices, getActiveNoticeIds, getEvents, getOrders } from "./js/data.js";
 import { renderAuthNav } from "./js/auth.js";
 import {
   formatPrice,
   escapeHtml,
   renderCartBadge,
-  getOrders,
   getFavorites,
   toggleFavorite,
   getRecentSearches,
@@ -86,9 +85,11 @@ function isInPriceRange(menu) {
   return true;
 }
 
+let ordersCache = [];
+
 function getPopularMenuIds() {
   const counts = {};
-  getOrders().forEach((order) => {
+  ordersCache.forEach((order) => {
     order.items.forEach((item) => {
       counts[item.menuId] = (counts[item.menuId] || 0) + item.quantity;
     });
@@ -481,9 +482,9 @@ function initHeroSlider() {
 // 아직 픽업 전인 가장 최근 주문의 예상 준비 시각이 지났으면 홈 화면 상단에
 // "픽업 준비됐어요" 배너를 보여준다. 30초마다 다시 확인해서, 홈 화면을 열어둔
 // 채로 기다리다가도 시간이 지나면 자동으로 배너가 뜨도록 함.
-function renderPickupReadyBanner() {
+async function renderPickupReadyBanner() {
   const banner = document.getElementById("pickup-ready-banner");
-  const orders = getOrders();
+  const orders = await getOrders();
   const activeOrder = orders
     .slice()
     .reverse()
@@ -579,19 +580,20 @@ document.getElementById("clear-recently-viewed-btn").addEventListener("click", (
 });
 
 async function init() {
-  [menusCache, categoriesCache, featuredIdsCache, noticesCache, activeNoticeIdsCache, eventsCache] = await Promise.all([
+  [menusCache, categoriesCache, featuredIdsCache, noticesCache, activeNoticeIdsCache, eventsCache, ordersCache] = await Promise.all([
     getMenus(),
     getCategories(),
     getFeaturedMenuIds(),
     getNotices(),
     getActiveNoticeIds(),
     getEvents(),
+    getOrders(),
   ]);
 
   applyInitialFilterState();
   initHeroSlider();
   initThemeToggle();
-  renderAuthNav();
+  await renderAuthNav();
   renderCartBadge();
   renderRecentlyViewedWidget();
   renderRecentSearches();

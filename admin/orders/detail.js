@@ -1,12 +1,10 @@
 import { initAdminGuard } from "../../js/auth.js";
-initAdminGuard();
+await initAdminGuard();
+import { getOrderById, updateOrderStatus, getAvailableStatuses } from "../../js/data.js";
 import {
   formatPrice,
   formatDate,
   escapeHtml,
-  getOrderById,
-  updateOrderStatus,
-  getAvailableStatuses,
   renderStatusSteps,
   formatItemOptions,
   formatBarcodeNumber,
@@ -17,8 +15,8 @@ import {
 const params = new URLSearchParams(window.location.search);
 const orderId = Number(params.get("id"));
 
-function render() {
-  const order = getOrderById(orderId);
+async function render() {
+  const order = await getOrderById(orderId);
   const container = document.getElementById("order-detail");
 
   if (!order) {
@@ -99,14 +97,14 @@ function render() {
     </div>
   `;
 
-  document.getElementById("status-select").addEventListener("change", (event) => {
-    updateOrderStatus(orderId, event.target.value);
+  document.getElementById("status-select").addEventListener("change", async (event) => {
+    await updateOrderStatus(orderId, event.target.value);
     render();
   });
 
   const verifyBtn = document.getElementById("barcode-verify-btn");
   if (verifyBtn) {
-    verifyBtn.addEventListener("click", () => {
+    verifyBtn.addEventListener("click", async () => {
       const input = document.getElementById("barcode-verify-input").value.trim();
       const normalized = input.replace(/^BC-0*/i, "") || input;
       const matches = Number(normalized) === order.barcodeNumber || input === formatBarcodeNumber(order.barcodeNumber);
@@ -118,7 +116,7 @@ function render() {
         return;
       }
 
-      updateOrderStatus(orderId, "수령완료");
+      await updateOrderStatus(orderId, "수령완료");
       render();
     });
   }

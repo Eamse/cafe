@@ -39,4 +39,4 @@ async function render() {
 render();
 renderCartBadge();
 initThemeToggle();
-renderAuthNav();
+await renderAuthNav();

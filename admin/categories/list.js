@@ -1,5 +1,5 @@
 import { initAdminGuard } from "../../js/auth.js";
-initAdminGuard();
+await initAdminGuard();
 import { getCategories, createCategory, renameCategory, deleteCategory, getMenus } from "../../js/data.js";
 import { escapeHtml, generateId } from "../../js/utils.js";
 

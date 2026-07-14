@@ -1,23 +1,15 @@
 import { initAdminGuard } from "../../js/auth.js";
-initAdminGuard();
-import {
-  formatPrice,
-  formatDate,
-  escapeHtml,
-  getOrders,
-  updateOrderStatus,
-  ORDER_STATUSES,
-  getAvailableStatuses,
-  formatDineType,
-  formatPaymentMethod,
-} from "../../js/utils.js";
+await initAdminGuard();
+import { getOrders, updateOrderStatus, ORDER_STATUSES, getAvailableStatuses } from "../../js/data.js";
+import { formatPrice, formatDate, escapeHtml, formatDineType, formatPaymentMethod } from "../../js/utils.js";
 
 let activeStatus = "all";
 let searchQuery = "";
 const selectedIds = new Set();
+let ordersCache = [];
 
 function getFilteredOrders() {
-  const orders = getOrders().slice().reverse();
+  const orders = ordersCache.slice().reverse();
   let filtered = activeStatus === "all" ? orders : orders.filter((o) => o.status === activeStatus);
 
   const query = searchQuery.trim().toLowerCase();
@@ -94,7 +86,6 @@ function updateSelectAllCheckboxState(total) {
 
 function renderList() {
   const listEl = document.getElementById("admin-order-list");
-  const orders = getOrders();
   const filtered = getFilteredOrders();
 
   // 필터를 바꿔서 화면에 없는 주문의 선택 상태는 정리한다.
@@ -105,7 +96,7 @@ function renderList() {
 
   if (filtered.length === 0) {
     listEl.innerHTML = `<p class="empty-state">${searchQuery.trim() ? "검색 결과가 없습니다." : "주문이 없습니다."}</p>`;
-    renderBulkBar(orders);
+    renderBulkBar(ordersCache);
     updateSelectAllCheckboxState(0);
     return;
   }
@@ -144,9 +135,10 @@ function renderList() {
     .join("");
 
   listEl.querySelectorAll(".status-select").forEach((select) => {
-    select.addEventListener("change", () => {
-      updateOrderStatus(Number(select.dataset.id), select.value);
-      renderList();
+    select.addEventListener("change", async () => {
+      select.disabled = true;
+      await updateOrderStatus(Number(select.dataset.id), select.value);
+      await refresh();
     });
   });
 
@@ -159,8 +151,13 @@ function renderList() {
     });
   });
 
-  renderBulkBar(orders);
+  renderBulkBar(ordersCache);
   updateSelectAllCheckboxState(filtered.length);
+}
+
+async function refresh() {
+  ordersCache = await getOrders();
+  renderList();
 }
 
 document.getElementById("select-all-checkbox").addEventListener("change", (event) => {
@@ -183,15 +180,15 @@ document.getElementById("bulk-clear-btn").addEventListener("click", () => {
   renderList();
 });
 
-document.getElementById("bulk-apply-btn").addEventListener("click", () => {
+document.getElementById("bulk-apply-btn").addEventListener("click", async () => {
   if (selectedIds.size === 0) return;
   const status = document.getElementById("bulk-status-select").value;
   if (!confirm(`선택한 ${selectedIds.size}건을 "${status}" 상태로 한 번에 변경할까요?`)) return;
 
-  selectedIds.forEach((id) => updateOrderStatus(id, status));
+  await Promise.all([...selectedIds].map((id) => updateOrderStatus(id, status)));
   selectedIds.clear();
-  renderList();
+  await refresh();
 });
 
 renderTabs();
-renderList();
+refresh();

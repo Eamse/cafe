@@ -4,6 +4,7 @@
    ========================================================================== */
 
 import { supabase } from "./supabaseClient.js";
+import { getLastRecipientInfo } from "./utils.js";
 
 function mapCategoryRow(row) {
   return { id: row.id, name: row.name };
@@ -265,4 +266,153 @@ export async function updateEvent(eventId, patch) {
 export async function deleteEvent(eventId) {
   const { error } = await supabase.from("events").delete().eq("id", eventId);
   if (error) throw error;
+}
+
+/* ==========================================================================
+   주문 — 로그인 고객은 본인 주문만, 관리자는 전체를 볼 수 있다(RLS).
+   비회원 주문은 로그인 세션이 없어 주문번호를 아는 사람이면 조회 가능(데모 수준
+   트레이드오프 — 전화번호로 재조회하려면 getGuestOrder를 쓴다).
+   ========================================================================== */
+
+export const ORDER_STATUSES = ["주문완료", "조리중", "수령완료", "취소"];
+
+function mapOrderRow(row) {
+  return {
+    id: row.id,
+    createdAt: row.created_at,
+    items: (row.order_items || [])
+      .slice()
+      .sort((a, b) => a.id - b.id)
+      .map((i) => ({ menuId: i.menu_id, name: i.name, price: i.price, quantity: i.quantity, temp: i.temp, size: i.size })),
+    total: row.total,
+    status: row.status,
+    note: row.note || "",
+    recipient: { name: row.recipient_name, phone: row.recipient_phone, address: row.recipient_address || "" },
+    deliveryType: row.delivery_type,
+    dineType: row.dine_type,
+    paymentMethod: row.payment_method,
+    barcodeNumber: row.barcode_number,
+    cancelReason: row.cancel_reason,
+  };
+}
+
+// 관리자는 전체 주문, 로그인 고객은 본인 주문만 돌아온다(RLS가 알아서 걸러줌).
+// 비회원은 세션이 없어 RLS로 "본인 것"을 가릴 수 없으므로, 마지막으로 입력한
+// 연락처(주문 시 저장됨)로 본인 확인된 주문만 서버 함수로 조회한다.
+export async function getOrders() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session) {
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*, order_items(*)")
+      .order("created_at", { ascending: true });
+    if (error) {
+      console.error(error);
+      return [];
+    }
+    return data.map(mapOrderRow);
+  }
+
+  const phone = getLastRecipientInfo()?.phone;
+  if (!phone) return [];
+  const { data, error } = await supabase.rpc("get_guest_orders_by_phone", { p_phone: phone });
+  if (error || !data) return [];
+  return data.map((row) => mapOrderRow({ ...row, order_items: row.items }));
+}
+
+export async function getOrderById(orderId) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session) {
+    const { data, error } = await supabase.from("orders").select("*, order_items(*)").eq("id", orderId).maybeSingle();
+    if (error || !data) return null;
+    return mapOrderRow(data);
+  }
+
+  const phone = getLastRecipientInfo()?.phone;
+  if (!phone) return null;
+  return getGuestOrder(orderId, phone);
+}
+
+// 전화번호로 본인 확인 후 비회원 주문 하나를 조회.
+export async function getGuestOrder(orderId, phone) {
+  const { data, error } = await supabase.rpc("get_guest_order_full", { p_order_id: orderId, p_phone: phone });
+  if (error || !data) return null;
+  return mapOrderRow({ ...data, order_items: data.items });
+}
+
+// 매장 수령이면 픽업 바코드까지 함께 발급해서 주문을 생성한다.
+// 서버 함수(create_order)로 처리한다 — 방금 만든 주문을 곧바로 select()로
+// 돌려받아야 하는데, 비회원 주문은 일부러 SELECT 정책을 열어두지 않아서
+// (전체 노출 방지) 일반 insert().select()로는 RLS에 막힌다.
+export async function createOrder({ items, total, note, recipient, deliveryType, dineType, paymentMethod }) {
+  const { data: orderId, error } = await supabase.rpc("create_order", {
+    p_items: items.map((item) => ({
+      menuId: item.menuId,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      temp: item.temp,
+      size: item.size,
+    })),
+    p_total: total,
+    p_note: note,
+    p_recipient_name: recipient.name,
+    p_recipient_phone: recipient.phone,
+    p_recipient_address: recipient.address || null,
+    p_delivery_type: deliveryType,
+    p_dine_type: dineType,
+    p_payment_method: paymentMethod,
+  });
+  if (error) throw error;
+  return orderId;
+}
+
+export async function updateOrderStatus(orderId, status) {
+  const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
+  if (error) throw error;
+}
+
+// 취소는 오직 "주문완료" 상태에서만 허용한다 — 관리자가 이미 조리를 시작한
+// (또는 그 이후로 넘긴) 주문은 여기서도 다시 한번 막아서, 취소 버튼이 그려진
+// 뒤 화면을 새로고침하지 않은 채로 눌러도 실제로는 취소되지 않도록 한다.
+export async function cancelOrderWithReason(orderId, reason) {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    const phone = getLastRecipientInfo()?.phone;
+    if (!phone) return { ok: false };
+    const { data, error } = await supabase.rpc("guest_cancel_order", {
+      p_order_id: orderId,
+      p_phone: phone,
+      p_reason: reason,
+    });
+    return { ok: !error && data === true };
+  }
+
+  const { data, error } = await supabase
+    .from("orders")
+    .update({ status: "취소", cancel_reason: reason })
+    .eq("id", orderId)
+    .eq("status", "주문완료")
+    .select()
+    .maybeSingle();
+  if (error || !data) return { ok: false };
+  return { ok: true };
+}
+
+// 관리자가 주문을 "수락"(주문완료 → 조리중 이상으로 진행)하면 더 이상 취소를
+// 선택할 수 없도록, 현재 상태 기준으로 고를 수 있는 상태 목록만 반환한다.
+export function getAvailableStatuses(currentStatus) {
+  const allowed =
+    currentStatus === "주문완료" ? ORDER_STATUSES : ORDER_STATUSES.filter((status) => status !== "취소");
+  if (!allowed.includes(currentStatus)) allowed.push(currentStatus);
+  return allowed;
 }
