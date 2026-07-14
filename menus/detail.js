@@ -11,6 +11,7 @@ import {
   lazyLoadBackgroundImages,
   showToast,
   initThemeToggle,
+  initMobileNavToggle,
   getMenuUnitPrice,
 } from "../js/utils.js";
 import { openCartPanel } from "../js/cartPanel.js";
@@ -236,6 +237,7 @@ async function init() {
   renderMenuDetail();
   renderCartBadge();
   initThemeToggle();
+  initMobileNavToggle();
   await renderAuthNav();
 }
 

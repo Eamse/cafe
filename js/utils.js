@@ -484,6 +484,29 @@ export function initThemeToggle(buttonId = 'theme-toggle-btn') {
   });
 }
 
+// 좁은 화면(≤928px)에서는 헤더의 nav/actions가 줄바꿈되며 지저분해지므로,
+// 햄버거 토글 버튼 하나로 감춰뒀다가 눌렀을 때만 드롭다운으로 펼친다.
+// 버튼(.nav-toggle-btn)이 없는 헤더(예: 로그인 페이지)에서는 아무것도 하지 않는다.
+export function initMobileNavToggle(buttonId = 'nav-toggle-btn') {
+  const btn = document.getElementById(buttonId);
+  if (!btn) return;
+
+  const header = btn.closest('header');
+  if (!header) return;
+
+  btn.addEventListener('click', () => {
+    const isOpen = header.classList.toggle('is-nav-open');
+    btn.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!header.classList.contains('is-nav-open')) return;
+    if (header.contains(e.target)) return;
+    header.classList.remove('is-nav-open');
+    btn.setAttribute('aria-expanded', 'false');
+  });
+}
+
 /* ---------- 최근 검색어 ---------- */
 
 const RECENT_SEARCHES_KEY = 'cafe_recent_searches';

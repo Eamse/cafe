@@ -21,6 +21,7 @@ import {
   getNickname,
   saveNickname,
   initThemeToggle,
+  initMobileNavToggle,
   appPath,
 } from "../js/utils.js";
 
@@ -276,6 +277,7 @@ async function init() {
   renderRecentOrders(orders);
   renderCartBadge();
   initThemeToggle();
+  initMobileNavToggle();
   renderAuthNav();
   initTabs();
   initAddressForm();

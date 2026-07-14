@@ -9,6 +9,7 @@ import {
   estimatePickupMinutes,
   showToast,
   initThemeToggle,
+  initMobileNavToggle,
 } from "../js/utils.js";
 
 function renderRecentOrderWidget(menus, orders) {
@@ -140,6 +141,7 @@ async function init() {
   renderRecentOrderWidget(menus, orders);
   renderCartBadge();
   initThemeToggle();
+  initMobileNavToggle();
   await renderAuthNav();
 }
 

@@ -16,7 +16,7 @@ body.cart-panel-open {
 /* 패널이 화면 전체 폭(100vw)을 덮는 좁은 화면에서는 본문을 옆으로 밀어내면
    남는 폭이 거의 0이 되어 글자가 세로로 깨진다. 이럴 땐 밀어내는 대신
    스크롤만 잠근다(패널이 어차피 전체를 덮으므로 밀어낼 필요가 없다). */
-@media (max-width: 480px) {
+@media (max-width: 928px) {
   body.cart-panel-open {
     margin-right: 0;
     overflow: hidden;
@@ -62,7 +62,7 @@ body.cart-panel-open {
 /* 좁은 화면에서는 화면 전체를 덮는 옆으로 슬라이드되는 패널 대신, 화면
    가운데 뜨는 모달 카드로 보여준다 — 옆에서 밀고 들어오는 방식은 모바일
    에서는 어색하고, 뒤 화면이 안 보이니 클릭도 막아야 자연스럽다. */
-@media (max-width: 480px) {
+@media (max-width: 928px) {
   .cart-panel-overlay {
     display: flex;
     align-items: flex-end;

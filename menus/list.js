@@ -13,6 +13,7 @@ import {
   lazyLoadBackgroundImages,
   showToast,
   initThemeToggle,
+  initMobileNavToggle,
 } from "../js/utils.js";
 import { openCartPanel } from "../js/cartPanel.js";
 
@@ -373,6 +374,7 @@ async function init() {
 
   applyInitialFilterState();
   initThemeToggle();
+  initMobileNavToggle();
   await renderAuthNav();
   renderCartBadge();
   renderRecentOrderWidget();

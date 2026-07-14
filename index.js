@@ -11,6 +11,7 @@ import {
   removeRecentSearch,
   lazyLoadBackgroundImages,
   initThemeToggle,
+  initMobileNavToggle,
   isOrderReadyForPickup,
   isEventEnded,
 } from "./js/utils.js";
@@ -593,6 +594,7 @@ async function init() {
   applyInitialFilterState();
   initHeroSlider();
   initThemeToggle();
+  initMobileNavToggle();
   await renderAuthNav();
   renderCartBadge();
   renderRecentlyViewedWidget();

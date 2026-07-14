@@ -10,6 +10,7 @@ import {
   getPickupEstimateRange,
   showToast,
   initThemeToggle,
+  initMobileNavToggle,
   formatItemOptions,
   formatBarcodeNumber,
   renderBarcodeBarsHtml,
@@ -218,6 +219,7 @@ async function init() {
   await renderDetail(menus);
   renderCartBadge();
   initThemeToggle();
+  initMobileNavToggle();
   await renderAuthNav();
 }
 

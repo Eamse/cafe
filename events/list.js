@@ -1,6 +1,6 @@
 import { getEvents } from "../js/data.js";
 import { renderAuthNav } from "../js/auth.js";
-import { escapeHtml, renderCartBadge, initThemeToggle, isEventEnded } from "../js/utils.js";
+import { escapeHtml, renderCartBadge, initThemeToggle, initMobileNavToggle, isEventEnded } from "../js/utils.js";
 
 async function render() {
   const listEl = document.getElementById("event-list");
@@ -39,4 +39,5 @@ async function render() {
 render();
 renderCartBadge();
 initThemeToggle();
+initMobileNavToggle();
 await renderAuthNav();

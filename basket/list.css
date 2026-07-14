@@ -52,16 +52,49 @@ body {
   box-shadow: var(--shadow-md);
 }
 
-@media (max-width: 480px) {
+.basket-header h1 {
+  font-size: var(--font-size-xl);
+  color: var(--color-accent);
+}
+
+.nav-toggle-btn {
+  display: none;
+}
+
+@media (max-width: 928px) {
   .basket-header {
     height: auto;
     padding: var(--spacing-sm) var(--spacing-md);
   }
-}
 
-.basket-header h1 {
-  font-size: var(--font-size-xl);
-  color: var(--color-accent);
+  .nav-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin-left: auto;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text);
+    font-size: 1.1rem;
+  }
+
+  .basket-header .home-nav,
+  .basket-header .header-actions {
+    display: none;
+    width: 100%;
+  }
+
+  .basket-header.is-nav-open .home-nav,
+  .basket-header.is-nav-open .header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+  }
 }
 
 .home-nav {

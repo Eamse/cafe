@@ -12,6 +12,7 @@ import {
   getLastRecipientInfo,
   saveLastRecipientInfo,
   initThemeToggle,
+  initMobileNavToggle,
   getCartLineKey,
   getMenuUnitPrice,
   formatItemOptions,
@@ -271,4 +272,5 @@ updateDeliveryTypeUI();
 fillRecipientInfo();
 renderBasket();
 initThemeToggle();
+initMobileNavToggle();
 await renderAuthNav();
