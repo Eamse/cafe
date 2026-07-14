@@ -12,8 +12,6 @@ import {
   getFrequentlyBoughtWith,
   showToast,
   getMenuUnitPrice,
-  getEffectiveUnitPrice,
-  cartHasDrink,
   formatItemOptions,
 } from "./utils.js";
 
@@ -170,14 +168,13 @@ async function renderSummary(basketHref) {
   }
 
   const menus = await getMenus();
-  const hasDrink = cartHasDrink(cart, menus);
   let total = 0;
 
   const rows = cart
     .map((item) => {
       const menu = menus.find((m) => m.id === item.menuId);
       if (!menu) return "";
-      const unitPrice = getEffectiveUnitPrice(menu, item, hasDrink);
+      const unitPrice = getMenuUnitPrice(menu, item);
       total += unitPrice * item.quantity;
       const optionLabel = formatItemOptions(item);
       return `

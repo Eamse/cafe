@@ -14,8 +14,6 @@ import {
   initThemeToggle,
   getCartLineKey,
   getMenuUnitPrice,
-  getEffectiveUnitPrice,
-  cartHasDrink,
   formatItemOptions,
   appPath,
 } from "../js/utils.js";
@@ -43,10 +41,8 @@ async function renderBasket() {
   }
 
   const menus = await getMenus();
-  const hasDrink = cartHasDrink(cart, menus);
   let total = 0;
   let totalQuantity = 0;
-  let totalDessertDiscount = 0;
   let hasSoldOutItem = false;
 
   listEl.innerHTML = cart
@@ -55,11 +51,8 @@ async function renderBasket() {
       if (!menu) return "";
 
       const unitPrice = getMenuUnitPrice(menu, item);
-      const effectiveUnitPrice = getEffectiveUnitPrice(menu, item, hasDrink);
-      const discountPerUnit = unitPrice - effectiveUnitPrice;
-      const subtotal = effectiveUnitPrice * item.quantity;
+      const subtotal = unitPrice * item.quantity;
       total += subtotal;
-      totalDessertDiscount += discountPerUnit * item.quantity;
       if (!menu.isSoldOut) totalQuantity += item.quantity;
       if (menu.isSoldOut) hasSoldOutItem = true;
 
@@ -74,7 +67,6 @@ async function renderBasket() {
               ${menu.isSoldOut ? `<span class="item-soldout-tag">품절</span>` : ""}
             </div>
             ${options ? `<div class="item-options">${escapeHtml(options)}</div>` : ""}
-            ${discountPerUnit > 0 ? `<div class="item-discount-tag">음료와 함께 담아 ${formatPrice(discountPerUnit)} 할인</div>` : ""}
             <div class="item-qty-control">
               <button type="button" data-action="decrease" data-key="${escapeHtml(lineKey)}" aria-label="수량 감소" ${menu.isSoldOut ? "disabled" : ""}>-</button>
               <span>${item.quantity}</span>
@@ -88,10 +80,7 @@ async function renderBasket() {
     })
     .join("");
 
-  totalEl.innerHTML =
-    totalDessertDiscount > 0
-      ? `<span class="basket-discount-line">디저트 할인 -${formatPrice(totalDessertDiscount)}</span>총 금액: ${formatPrice(total)}`
-      : `총 금액: ${formatPrice(total)}`;
+  totalEl.textContent = `총 금액: ${formatPrice(total)}`;
 
   if (totalQuantity > 0) {
     pickupEl.hidden = false;
@@ -205,7 +194,6 @@ async function handleCheckout() {
   checkoutBtn.disabled = true;
 
   const menus = await getMenus();
-  const hasDrink = cartHasDrink(cart, menus);
   const items = cart
     .map((item) => {
       const menu = menus.find((m) => m.id === item.menuId);
@@ -213,7 +201,7 @@ async function handleCheckout() {
       return {
         menuId: menu.id,
         name: menu.name,
-        price: getEffectiveUnitPrice(menu, item, hasDrink),
+        price: getMenuUnitPrice(menu, item),
         quantity: item.quantity,
         temp: item.temp || null,
         size: item.size || null,

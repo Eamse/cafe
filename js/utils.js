@@ -246,22 +246,6 @@ export function getMenuUnitPrice(menu, options = {}) {
   return menu.price + upcharge;
 }
 
-export const DESSERT_DRINK_DISCOUNT = 500;
-
-// "디저트 + 음료를 같은 장바구니에 담으면 디저트를 500원 할인" 규칙의 판정 기준.
-// 카테고리 체계가 coffee/tea/ade/dessert 뿐이라 "dessert가 아니면 음료"로 본다
-// (어드민이 새 카테고리를 추가해도 디저트로 지정하지 않는 한 음료 취급).
-export function isDessertMenu(menu) {
-  return menu.categoryId === 'dessert';
-}
-
-export function cartHasDrink(cart, menus) {
-  return cart.some((item) => {
-    const menu = menus.find((m) => m.id === item.menuId);
-    return menu && !isDessertMenu(menu);
-  });
-}
-
 const TEMP_OPTION_LABEL = { ICE: '아이스', HOT: '핫' };
 const SIZE_OPTION_LABEL = { REGULAR: '레귤러', LARGE: '라지' };
 const DINE_TYPE_LABEL = { takeout: '포장(테이크아웃)', 'eat-in': '매장에서 먹고 가기' };
@@ -284,16 +268,6 @@ export function formatItemOptions(item) {
   if (item.temp) parts.push(TEMP_OPTION_LABEL[item.temp] || item.temp);
   if (item.size) parts.push(SIZE_OPTION_LABEL[item.size] || item.size);
   return parts.join(' · ');
-}
-
-// 장바구니 한 줄(cart item)의 실제 결제 단가 — 사이즈 업차지 반영 후,
-// 디저트+음료 동시 주문 할인까지 뺀 값(0원 밑으로는 내려가지 않음).
-export function getEffectiveUnitPrice(menu, item, hasDrinkInCart) {
-  const unitPrice = getMenuUnitPrice(menu, item);
-  if (isDessertMenu(menu) && hasDrinkInCart) {
-    return Math.max(0, unitPrice - DESSERT_DRINK_DISCOUNT);
-  }
-  return unitPrice;
 }
 
 export function clearCart() {
