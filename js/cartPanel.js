@@ -59,6 +59,9 @@ let topOrderBtnEl;
 let escHandler;
 let trapHandler;
 let lastFocusedEl;
+// 패널에 열려있는 칸들 중 아직 "장바구니 담기"를 누르지 않은 것들을 추적한다.
+// "바로 주문하기"를 누르면 이 목록을 순회하며 전부 장바구니에 담은 뒤 이동한다.
+let openEntries = [];
 
 function getFocusableEls() {
   return Array.from(
@@ -78,7 +81,7 @@ function ensurePanel() {
         <span class="cart-panel-top-order-icon">🛍️</span>
         <span class="cart-panel-top-order-text">
           <span class="cart-panel-top-order-title">바로 주문하기</span>
-          <span class="cart-panel-top-order-sub">담은 메뉴 보러 가기</span>
+          <span class="cart-panel-top-order-sub">지금 고른 메뉴도 담아서 이동</span>
         </span>
         <span class="cart-panel-top-order-arrow">→</span>
       </a>
@@ -94,6 +97,17 @@ function ensurePanel() {
   topOrderBtnEl = overlayEl.querySelector(".cart-panel-top-order-btn");
 
   overlayEl.querySelector(".cart-panel-close").addEventListener("click", closeCartPanel);
+
+  topOrderBtnEl.addEventListener("click", (e) => {
+    e.preventDefault();
+    openEntries.forEach(({ menu, entry, addBtn }) => {
+      if (addBtn.disabled) return;
+      addToCart(menu.id, entry.quantity, { temp: entry.temp, size: entry.size });
+      markAsAdded(addBtn);
+    });
+    window.dispatchEvent(new CustomEvent("cart:updated"));
+    window.location.href = topOrderBtnEl.href;
+  });
 }
 
 // 한 번 담은 칸은 계속 눌러도 또 담기지 않도록 영구히 잠근다(수량을 더
@@ -177,6 +191,7 @@ export function closeCartPanel() {
   document.removeEventListener("keydown", escHandler);
   document.removeEventListener("keydown", trapHandler);
   bodyEl.innerHTML = "";
+  openEntries = [];
   if (lastFocusedEl) lastFocusedEl.focus();
 }
 
@@ -215,6 +230,7 @@ export async function openCartPanel(menu, categoryName, basketHref = "basket/lis
   bodyEl.prepend(itemEl);
 
   itemEl.querySelector(".cart-panel-remove-btn").addEventListener("click", () => {
+    openEntries = openEntries.filter((e) => e.itemEl !== itemEl);
     itemEl.remove();
   });
 
@@ -227,6 +243,7 @@ export async function openCartPanel(menu, categoryName, basketHref = "basket/lis
       temp: menu.hasTempOption ? "ICE" : null,
       size: menu.hasSizeOption ? "REGULAR" : null,
     };
+    openEntries.push({ itemEl, menu, entry, addBtn });
 
     const updatePriceDisplay = () => {
       priceEl.textContent = formatPrice(getMenuUnitPrice(menu, entry));
