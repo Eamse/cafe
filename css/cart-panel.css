@@ -59,6 +59,40 @@ body.cart-panel-open {
   transform: translateX(0);
 }
 
+/* 좁은 화면에서는 화면 전체를 덮는 옆으로 슬라이드되는 패널 대신, 화면
+   가운데 뜨는 모달 카드로 보여준다 — 옆에서 밀고 들어오는 방식은 모바일
+   에서는 어색하고, 뒤 화면이 안 보이니 클릭도 막아야 자연스럽다. */
+@media (max-width: 480px) {
+  .cart-panel-overlay {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgba(20, 14, 10, 0.55);
+    pointer-events: none;
+  }
+
+  .cart-panel-overlay.is-open {
+    pointer-events: auto;
+  }
+
+  .cart-panel {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    max-height: 88vh;
+    border-left: none;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: var(--spacing-lg) var(--spacing-md);
+    transform: translateY(100%);
+    transition: transform var(--transition-base);
+  }
+
+  .cart-panel-overlay.is-open .cart-panel {
+    transform: translateY(0);
+  }
+}
+
 .cart-panel-close {
   position: absolute;
   top: var(--spacing-md);

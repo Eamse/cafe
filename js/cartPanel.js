@@ -108,6 +108,12 @@ function ensurePanel() {
 
   overlayEl.querySelector(".cart-panel-close").addEventListener("click", closeCartPanel);
 
+  // 모바일에서는 오버레이가 배경을 어둡게 덮고 클릭도 막으므로, 패널 바깥
+  // (어두운 배경)을 누르면 모달을 닫을 수 있게 한다.
+  overlayEl.addEventListener("click", (e) => {
+    if (e.target === overlayEl) closeCartPanel();
+  });
+
   topOrderBtnEl.addEventListener("click", (e) => {
     e.preventDefault();
     openEntries.forEach(({ menu, entry, addBtn }) => {
