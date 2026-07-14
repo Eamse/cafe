@@ -11,7 +11,7 @@
 }
 
 .admin-form-page {
-  max-width: 560px;
+  max-width: 660px;
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-md);
 }
@@ -123,7 +123,7 @@
 }
 
 .image-preview.is-broken::after {
-  content: "이미지를 불러올 수 없어요";
+  content: '이미지를 불러올 수 없어요';
   position: absolute;
   inset: 0;
   display: flex;

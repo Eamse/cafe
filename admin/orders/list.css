@@ -109,6 +109,7 @@
 .bulk-action-bar .status-select {
   background: var(--color-cream-100);
   border-color: var(--color-cream-100);
+  color: #000;
 }
 
 .btn-bulk-apply,
