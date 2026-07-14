@@ -55,6 +55,7 @@ function renderOptionPickerHtml(menu) {
 let overlayEl;
 let bodyEl;
 let summaryEl;
+let topOrderBtnEl;
 let escHandler;
 let trapHandler;
 let lastFocusedEl;
@@ -73,6 +74,7 @@ function ensurePanel() {
   overlayEl.innerHTML = `
     <aside class="cart-panel" role="dialog" aria-modal="true" aria-label="메뉴 담기">
       <button type="button" class="cart-panel-close" aria-label="닫기">✕</button>
+      <a class="cart-panel-top-order-btn" href="basket/list.html">바로 주문하기 →</a>
       <p class="cart-panel-hint">같은 메뉴도 다시 누르면 새 칸이 열려서, 온도/사이즈를 다르게 골라 따로따로 담을 수 있어요.</p>
       <div class="cart-panel-body"></div>
       <div class="cart-panel-summary"></div>
@@ -82,6 +84,7 @@ function ensurePanel() {
 
   bodyEl = overlayEl.querySelector(".cart-panel-body");
   summaryEl = overlayEl.querySelector(".cart-panel-summary");
+  topOrderBtnEl = overlayEl.querySelector(".cart-panel-top-order-btn");
 
   overlayEl.querySelector(".cart-panel-close").addEventListener("click", closeCartPanel);
 }
@@ -175,6 +178,7 @@ export function closeCartPanel() {
 // 담아야 하는 경우가 흔해서, 한 칸을 재사용하면 옵션을 헷갈리기 쉽다.
 export async function openCartPanel(menu, categoryName, basketHref = "basket/list.html") {
   ensurePanel();
+  topOrderBtnEl.href = basketHref;
 
   const [allMenus, orders] = await Promise.all([getMenus(), getOrders()]);
   const itemEl = document.createElement("div");

@@ -66,6 +66,24 @@ body.cart-panel-open {
   background: var(--color-border);
 }
 
+.cart-panel-top-order-btn {
+  display: block;
+  margin-right: 48px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: var(--color-cream-100);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  transition: var(--transition-fast);
+}
+
+.cart-panel-top-order-btn:hover {
+  background: var(--color-accent-hover);
+  color: var(--color-cream-100);
+}
+
 .cart-panel-content {
   position: relative;
   margin-top: var(--spacing-xl);
