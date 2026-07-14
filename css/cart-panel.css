@@ -430,7 +430,7 @@ body.cart-panel-open {
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-text-muted);
-  margin-bottom: var(--spacing-md);
+  margin: 20px;
 }
 
 .cart-panel-summary-list {
@@ -450,6 +450,11 @@ body.cart-panel-open {
 
 .cart-panel-summary-name {
   color: var(--color-text);
+}
+
+.cart-panel-summary-options {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
 }
 
 .cart-panel-summary-price {

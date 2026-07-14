@@ -14,6 +14,7 @@ import {
   getMenuUnitPrice,
   getEffectiveUnitPrice,
   cartHasDrink,
+  formatItemOptions,
 } from "./utils.js";
 
 const RECOMMEND_COUNT = 2;
@@ -178,9 +179,10 @@ async function renderSummary(basketHref) {
       if (!menu) return "";
       const unitPrice = getEffectiveUnitPrice(menu, item, hasDrink);
       total += unitPrice * item.quantity;
+      const optionLabel = formatItemOptions(item);
       return `
         <li>
-          <span class="cart-panel-summary-name">${escapeHtml(menu.name)} × ${item.quantity}</span>
+          <span class="cart-panel-summary-name">${escapeHtml(menu.name)} × ${item.quantity}${optionLabel ? ` <span class="cart-panel-summary-options">(${escapeHtml(optionLabel)})</span>` : ""}</span>
           <span class="cart-panel-summary-price">${formatPrice(unitPrice * item.quantity)}</span>
         </li>
       `;
