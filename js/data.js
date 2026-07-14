@@ -3,8 +3,15 @@
    직접 읽고 쓴다. 모든 조회/저장 함수는 비동기(Promise)다.
    ========================================================================== */
 
-import { supabase } from "./supabaseClient.js";
+import { supabase as customerClient } from "./supabaseClient.js";
+import { supabaseAdmin } from "./supabaseAdminClient.js";
 import { getLastRecipientInfo } from "./utils.js";
+
+// 관리자 페이지(/admin/*)에서 호출되면 관리자 세션이 실린 클라이언트를,
+// 고객 페이지에서 호출되면 고객 세션이 실린 클라이언트를 쓴다. 이 파일의
+// 함수들은 양쪽에서 공유해 쓰기 때문에, RLS가 올바른 세션으로 통과하려면
+// 요청이 실제로 로그인된 세션과 같은 클라이언트를 타야 한다.
+const supabase = window.location.pathname.includes("/admin/") ? supabaseAdmin : customerClient;
 
 function mapCategoryRow(row) {
   return { id: row.id, name: row.name };

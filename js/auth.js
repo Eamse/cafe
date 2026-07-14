@@ -5,6 +5,7 @@
    ========================================================================== */
 
 import { supabase } from "./supabaseClient.js";
+import { supabaseAdmin } from "./supabaseAdminClient.js";
 import { escapeHtml, appPath } from "./utils.js";
 
 function humanizeAuthError(error) {
@@ -141,28 +142,32 @@ export async function setDefaultAddress(addressId) {
 /* ---------- 어드민 로그인 (같은 Auth, admin_accounts에 등록된 사람만) ---------- */
 
 export async function loginAdmin(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabaseAdmin.auth.signInWithPassword({ email, password });
   if (error) return { ok: false, error: "이메일 또는 비밀번호가 올바르지 않아요." };
 
-  const { data: adminRow } = await supabase.from("admin_accounts").select("*").eq("id", data.user.id).maybeSingle();
+  const { data: adminRow } = await supabaseAdmin
+    .from("admin_accounts")
+    .select("*")
+    .eq("id", data.user.id)
+    .maybeSingle();
   if (!adminRow) {
-    await supabase.auth.signOut();
+    await supabaseAdmin.auth.signOut();
     return { ok: false, error: "관리자 계정이 아니에요." };
   }
   return { ok: true, admin: adminRow };
 }
 
 export async function logoutAdmin() {
-  await supabase.auth.signOut();
+  await supabaseAdmin.auth.signOut();
 }
 
 export async function getCurrentAdmin() {
   const {
     data: { session },
-  } = await supabase.auth.getSession();
+  } = await supabaseAdmin.auth.getSession();
   if (!session) return null;
 
-  const { data } = await supabase.from("admin_accounts").select("*").eq("id", session.user.id).maybeSingle();
+  const { data } = await supabaseAdmin.from("admin_accounts").select("*").eq("id", session.user.id).maybeSingle();
   if (!data) return null;
   return { id: data.id, email: data.email, name: data.name };
 }
