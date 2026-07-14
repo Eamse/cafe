@@ -63,6 +63,17 @@ let lastFocusedEl;
 // "바로 주문하기"를 누르면 이 목록을 순회하며 전부 장바구니에 담은 뒤 이동한다.
 let openEntries = [];
 
+// 메뉴를 클릭할 때마다 getMenus()/getOrders()를 새로 네트워크로 불러오면
+// 패널이 열릴 때마다 눈에 띄게 느려지므로, 같은 페이지에 머무는 동안은
+// 한 번만 불러온 걸 재사용한다.
+let panelDataPromise = null;
+function loadPanelData() {
+  if (!panelDataPromise) {
+    panelDataPromise = Promise.all([getMenus(), getOrders()]);
+  }
+  return panelDataPromise;
+}
+
 function getFocusableEls() {
   return Array.from(
     overlayEl.querySelectorAll('button:not([disabled]), a[href], input, [tabindex]:not([tabindex="-1"])')
@@ -202,7 +213,7 @@ export async function openCartPanel(menu, categoryName, basketHref = "basket/lis
   ensurePanel();
   topOrderBtnEl.href = basketHref;
 
-  const [allMenus, orders] = await Promise.all([getMenus(), getOrders()]);
+  const [allMenus, orders] = await loadPanelData();
   const itemEl = document.createElement("div");
   itemEl.className = `cart-panel-content cat-${menu.categoryId}`;
   itemEl.innerHTML = `
