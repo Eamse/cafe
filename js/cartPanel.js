@@ -74,8 +74,15 @@ function ensurePanel() {
   overlayEl.innerHTML = `
     <aside class="cart-panel" role="dialog" aria-modal="true" aria-label="메뉴 담기">
       <button type="button" class="cart-panel-close" aria-label="닫기">✕</button>
-      <a class="cart-panel-top-order-btn" href="basket/list.html">바로 주문하기 →</a>
-      <p class="cart-panel-hint">같은 메뉴도 다시 누르면 새 칸이 열려서, 온도/사이즈를 다르게 골라 따로따로 담을 수 있어요.</p>
+      <a class="cart-panel-top-order-btn" href="basket/list.html">
+        <span class="cart-panel-top-order-icon">🛍️</span>
+        <span class="cart-panel-top-order-text">
+          <span class="cart-panel-top-order-title">바로 주문하기</span>
+          <span class="cart-panel-top-order-sub">담은 메뉴 보러 가기</span>
+        </span>
+        <span class="cart-panel-top-order-arrow">→</span>
+      </a>
+      <p class="cart-panel-hint"><span class="cart-panel-hint-icon">💡</span>같은 메뉴도 다시 누르면 새 칸이 열려서, 온도/사이즈를 다르게 골라 따로따로 담을 수 있어요.</p>
       <div class="cart-panel-body"></div>
       <div class="cart-panel-summary"></div>
     </aside>
